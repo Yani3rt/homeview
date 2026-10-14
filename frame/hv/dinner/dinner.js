@@ -17,7 +17,7 @@
     HVJson('/api/meals/random').then(function(a){return HVJson('/api/meals/browse').then(function(b){return (a.results||[]).concat(b.results||[]);});})
       .then(function(list){
         var seen={},picks=[],t=HV.local(),n=t.d;
-        list.forEach(function(r){if(!seen[r.id]){seen[r.id]=1;picks.push(r);}});
+        list.forEach(function(r){if(!seen[r.id]&&!/^(Dessert|Breakfast|Side|Starter)$/.test(r.category||'')){seen[r.id]=1;picks.push(r);}});   // dinner ideas only
         if(picks.length>3){var first=picks.shift(),rest=picks.slice((n*3)%Math.max(1,picks.length-2));picks=[first].concat(rest).slice(0,3);}
         var h='';picks.forEach(function(r){
           h+='<a class="pk" href="/frame/hv/meals/?open='+encodeURIComponent(r.id)+(plan?'&plan='+plan.today:'')+'"><span class="pp" style="background-image:url(\''+esc(img(r.thumb,'medium'))+'\')"></span>'+

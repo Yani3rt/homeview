@@ -38,3 +38,4 @@
 .sg b{color:var(--blue)}
 .sg.on{background:var(--blue);color:#fff}.sg.on b{color:#fff}
 .rail .hv-pill{flex:none}
+.ac a.hv-pill{text-decoration:none}
