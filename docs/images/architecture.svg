@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 420" width="1000" height="420" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif">
+  <rect width="1000" height="420" rx="20" fill="#f4f5f8"/>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8e8e93"/></marker>
+  </defs>
+  <g stroke="#8e8e93" stroke-width="2" fill="none" marker-end="url(#a)" marker-start="url(#a)">
+    <path d="M250 210H380"/>
+    <path d="M620 150L720 70"/>
+    <path d="M620 180L720 140"/>
+    <path d="M620 210H720"/>
+    <path d="M620 240L720 270"/>
+    <path d="M620 270L720 350"/>
+  </g>
+  <g text-anchor="middle" fill="#1d1d1f">
+    <rect x="40" y="130" width="210" height="160" rx="18" fill="#fff" stroke="#d2d2d7"/>
+    <text x="145" y="180" font-size="22" font-weight="700">Frames</text>
+    <text x="145" y="208" font-size="15" fill="#6e6e73">Android 6 WebView</text>
+    <text x="145" y="230" font-size="15" fill="#6e6e73">kiosk browser, full screen</text>
+    <text x="145" y="252" font-size="15" fill="#6e6e73">plain ES5 pages</text>
+    <text x="315" y="198" font-size="13" fill="#6e6e73">HTTP, ETag polling</text>
+
+    <rect x="380" y="100" width="240" height="220" rx="18" fill="#1d1d1f"/>
+    <text x="500" y="160" font-size="24" font-weight="700" fill="#fff">HomeView server</text>
+    <text x="500" y="190" font-size="15" fill="#d2d2d7">Python, server.py</text>
+    <text x="500" y="222" font-size="15" fill="#aeaeb2">serves frame/ pages</text>
+    <text x="500" y="244" font-size="15" fill="#aeaeb2">caches, resizes photos</text>
+    <text x="500" y="266" font-size="15" fill="#aeaeb2">keeps timers, plan, list</text>
+    <text x="500" y="288" font-size="15" fill="#aeaeb2">config.json, data/</text>
+  </g>
+  <g fill="#fff" stroke="#d2d2d7">
+    <rect x="720" y="40" width="240" height="60" rx="14"/><rect x="720" y="110" width="240" height="60" rx="14"/>
+    <rect x="720" y="180" width="240" height="60" rx="14" transform="translate(0,0)"/>
+    <rect x="720" y="250" width="240" height="60" rx="14"/><rect x="720" y="320" width="240" height="60" rx="14"/>
+  </g>
+  <g fill="#1d1d1f" font-size="17" font-weight="600">
+    <text x="740" y="67">Open-Meteo</text><text x="740" y="87" font-size="13" font-weight="400" fill="#6e6e73">weather, air quality</text>
+    <text x="740" y="137">TheMealDB</text><text x="740" y="157" font-size="13" font-weight="400" fill="#6e6e73">recipes, photos</text>
+    <text x="740" y="207">ICS calendars</text><text x="740" y="227" font-size="13" font-weight="400" fill="#6e6e73">Google, iCloud, local files</text>
+    <text x="740" y="277">Sonos speakers</text><text x="740" y="297" font-size="13" font-weight="400" fill="#6e6e73">on your network</text>
+    <text x="740" y="347">Spotify Web API</text><text x="740" y="367" font-size="13" font-weight="400" fill="#6e6e73">search, playlists, Connect</text>
+  </g>
+</svg>

@@ -1,15 +1,34 @@
+<p align="center"><img src="docs/images/hero.jpg" alt="HomeView on three photo frames: the Home screen, the Today screen and a Standby clock" width="100%"></p>
+
 # HomeView
 
-HomeView is a kitchen-wall dashboard for cheap Android photo frames. A small Python server on your
-home network serves a set of web pages; each frame shows them full screen in its browser. The pages
-look like Apple's HomeView: a Home screen of live tiles, a Standby mode with photo and clock faces,
-weather, your calendars, kitchen timers, a dinner planner with a shopping list, and music controls
-for Sonos and Spotify.
+HomeView is a kitchen-wall home screen in the style of Apple's HomeView, for inexpensive Android photo frames: a Home screen of live tiles, Standby clock faces, weather, calendars, dinner planning with a shopping list, and Sonos and Spotify controls.
 
-It has no accounts, no cloud service of its own and no database. Everything that is specific to your
-house lives in one file, `config.json`.
+A small Python server on your home network serves the pages; each frame shows them full screen in its browser. There are no accounts, no cloud service of its own and no database. Everything specific to your house lives in one file, `config.json`.
+
+The screenshots in this README were taken from this repository with its sample data (a made-up calendar, drawn sample photos and a few TheMealDB recipes).
+
+## Features
+
+**Standby faces.** When nobody has touched the frame for a while it switches to Standby and cycles through clock and information faces: photos, Info, Today, This week, Weather, Coming up, Analog, Numerals, Minimal and Month. A Now Playing face takes over while music plays. Tap to go back Home.
+
+![The Standby faces, one after another](docs/images/standby.gif)
+
+**Home, Today, Weather and Calendar.** The Home launcher is a grid of live tiles. Today shows the date, the hourly forecast, the next events, tonight's dinner and the shopping count. Weather and air quality come from Open-Meteo; calendars come from any ICS link, with several calendars in different colors.
+
+**Meal planning.** Browse or search recipes from TheMealDB, plan dinners for the next 7 days, cook from a one-step-per-screen view with one-tap kitchen timers, and get a shopping list that merges the ingredients of every planned dinner. You can add your own items (milk, paper towels) to the list. Timers, the plan and checked-off items are kept on the server, so every frame shows the same thing.
+
+![Meals week, a cook step and the shopping list](docs/images/meals.jpg)
+
+**Music.** Sonos rooms with grouping, volume, queue, favorites, sleep timer and EQ, plus Spotify search, playlists and Spotify Connect. A QR code on the Music screen lets a phone on the same Wi-Fi send a Spotify link to a room. The Music shot above uses the built-in preview data (`?demo=1`, with made-up titles) because the screenshots were taken without Sonos speakers.
+
+**Light and Glass looks, and a Night clock.** Settings picks when to go to Standby, the look, the background and which Standby faces are on. A dim clock shows from 11 PM to 5 AM.
 
 ## Screens
+
+![Home, Today, Weather, Meals, Tonight, Shopping, Music and Settings](docs/images/screens.jpg)
+
+### Every screen and its path
 
 | Screen | Path | What it shows |
 |---|---|---|
@@ -27,11 +46,28 @@ house lives in one file, `config.json`.
 | Night | `/frame/hv/night/` | A dim clock from 11 PM to 5 AM |
 | Settings | `/frame/hv/settings/` | When to go to Standby, the look (Light or Glass), background, Standby faces |
 
-The pages poll the server every few seconds with ETags, so an unchanged answer costs no download.
-Timers, the meal plan and checked-off shopping items are kept on the server, so every frame shows
-the same thing.
+## Quick start
 
-## Hardware notes
+You need Python 3.10 or newer and a device with a browser on the same network. The server was tested on Python 3.14.
+
+```sh
+git clone https://github.com/mcconnellj-Dev/homeview.git
+cd homeview
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+cp config.example.json config.json      # then edit config.json
+.venv/bin/python server.py
+```
+
+Open `http://<server address>:8806/frame/hv/` in any browser to try it, then point the frame's kiosk browser at the same address. The server prints the address it is listening on. Stop it with Control-C. With [uv](https://docs.astral.sh/uv/) you can skip the venv: `uv run --with-requirements requirements.txt python3 server.py`.
+
+The example config works as it is: it has a sample calendar and sample photos, uses TheMealDB's trial key `"1"`, and leaves Sonos and Spotify off. Change `timezone`, `location` and `units` first.
+
+Python packages (`requirements.txt`): Pillow (photo resizing), icalendar and recurring-ical-events (calendars), soco (Sonos), segno (the QR code on the Music screen). The server starts without the optional ones; the screen that needs a missing package says so.
+
+To start the server when the computer starts, use your system's service manager (systemd on Linux, launchd on a Mac). Run `server.py` from the project folder.
+
+## Hardware and why the pages are ES5
 
 - It was built for two frames: a 10-inch at 1280x800 and a 15-inch at 1920x1080. Sizes are in
   `vh`/`vw`, so one page fits both. Any tablet or browser works too.
@@ -44,34 +80,11 @@ the same thing.
 - The server runs anywhere Python 3.10 or newer runs (it was tested on Python 3.14): a Raspberry Pi, a Mac mini, a NAS. It needs to be
   on the same network as the frames, and on the same network as your Sonos speakers if you use them.
 
-## Setup
+## How it fits together
 
-```sh
-git clone <this repository> homeview
-cd homeview
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-cp config.example.json config.json      # then edit config.json
-.venv/bin/python server.py
-```
+![Frames talk to the HomeView server, which talks to Open-Meteo, TheMealDB, ICS calendars, Sonos and Spotify](docs/images/architecture.svg)
 
-Open `http://<server address>:8806/frame/hv/` on the frame. The server prints the address it is
-listening on. Stop it with Control-C.
-
-Python packages (`requirements.txt`): Pillow (photo resizing), icalendar and recurring-ical-events
-(calendars), soco (Sonos), segno (the QR code on the Music screen). The server starts without the
-optional ones; the screen that needs a missing package says so.
-
-To start the server when the computer starts, use your system's service manager (systemd on Linux,
-launchd on a Mac). Run `server.py` from the project folder.
-
-### Tests
-
-```sh
-.venv/bin/python -m unittest discover -p 'test_*.py'
-```
-
-The tests do not use the network: Open-Meteo, TheMealDB, Spotify and Sonos are replaced with fakes.
+The pages poll the server every few seconds with ETags, so an unchanged answer costs no download. The server is the only thing that talks to the outside services, so keys and private calendar links never reach the frames.
 
 ## Configuration (`config.json`)
 
@@ -280,10 +293,24 @@ frame/hv/          the pages (one folder per screen), hv.css, hv.js, DESIGN.md
 frame/shared/      cond.js: JSON polling with ETags
 scripts/           spotify_auth.py, make_sample_photos.py, make_face_thumbs.py
 samples/           sample photos and a sample calendar
+docs/images/       README images
 test_*.py          unittest tests
 ```
 
-## License
+## Tests
 
-MIT. See [LICENSE](LICENSE). Recipe data comes from TheMealDB under its own terms (above);
-weather from Open-Meteo under CC BY 4.0.
+```sh
+.venv/bin/python -m unittest discover -p 'test_*.py'
+```
+
+The tests do not use the network: Open-Meteo, TheMealDB, Spotify and Sonos are replaced with fakes.
+
+
+## License and credits
+
+MIT. See [LICENSE](LICENSE).
+
+- Recipes, ingredients and recipe photos come from [TheMealDB](https://www.themealdb.com) under its own terms (see Meal planning above). HomeView says "Recipes from TheMealDB" on the Meals and Shopping screens.
+- Weather and air quality come from [Open-Meteo](https://open-meteo.com/), licensed CC BY 4.0. The Weather screen credits Open-Meteo.
+- Sonos control uses [SoCo](https://github.com/SoCo/SoCo). The design follows Apple's HomeView, but Apple's fonts and artwork are not included.
+- The sample photos are drawings made by `scripts/make_sample_photos.py`.
