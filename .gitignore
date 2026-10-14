@@ -1,0 +1,15 @@
+# per-house settings and keys: copy config.example.json to config.json
+config.json
+# runtime state: the meal plan, caches, Spotify token
+data/
+# your own photos, wallpapers and fonts
+wallpapers/*
+!wallpapers/README.txt
+fonts/*
+!fonts/README.txt
+/photos/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+*.log

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Photos</title>
+<link rel="stylesheet" href="/frame/hv/hv.css?v=5">
+<link rel="stylesheet" href="/frame/hv/photos/photos.css?v=1">
+</head>
+<body>
+<main class="hv-screen ph">
+  <header class="ph-head">
+    <div><h1 class="hv-title round">Photos</h1><div class="hv-sub tnum" id="sub">Loading</div></div>
+    <div class="ph-tools">
+      <a class="hv-pill primary" id="play" href="/frame/hv/standby/"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>Play slideshow</a>
+    </div>
+  </header>
+  <div class="ph-scroll" id="scroll"><div class="ph-grid" id="grid"></div></div>
+</main>
+
+<div class="ph-view" id="view" hidden>
+  <div class="ph-stage" id="vstage"></div>
+  <button class="ph-nav prev" id="vprev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="ph-nav next" id="vnext" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  <div class="ph-top"><button class="ph-glass" id="vclose">Done</button><div class="ph-count tnum" id="vcount"></div><div class="ph-info" id="vinfo"></div></div>
+  <div class="ph-bar" id="vbar">
+    <button class="ph-glass" id="vstandby">Show on Standby</button>
+  </div>
+</div>
+<script src="/frame/hv/config.js"></script>
+<script src="/frame/shared/cond.js?v=1"></script>
+<script src="/frame/hv/hv.js?v=5"></script>
+<script src="/frame/hv/photos/photos.js?v=3"></script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+/* HomeView look for the frame screens (frame/hv/). Apple's idiom: SF Pro + SF Rounded, light
+   grouped surfaces, system colors, big continuous corners. Separate from shared/ui.css on purpose.
+
+   Old Android WebView (10-inch: WebView 106 on a weak CPU): no backdrop-filter, no 8-digit hex,
+   rgba() only, animate opacity and transform only, nothing smaller than 15 px.
+   Fonts: SF Pro and SF Rounded are not included (Apple's font license does not allow it). If you may use
+   them, put sf-pro.woff2 and sf-rounded.woff2 in fonts_dir (config.json); otherwise the system font is used. */
+
+@font-face{font-family:"HV SF";src:url(/frame/hv/fonts/sf-pro.woff2) format("woff2");font-weight:300 800;font-display:swap}
+@font-face{font-family:"HV SF Rounded";src:url(/frame/hv/fonts/sf-rounded.woff2) format("woff2");font-weight:300 800;font-display:swap}
+
+:root{
+  --sf:"HV SF",-apple-system,system-ui,Roboto,sans-serif;
+  --sfr:"HV SF Rounded","HV SF",-apple-system,system-ui,Roboto,sans-serif;
+
+  /* light (Home, Today, Coming up) */
+  --bg:#f2f2f7;            /* systemGroupedBackground */
+  --card:#ffffff;
+  --fill:#e5e5ea;          /* systemGray5: an "off" tile */
+  --ink:#1d1d1f;
+  --ink-2:#6e6e73;
+  --ink-3:#8e8e93;
+  --sep:rgba(60,60,67,.18);
+
+  /* system colors */
+  --orange:#ff9f0a; --red:#ff3b30; --yellow:#ffd60a; --green:#34c759; --blue:#0a84ff;
+  --lav:#c9c3ea; --lav-ink:#3d3480; --lav-ink-2:#6b62b5;
+  --amber-on:#ffd88a; --amber-ink:#6b4100;
+
+  /* dark surfaces (Standby, Timer, night) */
+  --night:#000000; --night-2:#1c1c1e; --night-3:#2c2c2e; --night-ink:#ffffff; --night-ink-2:rgba(235,235,245,.6);
+
+  --r-xl:34px; --r-lg:26px; --r-md:18px; --r-pill:999px;
+  --tap:64px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden}
+body{font-family:var(--sf);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;
+  letter-spacing:-.01em;user-select:none;-webkit-user-select:none;font-size:20px}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+.round{font-family:var(--sfr)}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* small "back to Standby" + clock chip, top right, on every HV screen */
+.hv-chrome{position:fixed;top:2.3vh;right:1.6vw;display:flex;gap:1.2vh;z-index:40}
+.hv-chip{height:6.5vh;min-width:6.5vh;padding:0 2.2vh;border-radius:var(--r-pill);display:flex;align-items:center;justify-content:center;
+  gap:1vh;font-weight:600;font-size:2.4vh;background:rgba(0,0,0,.38);color:#fff}
+.hv-chip.light{background:rgba(255,255,255,.85);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.hv-chip svg{width:2.8vh;height:2.8vh}
+
+/* running-timer pill, bottom center, on every HV screen except Timer itself */
+.hv-timers{position:fixed;left:50%;bottom:2.8vh;transform:translateX(-50%);display:flex;gap:10px;z-index:45}
+.hv-tpill{height:7vh;padding:0 2.5vh 0 1.5vh;border-radius:var(--r-pill);background:rgba(28,28,30,.92);color:#fff;
+  display:flex;align-items:center;gap:1.5vh;font-weight:600;font-size:2.6vh;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.hv-tpill i{width:4.2vh;height:4.2vh;border-radius:50%;display:block;background:var(--orange)}
+.hv-tpill.done{background:var(--orange);color:#1d1309;animation:hvPulse 1s ease-in-out infinite}
+.hv-tpill.done i{background:#1d1309}
+@keyframes hvPulse{50%{opacity:.6}}
+
+/* toast */
+.hv-toast{position:fixed;left:50%;top:22px;transform:translateX(-50%);background:rgba(28,28,30,.92);color:#fff;
+  border-radius:var(--r-pill);padding:14px 24px;font-size:19px;font-weight:600;z-index:60;opacity:0;transition:opacity .25s}
+.hv-toast.on{opacity:1}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- building blocks (see DESIGN.md) ---------- */
+.hv-screen{position:fixed;inset:0;padding:11vh 4.5vw 11vh;overflow:hidden;display:flex;flex-direction:column;gap:3vh}
+.hv-title{font-size:6.5vh;font-weight:700;letter-spacing:-.03em;line-height:1;margin:0}
+.hv-sub{font-size:3vh;color:var(--ink-2);font-weight:600;margin-top:.8vh}
+.hv-grid{display:grid;gap:2.4vh 1.6vw;grid-template-columns:repeat(4,minmax(0,1fr));flex:1;min-height:0}
+.hv-grid.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.hv-grid.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.hv-card{background:var(--card);border-radius:var(--r-lg);padding:2.6vh 1.8vw;box-shadow:0 .15vh .5vh rgba(0,0,0,.05);
+  min-width:0;min-height:0;display:flex;flex-direction:column;gap:1.2vh;overflow:hidden}
+.hv-card.dark{background:var(--night-2);color:var(--night-ink)}
+.hv-card h3{margin:0;font-size:2.6vh;font-weight:700;color:var(--ink-2);letter-spacing:.02em;text-transform:uppercase}
+.hv-card.dark h3{color:var(--night-ink-2)}
+.hv-row{display:flex;align-items:center;gap:1.2vw;padding:1.4vh 0;font-size:3.2vh;font-weight:600;min-width:0}
+.hv-row+.hv-row{border-top:1px solid var(--sep)}
+.hv-row i{flex:0 0 auto;width:1.2vh;align-self:stretch;border-radius:1vh;background:var(--orange)}
+.hv-row .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hv-row .v{color:var(--ink-3);font-size:2.8vh;white-space:nowrap}
+.hv-stat{font-family:var(--sfr);font-weight:600;font-size:9vh;line-height:.95;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.hv-stat small{display:block;font-family:var(--sf);font-size:2.6vh;font-weight:600;color:var(--ink-2);letter-spacing:0;margin-top:.8vh}
+.hv-pill{height:8vh;min-width:8vh;padding:0 3vw;border-radius:var(--r-pill);background:var(--fill);font-weight:600;font-size:3vh;
+  display:inline-flex;align-items:center;justify-content:center;gap:.8vw}
+.hv-pill.primary{background:var(--blue);color:#fff}
+.hv-pill.orange{background:var(--orange);color:#1d1309}
+.hv-empty{color:var(--ink-3);font-size:3vh;font-weight:600}
+.hv-sheet{position:fixed;left:0;right:0;bottom:0;max-height:82vh;background:var(--card);color:var(--ink);border-radius:var(--r-xl) var(--r-xl) 0 0;
+  padding:4vh 4vw;transform:translateY(105%);transition:transform .35s var(--ease);z-index:50;overflow:auto;box-shadow:0 -1vh 4vh rgba(0,0,0,.18)}
+.hv-sheet.on{transform:none}
+.hv-back{position:fixed;top:2.3vh;left:1.6vw;z-index:40}
+/* a full-screen cover (recipe detail, cook steps) has its own close button: hide the Back chip and the clock */
+.hv-cover .hv-back,.hv-cover .hv-chrome{display:none}
+
+/* ---------- HomeView glass look (html.look-glass), set by HV.look ----------
+   HomeView's own language: a full-bleed wallpaper, translucent glass tiles over it, huge SF Rounded
+   numbers, few elements. No backdrop-filter on these frames, so the glass is a translucent fill with a
+   top highlight over a smooth gradient wallpaper (smooth gradients make blur unnecessary). */
+html.look-glass{--g-fill:rgba(255,255,255,.16);--g-fill-2:rgba(255,255,255,.26);--g-line:rgba(255,255,255,.24);
+  --g-ink:#fff;--g-ink-2:rgba(255,255,255,.72);--g-ink-3:rgba(255,255,255,.52)}
+html.look-glass body{color:var(--g-ink);background:#b85d12}
+/* wallpapers by time of day (HV.look sets one): morning warm, day amber (HomeView's Home), evening dusk, night ink */
+html.look-glass body.wall-morning{background:linear-gradient(160deg,#f6b26b 0%,#e07a3a 45%,#b04f2a 100%)}
+html.look-glass body.wall-day{background:linear-gradient(160deg,#f3a942 0%,#e0791c 48%,#a8480f 100%)}
+html.look-glass body.wall-evening{background:linear-gradient(160deg,#c46a3c 0%,#7d3d5c 55%,#33224f 100%)}
+html.look-glass body.wall-night{background:linear-gradient(160deg,#1b2140 0%,#10142a 60%,#07080f 100%)}
+html.look-glass .hv-card,html.look-glass .glass{background:var(--g-fill);color:var(--g-ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.32),0 1.2vh 3vh rgba(0,0,0,.12);
+  border:1px solid var(--g-line)}
+html.look-glass .hv-card h3{color:var(--g-ink-2)}
+html.look-glass .hv-title{color:#fff}
+html.look-glass .hv-sub,html.look-glass .hv-empty{color:var(--g-ink-2)}
+html.look-glass .hv-row+.hv-row{border-color:rgba(255,255,255,.16)}
+html.look-glass .hv-row .v{color:var(--g-ink-3)}
+html.look-glass .hv-chip.light{background:rgba(255,255,255,.2);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+html.look-glass .hv-pill{background:var(--g-fill-2);color:#fff}
+.hv-sheet:not(.on){box-shadow:none}
+/* glass look: remap the shared tokens so every page built on them turns to glass without page edits */
+html.look-glass{--bg:transparent;--card:rgba(255,255,255,.16);--fill:rgba(255,255,255,.15);--ink:#fff;--ink-2:rgba(255,255,255,.74);
+  --ink-3:rgba(255,255,255,.54);--sep:rgba(255,255,255,.18);--lav:rgba(255,255,255,.36);--lav-ink:#fff;--lav-ink-2:rgba(255,255,255,.8);
+  --amber-on:rgba(255,255,255,.4);--amber-ink:#fff;--night-2:rgba(0,0,0,.24)}
+/* sheets sit over busy content: solid, dark, warm */
+html.look-glass .hv-sheet,html.look-glass .sheet{background:#2a1a10;color:#fff}
+/* glass look: page parts that used ink as a fill or a hard-coded white card */
+html.look-glass .fc.on,html.look-glass .lvb.on,html.look-glass .ml-chip.wk{background:#fff;color:#7a3a0c}
+html.look-glass .fc.on em{color:rgba(122,58,12,.7)}
+html.look-glass .seg button.on,html.look-glass .ml-seg button.on,html.look-glass .ph-seg button.on,html.look-glass .st-seg button.on{background:rgba(255,255,255,.9);color:#7a3a0c}
+html.look-glass .ml-badge,html.look-glass .wk-bd .wk-tag{background:rgba(0,0,0,.45);color:#fff}
+html.look-glass .ml-badge.ok,html.look-glass .wk-bd .wk-tag.ok{background:var(--green)}
+html.look-glass .wk-bd .wk-tag.nd{background:var(--orange);color:#1d1309}
+html.look-glass .pk{background:var(--g-fill);border:1px solid var(--g-line)}
+html.look-glass .dn-sheet{background:#2a1a10;color:#fff}
+html.look-glass .dn-b.main{background:#fff;color:#7a3a0c}
+/* light wallpapers (body.wall-light): HomeView tints the glass darker so white text keeps its contrast */
+html.look-glass body.wall-light{--card:rgba(20,16,12,.24);--fill:rgba(20,16,12,.2);--g-fill:rgba(20,16,12,.24);--g-fill-2:rgba(20,16,12,.32);--lav:rgba(255,255,255,.34)}
+html.look-glass body.wall-light .w,html.look-glass body.wall-light .tile,html.look-glass body.wall-light .stats{background:var(--g-fill)}
+html.look-glass body.wall-light .w.on,html.look-glass body.wall-light .tile.on{background:rgba(255,255,255,.4)}
+html.look-glass body.wall-light .hv-title,html.look-glass body.wall-light .hv-sub,html.look-glass body.wall-light .launch .hv-title{text-shadow:0 .2vh 1vh rgba(0,0,0,.35)}

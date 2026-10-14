@@ -1,0 +1,17 @@
+/* Standby faces, laid out like Apple's HomeView face gallery: each face is its real preview in a
+   frame-shaped tile; under it the name and one clear button. Tap the picture to see it full screen. */
+.fc-pg{padding-top:10vh;gap:2.4vh}
+.fc-grid{flex:1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2.6vh 1.6vw;align-content:start;min-height:0}
+.fc{display:flex;flex-direction:column;gap:1vh;min-width:0}
+.fc .shot{display:block;aspect-ratio:16/10;border-radius:2.4vh;background:#111 center/cover no-repeat;border:.9vh solid #0b0b0c;
+  box-shadow:0 1.4vh 3vh rgba(0,0,0,.28);transition:opacity .2s,transform .2s}
+.fc .shot:active{transform:scale(.97)}
+.fc.off .shot{opacity:.42}
+.fc .nm{display:flex;align-items:center;justify-content:space-between;gap:.6vw;min-width:0}
+.fc .nm b{font-size:2.7vh;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fc .sub{font-size:2vh;color:var(--ink-2);line-height:1.25;min-height:5vh}
+.fc .act{height:6.4vh;border-radius:999px;font-size:2.4vh;font-weight:700;display:flex;align-items:center;justify-content:center;gap:.6vw}
+.fc .act.in{background:var(--green);color:#fff}
+.fc .act.out{background:var(--fill);color:var(--ink)}
+.fc .act svg{width:2.6vh;height:2.6vh}
+html.look-glass .fc .act.out{background:rgba(255,255,255,.22);color:#fff;border:1px solid rgba(255,255,255,.28)}

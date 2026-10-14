@@ -1,0 +1,50 @@
+/* HomeView Weather: sky gradient matched to condition and day/night, hourly strip, 7-day range bars, conditions tiles. */
+body{background:#46576b}
+.wx{position:fixed;inset:0;padding:10.5vh 4.5vw 8.5vh;display:flex;flex-direction:column;gap:2vh;color:#fff;background:linear-gradient(180deg,var(--s1,#5f7993),var(--s2,#9db3c8))}
+.wx-load{margin:auto;font-size:4vh;font-weight:700}
+.wx-top{flex:0 0 26vh;display:flex;gap:2vw;min-height:0}
+.wx-hero{flex:1;min-width:0;display:flex;align-items:center;gap:2vw}
+.wx-ic{flex:0 0 15vh;height:17vh}
+.wx-ic svg{width:100%;height:100%;overflow:visible}
+.wx-t{font-family:var(--sfr);font-weight:300;font-size:20vh;line-height:.85;letter-spacing:-.05em}
+.wx-t sup{font-size:.45em;vertical-align:top;position:relative;top:.1em;margin-left:.03em}
+.wx-c{font-size:4.6vh;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.wx-s{font-size:2.8vh;font-weight:600;opacity:.9;margin-top:.8vh;line-height:1.3}
+.wx-src{font-size:2.1vh;font-weight:600;opacity:.75;margin-top:.8vh}
+.wx-hl{flex:0 0 36vw;display:flex;flex-direction:column;gap:.9vh;justify-content:center}
+.g{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.28);border-radius:var(--r-lg)}
+.wx-h{padding:.8vh 1.3vw;display:flex;gap:1vw;align-items:center}
+.wx-h svg{flex:0 0 4.2vh;width:4.2vh;height:4.2vh}
+.wx-h b{display:block;font-size:2.8vh;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+.wx-h span{display:block;font-size:2.2vh;font-weight:600;opacity:.88;line-height:1.2}
+
+.wx-hr{flex:0 0 18.5vh;padding:1.3vh 1.2vw 1vh;display:flex;flex-direction:column;min-height:0}
+.wx-hr h4,.wx-wk h4{margin:0 0 .6vh;font-size:2.1vh;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.8}
+.wx-strip{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;min-height:0}
+.wx-strip::-webkit-scrollbar{display:none}
+.wx-hc{flex:0 0 7.2vw;display:flex;flex-direction:column;align-items:center;justify-content:space-between;font-weight:600;min-width:0}
+.wx-hc small{font-size:2.2vh;opacity:.9}
+.wx-hc svg{width:4.4vh;height:4.4vh;overflow:visible}
+.wx-hc b{font-family:var(--sfr);font-size:3.1vh;font-weight:600}
+.wx-hc i{font-style:normal;font-size:2vh;color:#c6e8ff;height:2.4vh;font-weight:700}
+
+.wx-bot{flex:1;min-height:0;display:grid;grid-template-columns:1.55fr 1fr;gap:1.4vw}
+.wx-wk{padding:1.4vh 1.3vw;display:flex;flex-direction:column;min-height:0}
+.wx-d{flex:1;min-height:0;display:flex;align-items:center;gap:1vw;font-size:2.7vh;font-weight:600}
+.wx-d+.wx-d{border-top:1px solid rgba(255,255,255,.2)}
+.wx-d .n{flex:0 0 5.4vw;font-weight:700}
+.wx-d .ic{flex:0 0 3.6vh;height:3.6vh}
+.wx-d .ic svg{width:100%;height:100%;overflow:visible}
+.wx-d .p{flex:0 0 3.6vw;font-size:2.1vh;color:#c6e8ff;font-weight:700}
+.wx-d .lo{flex:0 0 3.2vw;text-align:right;opacity:.75;font-family:var(--sfr)}
+.wx-d .hi{flex:0 0 3.2vw;font-family:var(--sfr);font-weight:700}
+.wx-d .bar{flex:1;height:.9vh;border-radius:1vh;background:rgba(255,255,255,.25);position:relative}
+.wx-d .bar u{position:absolute;top:0;bottom:0;border-radius:1vh;background:linear-gradient(90deg,#8fd0ff,#ffd36a)}
+.wx-d .bar i{position:absolute;top:-.4vh;width:1.7vh;height:1.7vh;margin-left:-.85vh;border-radius:50%;background:#fff;box-shadow:0 0 0 .35vh rgba(0,0,0,.25)}
+.wx-tiles{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,minmax(0,1fr));gap:1.2vh 1vw;min-height:0}
+.wx-tl{padding:1.1vh 1.1vw;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.wx-tl h5{margin:0;font-size:2.1vh;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.8;display:flex;gap:.5vw;align-items:center}
+.wx-tl h5 svg{width:2.4vh;height:2.4vh}
+.wx-tl div{display:flex;align-items:baseline;gap:.6vw;white-space:nowrap}
+.wx-tl b{font-family:var(--sfr);font-size:4vh;font-weight:600;letter-spacing:-.02em}
+.wx-tl span{font-size:2.1vh;font-weight:600;opacity:.85;overflow:hidden;text-overflow:ellipsis}

@@ -1,0 +1,198 @@
+/* Standby in the HomeView idiom: one full-screen "face" at a time, crossfaded.
+   Sizes come from vh/vw so the 10-inch (1280x800) and 15-inch (1920x1080) match. */
+body.sb{background:#000;color:#fff}
+#stage{position:fixed;inset:0;overflow:hidden}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s var(--ease)}
+.slide.on{opacity:1}
+.slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+
+/* photo: full-screen picture, date bottom-left, time bottom-right */
+.foot{position:absolute;left:5vw;bottom:6vh;font-weight:600;font-size:4.2vh;text-shadow:0 .3vh 1.4vh rgba(0,0,0,.45);
+  display:flex;gap:1.4vw;align-items:center}
+.foot .dot{opacity:.7}
+.shade-b{position:absolute;left:0;right:0;bottom:0;height:34vh;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.42))}
+
+/* now playing */
+.f-np{display:flex;align-items:center;gap:6vw;padding:0 8vw}
+.f-np .bgfall{position:absolute;inset:0;background:linear-gradient(135deg,#2b3a67 0%,#6b4f8f 55%,#c2758a 100%)}
+.f-np .art{position:relative;flex:0 0 auto;width:62vh;height:62vh;border-radius:3vh;background:#2c2c2e center/cover;box-shadow:0 4vh 8vh rgba(0,0,0,.4)}
+.f-np .meta{position:relative;min-width:0;flex:1}
+.f-np .song{font-size:8vh;font-weight:700;letter-spacing:-.025em;line-height:1.05;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.f-np .artist{font-size:4.8vh;color:rgba(255,255,255,.75);margin-top:1.4vh;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-np .room{font-size:3.6vh;color:rgba(255,255,255,.65);margin-top:4vh;font-weight:600}
+.f-np .ctl{display:flex;gap:3vw;margin-top:3vh}
+.f-np .ctl button{width:12vh;height:12vh;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center}
+.f-np .ctl svg{width:5.4vh;height:5.4vh;fill:#fff}
+
+.hint{position:fixed;left:50%;top:3vh;transform:translateX(-50%);font-size:2.6vh;font-weight:600;color:rgba(255,255,255,.75);
+  background:rgba(0,0,0,.35);border-radius:999px;padding:1vh 2.4vw;opacity:0;transition:opacity .6s;z-index:30;min-height:0}
+.hint.on{opacity:1}
+/* running timers sit bottom-right here so they never cover the date line */
+body.sb .hv-timers{left:auto;right:3vw;bottom:5vh;transform:none}
+
+/* photo: the time, small and always readable, bottom-right */
+.photo .ctime{position:absolute;right:4.5vw;bottom:5vh;font-family:var(--sfr);font-weight:600;font-size:8vh;line-height:1;
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums;text-shadow:0 .3vh 1.6vh rgba(0,0,0,.5)}
+body.sb .hv-timers{bottom:16vh}
+
+.ic{width:4vh;height:4vh;flex:0 0 auto}
+.ic.big{width:7vh;height:7vh}
+
+/* analog with complications */
+.f-analog{background:#e9e4dc;display:flex;align-items:center;justify-content:space-between;padding:0 4vw;color:#3a3a3c;font-family:var(--sfr)}
+.f-analog .dial{height:86vh;width:86vh;flex:0 0 auto}
+.f-analog .side{flex:1;display:flex;flex-direction:column;gap:5vh;min-width:0}
+.f-analog .side.r{align-items:flex-end;text-align:right}
+.cmp{display:flex;align-items:center;gap:1.2vw;max-width:100%}
+.side.r .cmp{flex-direction:row-reverse}
+.cmp .ic{width:5vh;height:5vh;color:#8e8a82}
+.cmp div{min-width:0}
+.cmp span{display:block;font-size:2.6vh;font-weight:600;color:#8e8e93}
+.cmp b{display:block;font-size:3.6vh;font-weight:700;color:#1d1d1f;line-height:1.15;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+/* week ahead */
+.f-week{background:#f2f2f7;color:#1d1d1f;padding:5vh 3vw 4vh;display:flex;flex-direction:column;gap:2.4vh;font-family:var(--sf)}
+.f-week .wh{display:flex;align-items:baseline;gap:1.6vw}
+.f-week h2{margin:0;font-size:6vh;font-weight:700;letter-spacing:-.03em}
+.f-week .wh span{font-size:3vh;color:#8e8e93;font-weight:600}
+.f-week .cols{flex:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.8vw;min-height:0}
+.f-week .day{background:#fff;border-radius:2.6vh;padding:1.8vh .8vw;display:flex;flex-direction:column;gap:1.2vh;min-width:0;overflow:hidden}
+.f-week .day.today{background:#1d1d1f;color:#fff}
+.f-week .dh{display:flex;align-items:baseline;justify-content:space-between}
+.f-week .dh span{font-size:2.6vh;font-weight:700;color:#8e8e93;text-transform:uppercase;letter-spacing:.04em}
+.f-week .today .dh span{color:var(--orange)}
+.f-week .dh b{font-family:var(--sfr);font-size:5vh;font-weight:700;letter-spacing:-.03em}
+.f-week .dw,.f-week .dn{display:flex;align-items:center;gap:.5vw;font-size:2.3vh;font-weight:600;color:#6e6e73;min-width:0}
+.f-week .today .dw,.f-week .today .dn{color:rgba(235,235,245,.7)}
+.f-week .dw .ic,.f-week .dn .ic{width:2.8vh;height:2.8vh}
+.f-week .dn span{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.2}
+.f-week .dn{align-items:flex-start;color:#1d1d1f}
+.f-week .today .dn{color:#fff}
+.f-week .dn.none{color:#c7c7cc}
+.f-week .today .dn.none{color:rgba(235,235,245,.4)}
+.f-week .evs{display:flex;flex-direction:column;gap:1vh;border-top:1px solid rgba(60,60,67,.12);padding-top:1.2vh;min-height:0}
+.f-week .today .evs{border-color:rgba(255,255,255,.15)}
+.f-week .ev{display:flex;gap:.5vw;min-width:0}
+.f-week .ev i{flex:0 0 auto;width:.7vh;border-radius:1vh}
+.f-week .ev div{min-width:0}
+.f-week .ev b{display:block;font-size:2.4vh;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.f-week .ev span{display:block;font-size:2.1vh;color:#8e8e93;font-weight:600}
+.f-week .more,.f-week .free{font-size:2.2vh;color:#8e8e93;font-weight:600}
+
+/* weather */
+.f-wx{background:linear-gradient(180deg,#3d7fd0 0%,#7fb4ea 58%,#c9e1f6 100%);padding:6vh 5vw 5vh;display:grid;grid-template-columns:1fr 1.15fr;
+  grid-template-rows:1fr auto;gap:3vh 4vw;font-family:var(--sfr)}
+.f-wx.night{background:linear-gradient(180deg,#0b1631 0%,#1d2f5c 60%,#3a4f7d 100%)}
+.f-wx.cloud{background:linear-gradient(180deg,#6f8294 0%,#9fb0c0 60%,#d2dbe3 100%)}
+.f-wx .place{font-size:4vh;font-weight:700}
+.f-wx .t{font-size:30vh;font-weight:300;line-height:.86;letter-spacing:-.05em;margin-left:-1vw}
+.f-wx .cond{font-size:5vh;font-weight:600}
+.f-wx .meta{font-size:3.2vh;font-weight:600;color:rgba(255,255,255,.85);margin-top:1.6vh;line-height:1.45;font-family:var(--sf)}
+.f-wx .days{background:rgba(255,255,255,.18);border-radius:3vh;padding:2.4vh 2vw;display:flex;flex-direction:column;justify-content:space-around;min-height:0}
+.f-wx .days h3{margin:0 0 .6vh;font-size:2.4vh;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.75);font-family:var(--sf)}
+.f-wx .dr{display:flex;align-items:center;gap:1vw;font-size:3.2vh;font-weight:600}
+.f-wx .dr .dn{width:9vh}
+.f-wx .dr .ic{width:3.6vh;height:3.6vh}
+.f-wx .dr .pp{width:6vh;font-size:2.4vh;color:#cfe8ff}
+.f-wx .dr .lo{width:6vh;text-align:right;color:rgba(255,255,255,.7)}
+.f-wx .dr .hi{width:6vh}
+.f-wx .bar{flex:1;height:.9vh;border-radius:1vh;background:rgba(255,255,255,.25);position:relative}
+.f-wx .bar i{position:absolute;top:0;bottom:0;border-radius:1vh;background:linear-gradient(90deg,#9fe0ff,#ffd60a,#ff9f0a)}
+.f-wx .hours{grid-column:1/-1;display:flex;justify-content:space-between;background:rgba(255,255,255,.18);border-radius:3vh;padding:2vh 2.4vw}
+.f-wx .hours div{text-align:center;font-size:2.6vh;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:.6vh}
+.f-wx .hours b{font-size:3.8vh}
+.f-wx .hours em{font-style:normal;font-size:2.2vh;color:#cfe8ff}
+
+/* today */
+.f-today{background:#000;display:flex;gap:4vw;padding:8vh 5vw;align-items:center;font-family:var(--sfr)}
+.f-today .l{flex:0 0 36%;text-align:left}
+.f-today .d{font-size:6vh;font-weight:700;letter-spacing:.16em;color:var(--orange)}
+.f-today .n{font-size:46vh;font-weight:800;line-height:.82;letter-spacing:-.06em}
+.f-today .m{font-size:4.4vh;font-weight:600;color:var(--night-ink-2);margin-top:1.4vh}
+.f-today .r{flex:1;display:flex;flex-direction:column;gap:2vh;min-width:0;font-family:var(--sf)}
+.f-today .hv-card{padding:2.4vh 2vw}
+.f-today .wx,.f-today .din{flex-direction:row;align-items:center;gap:1.6vw}
+.f-today .wx b,.f-today .din b{display:block;font-size:4.2vh;font-weight:700;line-height:1.15}
+.f-today .wx span,.f-today .din span{display:block;font-size:2.8vh;color:var(--night-ink-2);font-weight:600}
+.f-today .din{position:relative}
+.f-today .din em{position:absolute;right:2vw;top:2.4vh;font-style:normal;font-size:2.4vh;color:var(--orange);font-weight:700}
+.f-today .hv-row{font-size:3.4vh}
+.f-today .hv-row+.hv-row{border-color:rgba(255,255,255,.1)}
+.f-today .hv-row .v{color:var(--night-ink-2)}
+.f-today .ic{color:var(--orange)}
+
+/* coming up */
+.f-up{background:#f2f2f7;color:#1d1d1f;padding:8vh 6vw;display:flex;gap:5vw;font-family:var(--sf)}
+.f-up .l{flex:0 0 34%;display:flex;flex-direction:column}
+.f-up h2{margin:0;font-size:9vh;font-weight:700;letter-spacing:-.03em;line-height:1}
+.f-up .sub{font-size:4vh;color:#8e8e93;font-weight:600;margin-top:1.6vh}
+.f-up .sum{margin-top:auto;display:flex;flex-direction:column;gap:2.4vh}
+.f-up .si{display:flex;align-items:center;gap:1.4vw}
+.f-up .si .ic{width:5.4vh;height:5.4vh;color:var(--orange)}
+.f-up .si b{display:block;font-size:3.6vh;font-weight:700;line-height:1.15}
+.f-up .si span{display:block;font-size:2.6vh;color:#8e8e93;font-weight:600}
+.f-up .list{flex:1;display:flex;flex-direction:column;gap:1.8vh;min-width:0}
+.f-up .day{font-size:3.2vh;font-weight:700;color:#6e6e73;margin-top:.6vh}
+.f-up .ev{background:#fff;border-radius:2.4vh;padding:2vh 2.4vw;display:flex;align-items:center;gap:1.6vw;font-size:4vh;font-weight:600;box-shadow:0 .2vh .6vh rgba(0,0,0,.06)}
+.f-up .ev i{flex:0 0 auto;width:1.4vh;align-self:stretch;border-radius:1vh}
+.f-up .ev .tt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-up .ev .when{color:#8e8e93;font-weight:600;font-size:3.4vh;white-space:nowrap}
+.f-up .empty{font-size:4.4vh;color:#8e8e93;font-weight:600}
+
+.f-week .wsum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.4vw}
+.f-week .wsum .hv-card{flex-direction:row;align-items:center;gap:1.4vw;padding:2.4vh 1.8vw}
+.f-week .wsum .ic{color:var(--orange)}
+.f-week .wsum b{display:block;font-size:3.4vh;font-weight:700;line-height:1.15}
+.f-week .wsum span{display:block;font-size:2.5vh;color:#8e8e93;font-weight:600;margin-top:.4vh}
+
+html.look-glass .photo .ctime{font-weight:500}
+
+/* ---------- Info (Apple "Tue Oct 13") ---------- */
+.f-info{background:linear-gradient(180deg,#cfdbe4 0%,#b9c9d5 100%);color:#1d1d1f;display:flex;gap:4vw;padding:7vh 6vw;font-family:var(--sfr)}
+.f-info .il{flex:1.1;min-width:0;display:flex;flex-direction:column}
+.f-info .idt{font-size:9vh;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1;text-shadow:0 .2vh .6vh rgba(0,0,0,.08)}
+.f-info .inum{font-size:34vh;font-weight:700;line-height:.82;letter-spacing:-.06em;margin-top:1vh}
+.f-info .iag{margin-top:auto;display:flex;flex-direction:column;gap:1.6vh;font-family:var(--sf)}
+.f-info .ia{display:flex;align-items:center;gap:1vw;font-size:3.6vh}
+.f-info .ia .ic{width:4vh;height:4vh;color:#1d1d1f}
+.f-info .ie{border-left:.7vh solid #ff9f0a;padding-left:1.2vw;display:flex;flex-direction:column}
+.f-info .ie b{font-size:3.4vh;font-weight:700}
+.f-info .ie span{font-size:3.4vh;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-info .im{font-size:3vh;color:#5f6b78;font-weight:600}
+.f-info .ir{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;min-width:0}
+.f-info .ic-clock{width:48vh;height:48vh}
+.f-info .iw{align-self:stretch;padding-left:3vw}
+.f-info .iloc{font-size:3.2vh;font-weight:700;color:#fff}
+.f-info .it{font-size:19vh;font-weight:700;line-height:.9;letter-spacing:-.05em}
+.f-info .ic2{display:flex;align-items:center;gap:1vw;font-size:2.8vh;font-weight:600;font-family:var(--sf);margin-top:1vh}
+.f-info .ic2 .ic{width:4.6vh;height:4.6vh}
+
+/* ---------- Numerals (Apple green) ---------- */
+.f-num{display:flex;align-items:center;justify-content:center}
+.f-num .nm{height:96vh;width:96vh}
+.f-num .nd{position:absolute;left:5vw;bottom:5vh;font-family:var(--sfr);font-weight:700;font-size:4vh;color:rgba(0,0,0,.6);letter-spacing:.06em}
+
+/* ---------- Month with the big date behind ---------- */
+.f-month{background:#f7f7f9;color:#1d1d1f;padding:6vh 7vw;font-family:var(--sfr);display:flex;flex-direction:column}
+.f-month .mh{display:flex;justify-content:space-between;align-items:baseline;font-size:5vh;font-weight:700;color:#ff3b30;position:relative;z-index:1}
+.f-month .mbig{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);font-size:92vh;font-weight:800;color:rgba(255,59,48,.85);
+  line-height:1;letter-spacing:-.08em;z-index:0;pointer-events:none}
+.f-month table{flex:1;width:100%;border-collapse:collapse;text-align:center;position:relative;z-index:1;font-size:5.4vh;font-weight:600;color:#1f4fbf}
+.f-month th{font-size:4vh;color:#1f4fbf;font-weight:700;height:8vh}
+.f-month td{}
+.f-month td.past{color:rgba(31,79,191,.45)}
+.f-month td.today span{display:inline-block;width:8vh;height:8vh;line-height:8vh;border-radius:50%;background:#14256b;color:#fff;text-shadow:none}
+.f-month td i{display:block;width:1vh;height:1vh;margin:.4vh auto 0;border-radius:50%;background:#ff9f0a}
+
+/* ---------- Minimal (Apple rose) ---------- */
+.f-min{background:radial-gradient(120% 90% at 30% 20%,#f2d9d9 0%,#e3bcc0 60%,#d5a7ad 100%);display:flex;align-items:center;justify-content:center}
+.f-min .mn{height:92vh;width:92vh}
+
+/* Now Playing (HomeView): full-bleed art, title bottom-left */
+.f-np2{background:#000}
+.f-np2 .art{position:absolute;inset:0;background:#1c1c1e center/cover no-repeat}
+.f-np2 .shade{position:absolute;left:0;right:0;bottom:0;height:45vh;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.6))}
+.f-np2 .meta{position:absolute;left:6vw;bottom:7vh;right:30vw;color:#fff}
+.f-np2 .room{font-size:2.8vh;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+.f-np2 .song{font-size:8vh;font-weight:700;letter-spacing:-.03em;line-height:1.05;margin-top:1vh;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.f-np2 .artist{font-size:4.4vh;font-weight:500;opacity:.8;margin-top:.8vh;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
