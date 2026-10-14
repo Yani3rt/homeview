@@ -62,7 +62,7 @@
     html+=w('timer','/frame/hv/timer/','Timer','timer',ts.length?'<div><div class="big">'+(ts[0].ends<=tnow?'Done':HV.mmss(ts[0].ends-tnow))+'</div><div class="line" style="color:rgba(235,235,245,.6)">'+HV.esc(ts[0].label)+(ts.length>1?' · +'+(ts.length-1)+' more':'')+'</div></div>':'<div><div class="line" style="font-size:3.4vh">No timers running</div><div class="line" style="color:rgba(235,235,245,.6)">Tap to start one</div></div>');
     // Shopping
     var S=d.shop,left=S?S.left:null;
-    html+=w(left?'on':'','/frame/hv/shopping/','Shopping','cart','<div><div class="big">'+(S?left:'—')+'</div><div class="line">'+(!S?'Loading the list':left?'to buy for '+S.meals.length+' dinner'+(S.meals.length===1?'':'s'):S.items.length?'All checked off':'Plan dinners to build a list')+'</div></div>');
+    html+=w(left?'on':'','/frame/hv/shopping/','Shopping','cart','<div><div class="big">'+(S?left:'—')+'</div><div class="line">'+(!S?'Loading the list':left?(S.meals.length?'to buy for '+S.meals.length+' dinner'+(S.meals.length===1?'':'s'):'to buy'):S.items.length?'All checked off':'Plan dinners to build a list')+'</div></div>');
     // Meals
     var planned=P?P.planned_7:0;
     html+=w('','/frame/hv/meals/','Meals','book','<div><div class="big">'+planned+'<span style="font-size:3.4vh;color:var(--ink-3)"> / 7</span></div><div class="line muted">dinners planned, next 7 days</div></div>');

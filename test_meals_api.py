@@ -227,6 +227,44 @@ class ShoppingTest(Base):
         with self.assertRaises(ValueError):
             M.check_item("")
 
+    def test_added_items_show_without_any_dinners(self):
+        M.add_item("  paper   towels ")
+        d = M.shopping_doc()
+        self.assertEqual([(x["name"], x["added"], x["meals"]) for x in d["items"]], [("Paper towels", True, [])])
+        self.assertEqual(d["left"], 1)
+
+    def test_added_item_merges_with_the_same_recipe_ingredient(self):
+        self.plan([(0, "1")])
+        M.add_item("Garlic")
+        by = {x["key"]: x for x in M.shopping_doc()["items"]}
+        self.assertTrue(by["garlic"]["added"])
+        self.assertTrue(by["garlic"]["meals"])           # still says which dinner needs it
+        self.assertEqual(sum(1 for k in by if k == "garlic"), 1)
+
+    def test_remove_and_clear(self):
+        self.plan([(0, "1")])
+        M.add_item("milk"); M.add_item("eggs")
+        M.remove_item("milk")
+        keys = [x["key"] for x in M.shopping_doc()["items"]]
+        self.assertNotIn("milk", keys); self.assertIn("egg", keys)
+        with self.assertRaises(ValueError):
+            M.remove_item("garlic")                        # recipe ingredients are not removable
+        M.check_item("egg", True); M.check_item("garlic", True)
+        M.check_item(clear_checked=True)                   # bought: the hand-added egg goes, garlic stays unchecked
+        by = {x["key"]: x for x in M.shopping_doc()["items"]}
+        self.assertNotIn("egg", by)
+        self.assertFalse(by["garlic"]["checked"])
+
+    def test_add_validates(self):
+        with self.assertRaises(ValueError):
+            M.add_item("   ")
+        self.assertEqual(len(M.add_item("x" * 200)["key"]), 60)
+        for i in range(M.MAX_ADDED - 1):
+            M.add_item("item %d" % i)
+        with self.assertRaises(ValueError):
+            M.add_item("one too many")
+        M.add_item("item 3")                               # re-adding an existing one is fine
+
     def test_empty_plan_gives_an_empty_list(self):
         d = M.shopping_doc()
         self.assertEqual((d["items"], d["meals"], d["left"]), ([], [], 0))

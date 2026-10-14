@@ -183,7 +183,7 @@
   function facts(){
     var out=[],i,tms=HV.state.timers||[],S=D.shop,aq=D.frame&&D.frame.aqi,M=D.music;
     for(i=0;i<tms.length&&i<2;i++)out.push({c:'warn',i:'timer',t:tms[i].label||'Timer',s:'Timer running',tm:tms[i].ends,pri:1});
-    if(S){if(S.left)out.push({c:'blue',i:'cart',t:S.left+' to buy',s:'For '+S.meals.length+' planned dinner'+(S.meals.length===1?'':'s'),pri:2});
+    if(S){if(S.left)out.push({c:'blue',i:'cart',t:S.left+' to buy',s:S.meals.length?'For '+S.meals.length+' planned dinner'+(S.meals.length===1?'':'s'):'On the shopping list',pri:2});
       else out.push({c:'ok',i:'cart',t:S.items.length?'Shopping done':'No shopping list',s:S.items.length?'Everything is checked off':'Plan dinners and the list builds itself',pri:5});}
     if(aq&&aq.us_aqi!=null)out.push({c:aq.us_aqi>100?'bad':aq.us_aqi>50?'warn':'ok',i:'air',t:'Air quality '+aq.us_aqi,s:String(aq.band||'')+(aq.us_aqi>100?' · keep windows shut':aq.us_aqi<=50?' · windows are fine':''),pri:aq.us_aqi>50?2:6});
     var rs=(M&&M.rooms)||[],pl=null;for(i=0;i<rs.length;i++)if(!pl&&rs[i].ok&&rs[i].state==='PLAYING'&&rs[i].title)pl=rs[i];

@@ -20,7 +20,7 @@ house lives in one file, `config.json`.
 | Weather | `/frame/hv/weather/` | Now, hourly, 7-day range bars, sunrise and sunset, wind, air quality |
 | Meals | `/frame/hv/meals/` | Browse and search recipes, plan dinners for the next 7 days |
 | Tonight | `/frame/hv/dinner/` | Tonight's recipe with ingredients, one-tap timers and a step-by-step cook view |
-| Shopping | `/frame/hv/shopping/` | Every ingredient for the planned dinners, merged, with check boxes |
+| Shopping | `/frame/hv/shopping/` | Every ingredient for the planned dinners, merged, plus anything you add by hand, with check boxes |
 | Timer | `/frame/hv/timer/` | Kitchen timers, shared by every frame |
 | Music | `/frame/hv/music/` | Sonos rooms, grouping, queue, favorites; Spotify search and Spotify Connect |
 | Photos | `/frame/hv/photos/` | The photos in your photo folder, full screen |
@@ -234,7 +234,12 @@ What this means for HomeView:
   in two recipes is one line: "2 cloves" plus "3 cloves" of garlic shows "5 cloves". Amounts are only
   added when the units match (tsp, tbsp, cup, g, kg, ml, l, oz, lb, cloves, cans and plain counts);
   other amounts such as "to taste" or "1 (12 oz.) can" are listed next to each other. Checked items
-  are shared by every frame; "Clear checked" unchecks them all.
+  are shared by every frame.
+- **Add your own items** (milk, paper towels) with the box at the top of the list. An item you add
+  that a recipe also needs ("Eggs" and the recipe's "egg") becomes one line. Hand-added items have an
+  x to remove them. "Clear checked" unchecks the recipe ingredients and drops the hand-added items
+  you checked off, since you bought them. Up to 100 hand-added items. From a script or phone:
+  `POST /api/meals/shopping {"add": "milk"}` (same origin as the frame).
 - The plan is stored in `data_dir/meal_plan.json`, one recipe per date.
 
 ## Remote commands
@@ -277,3 +282,8 @@ scripts/           spotify_auth.py, make_sample_photos.py, make_face_thumbs.py
 samples/           sample photos and a sample calendar
 test_*.py          unittest tests
 ```
+
+## License
+
+MIT. See [LICENSE](LICENSE). Recipe data comes from TheMealDB under its own terms (above);
+weather from Open-Meteo under CC BY 4.0.

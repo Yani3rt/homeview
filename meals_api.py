@@ -5,7 +5,8 @@ What it does
     hit TheMealDB on every poll: list results are kept for `meals.cache_hours` (default a week), a full
     recipe for 30 days. If TheMealDB is down, an expired cached copy is served instead of an error.
   * a dinner plan, one recipe per date, in <data_dir>/meal_plan.json
-  * a shopping list built from the planned recipes in a date range, with the same ingredient merged
+  * a shopping list built from the planned recipes in a date range, with the same ingredient merged,
+    plus anything the household adds by hand (milk, paper towels)
     across recipes ("2 cloves garlic" + "3 cloves garlic" -> "5 cloves"), and a checked-off state.
 
 Routes (GET unless marked)
@@ -17,7 +18,8 @@ Routes (GET unless marked)
   /api/meals/recipe?id=               {ok, recipe}
   /api/meals/shopping?days=7          {ok, start, end, meals:[...], items:[{key, name, amount, meals, checked}]}
   POST /api/meals/plan       {date, id}  plan a recipe on a date;  {date, id: null} clears the date
-  POST /api/meals/shopping   {key, checked}  |  {clear_checked: true}
+  POST /api/meals/shopping   {key, checked}  |  {add: "milk"}  |  {remove: key}  |  {clear_checked: true}
+                             (clearing also drops the hand-added items that were checked off: they're bought)
 
 TheMealDB's terms ask apps to name it as the source of the data; the pages show "Recipes from TheMealDB".
 The test key "1" is meant for development and education; set your own supporter key in config.json
@@ -204,7 +206,7 @@ def load_plan():
         d = json.loads(_plan_file().read_text())
     except (OSError, ValueError):
         d = {}
-    d.setdefault("days", {}); d.setdefault("checked", {})
+    d.setdefault("days", {}); d.setdefault("checked", {}); d.setdefault("added", {})
     return d
 
 
@@ -358,19 +360,54 @@ def shopping_doc(days=7, now=None):
                 it["texts"].append(g["measure"])
             if r["name"] not in it["meals"]:
                 it["meals"].append(r["name"])
+    for k, a in plan["added"].items():
+        it = items.setdefault(k, {"key": k, "name": a["name"], "sums": {}, "texts": [], "meals": []})
+        it["added"] = True
     out = []
     for k, it in items.items():
         out.append({"key": k, "name": it["name"], "amount": amount_text(it["sums"], it["texts"]),
-                    "meals": it["meals"], "checked": bool(plan["checked"].get(k))})
+                    "meals": it["meals"], "added": bool(it.get("added")), "checked": bool(plan["checked"].get(k))})
     out.sort(key=lambda x: (x["checked"], x["name"].lower()))
     return {"ok": True, "start": t.isoformat(), "end": end.isoformat(), "meals": meals, "items": out,
             "missing": missing, "left": sum(1 for x in out if not x["checked"])}
+
+
+MAX_ADDED = 100
+
+
+def add_item(name):
+    """A hand-added item. Keyed like an ingredient, so 'Eggs' added by hand and 'egg' from a recipe are one row."""
+    name = re.sub(r"\s+", " ", str(name or "")).strip()[:60]
+    if not name:
+        raise ValueError("Type an item to add")
+    k = ingredient_key(name)
+    with _lock:
+        d = load_plan()
+        if k not in d["added"] and len(d["added"]) >= MAX_ADDED:
+            raise ValueError("The list is full: clear the checked items first")
+        d["added"][k] = {"name": name[:1].upper() + name[1:]}
+        d["checked"].pop(k, None)
+        _save_plan(d)
+    return {"ok": True, "key": k}
+
+
+def remove_item(key):
+    key = str(key or "")[:80]
+    with _lock:
+        d = load_plan()
+        if key not in d["added"]:
+            raise ValueError("Only items added by hand can be removed")
+        d["added"].pop(key); d["checked"].pop(key, None)
+        _save_plan(d)
+    return {"ok": True}
 
 
 def check_item(key=None, checked=True, clear_checked=False):
     with _lock:
         d = load_plan()
         if clear_checked:
+            for k in [k for k in d["added"] if d["checked"].get(k)]:
+                d["added"].pop(k)
             d["checked"] = {}
         else:
             key = str(key or "")[:80]
@@ -422,6 +459,10 @@ def dispatch_get(handler, route):
 def dispatch_post(handler, route, payload):
     if route == "/api/meals/plan":
         return set_day(payload.get("date"), payload.get("id"))
+    if route == "/api/meals/shopping" and "add" in payload:
+        return add_item(payload.get("add"))
+    if route == "/api/meals/shopping" and "remove" in payload:
+        return remove_item(payload.get("remove"))
     if route == "/api/meals/shopping":
         return check_item(payload.get("key"), bool(payload.get("checked", True)), bool(payload.get("clear_checked")))
     return None

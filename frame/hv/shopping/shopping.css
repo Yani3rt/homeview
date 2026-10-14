@@ -39,3 +39,15 @@
 .sg.on{background:var(--blue);color:#fff}.sg.on b{color:#fff}
 .rail .hv-pill{flex:none}
 .ac a.hv-pill{text-decoration:none}
+
+/* add by hand */
+.af{display:flex;gap:.8vw;margin:0 0 1.2vh}
+.af input{flex:1;min-width:0;height:8vh;border-radius:var(--r-pill);border:0;background:var(--bg);padding:0 1.6vw;font:inherit;font-size:2.9vh;color:var(--ink);-webkit-appearance:none}
+.af input:focus{outline:.3vh solid var(--blue)}
+.af .hv-pill{height:8vh;flex:none}
+.lr{display:flex;align-items:center;border-top:1px solid var(--sep)}
+.lr .li{border-top:0;flex:1;min-width:0}
+.af+.lr,.ac h3+.lr{border-top:0}
+.rm{flex:none;width:8vh;height:8vh;display:flex;align-items:center;justify-content:center;color:var(--ink-3)}
+.rm svg{width:3.4vh;height:3.4vh}
+.ac>.lr:first-child{border-top:0}
