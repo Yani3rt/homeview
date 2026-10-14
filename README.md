@@ -76,9 +76,48 @@ To start the server when the computer starts, use your system's service manager 
   strings or classes), there are no libraries or frameworks, and only `opacity` and `transform` are
   animated. Read `frame/hv/DESIGN.md` before changing a page.
 - Use a kiosk browser app on the frame (any app that opens one URL full screen and keeps the screen
-  on). Point it at `http://<server address>:8806/frame/hv/`.
+  on). Point it at `http://<server address>:8806/frame/hv/`. On a Frameo frame, read the next
+  section first.
 - The server runs anywhere Python 3.10 or newer runs (it was tested on Python 3.14): a Raspberry Pi, a Mac mini, a NAS. It needs to be
   on the same network as the frames, and on the same network as your Sonos speakers if you use them.
+
+## Setting up a Frameo frame
+
+Cheap Frameo frames are locked down, and Frameo fights any other app for the screen. This is what worked on
+ours (a 10-inch Allwinner A33 on Android 6.0.1, and a 15-inch Pastigio FRAME156, Rockchip RK3326 on
+Android 8.1). Boards differ even under one product name, so check yours first.
+
+- **Start with [wesbos/photo-frame-dashboard](https://github.com/wesbos/photo-frame-dashboard).** It
+  lists many frames by board, with how each one gets adb and root, and it includes a small WebView
+  kiosk app. Read its rules before writing anything to a frame.
+- **adb:** there is no Play Store, so apps go on with `adb install`. On most Frameo builds adb is a
+  switch in Frameo's own settings (Settings → About → Beta Program → ADB access). Both of our frames
+  ship a working `su`.
+- **Make the kiosk the Home app.** Android starts the Home app at boot and the Home button returns to
+  it. On Android 8 and later: `adb shell cmd package set-home-activity <package>/<activity>`. On
+  Android 6 that command does not exist: press Home on the frame and pick your kiosk with "Always".
+- **Turn Frameo off.** Frameo puts its slideshow over your kiosk every time the screen wakes (17
+  seconds after waking on our 10-inch), and it runs its own sleep schedule. Once the kiosk is the
+  Home app: `adb shell su 0 pm disable net.frameo.frame`. Plain `pm disable-user` worked on Android
+  8.1 and was refused on Android 6; through `su 0` it worked there too. It freed about 140 MB of RAM on one
+  of our 1 GB frames and about 200 MB on the other. Undo: `adb shell su 0 pm enable net.frameo.frame`.
+- **Turn off the vendor updater too.** It can install apps and reboot the frame. Look for a package
+  with `fota` or `ota` in its name (`adb shell pm list packages | grep -i ota`), for example
+  `com.adups.fota` or `com.muxintu.app.mxota`, and disable it the same way.
+- **Keep a way back before you close one.** Check that adb still works without Frameo: network adb
+  on our 10-inch comes from `persist.adb.tcp.port` and `persist.service.adb.enable`
+  (`adb shell getprop | grep adb`), not from Frameo. A frame where Frameo was the only way in can
+  lock you out.
+- **Some Allwinner A33 frames run a vendor background killer** (`BackgroundManagerService`, "package not
+  in whitelist" in logcat). It stops background services and the boot-completed broadcast for any
+  app not on its list, and it killed our kiosk whenever Frameo came forward. A kiosk that is the
+  Home app and starts no background service survives it. On our 10-inch,
+  `adb shell settings put system kill_background_services 0` also turned it off (`1` to undo).
+- **adb on these frames serves one computer at a time.** If a frame shows `offline` or
+  `error: closed`, run `adb disconnect <ip>:5555` on the other computer. On our 10-inch adb also
+  stopped answering once while the screen kept working; turning the frame off and on fixed it.
+- These frames have old Android and a root `su` that asks no questions. Install nothing you do not
+  trust, and keep them on a guest or IoT network.
 
 ## How it fits together
 
