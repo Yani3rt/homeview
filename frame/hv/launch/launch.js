@@ -18,7 +18,9 @@
     photo:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 15l3-3 2 2 3-4 3 4"/>',
     air:'<path d="M3 9h11a3 3 0 1 0-3-3M3 15h15a3 3 0 1 1-3 3M3 12h7"/>',
     house:'<path d="M4 11l8-6.5 8 6.5M6 9.5V20h12V9.5"/><path d="M10 20v-5h4v5"/>',
-    plus:'<path d="M12 5v14M5 12h14"/>'
+    plus:'<path d="M12 5v14M5 12h14"/>',
+    drop:'<path d="M12 3.5c3 4 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2.5-6 5.5-10z"/>',
+    sunrise:'<path d="M5 18a7 7 0 0 1 14 0M3 21h18M12 4v4M9.5 6.5L12 4l2.5 2.5M4.6 11.6l1.4 1.4M19.4 11.6L18 13"/>'
   };
   function ic(n){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+I[n]+'</svg>';}
   function kind(c){if(c==null)return '';if(c<=1)return 'Clear';if(c===2)return 'Partly cloudy';if(c===3)return 'Cloudy';if(c===45||c===48)return 'Fog';
@@ -36,7 +38,7 @@
   }
 
   // Today: what is still ahead today (up to 3, the next one gets a badge, "+N more" top right for the rest).
-  // Once today is done the card becomes Up next: the next events, each with its day.
+  // Once today is done the card becomes Tomorrow: its weather, sunrise and the first thing on the calendar.
   function todayTile(){
     var tk=key(HV.local()),now=HV.now().getTime(),dim='style="color:rgba(235,235,245,.6)"';
     if(!(HV.cfg.calendars||[]).length)return w('today s2','/frame/hv/today/','Today','cal','<div class="line" '+dim+'>No calendars yet. Add ICS links in config.json</div>');
@@ -44,17 +46,30 @@
       .sort(function(a,b){return new Date(a.start)-new Date(b.start);});
     function today(e){var s=dayKey(e.start);if(!e.all_day)return s===tk;var en=e.end?dayKey(e.end):s;return s<=tk&&(tk<en||s===tk);}
     var tod=up.filter(today),later=!tod.length;
-    if(!up.length)return w('today s2','/frame/hv/today/','Up next','cal','<div class="line" '+dim+'>'+(d.frame?'Nothing on the calendars for two weeks':'Loading the calendars')+'</div>');
-    var list=later?up:tod,rows='',next=null;
+    if(later)return tomorrowTile();
+    var list=tod,rows='',next=null;
     list.slice(0,3).forEach(function(e){
       var s=new Date(e.start).getTime(),m=Math.round((s-now)/60000),t=e.all_day?'All day':HV.hm(new Date(s))+' '+HV.ampm(new Date(s));
-      var em='<em>'+(later?HV.dayWord(new Date(s),true)+' '+(e.all_day?'':t):t)+'</em>';
-      if(!later&&!e.all_day&&s<=now)em='<em class="soon">Now</em>';
-      else if(!later&&!e.all_day&&!next&&m<=60){next=e;em='<em class="soon">'+t+' · in '+Math.max(1,m)+' min</em>';}
+      var em='<em>'+t+'</em>';
+      if(!e.all_day&&s<=now)em='<em class="soon">Now</em>';
+      else if(!e.all_day&&!next&&m<=60){next=e;em='<em class="soon">'+t+' · in '+Math.max(1,m)+' min</em>';}
       rows+='<div class="ev"><i style="background:'+HV.calColor(e.cal)+'"></i><span>'+HV.esc(e.title)+'</span>'+em+'</div>';
     });
-    var left=later?0:tod.length-3;
-    return w('today s2','/frame/hv/today/',(later?'Up next':'Today')+(left>0?'<span class="more">+'+left+' more</span>':''),'cal','<div class="evs">'+rows+'</div>');
+    var left=tod.length-3;
+    return w('today s2','/frame/hv/today/','Today'+(left>0?'<span class="more">+'+left+' more</span>':''),'cal','<div class="evs">'+rows+'</div>');
+  }
+
+  function tomorrowTile(){
+    var t=HV.local(new Date(HV.now().getTime()+864e5)),k=key(t),wx=d.frame&&d.frame.weather,day=null,first=null;
+    ((wx&&wx.days)||[]).forEach(function(x){if(x.date===k)day=x;});
+    ((d.frame&&d.frame.calendar_events)||[]).forEach(function(e){var s=dayKey(e.start),en=e.end?dayKey(e.end):s;
+      if(e.all_day?(s<=k&&(k<en||s===k)):s===k){if(!first||(!e.all_day&&(first.all_day||new Date(e.start)<new Date(first.start))))first=e;}});
+    function row(icon,txt){return '<div class="tr">'+ic(icon)+'<span>'+txt+'</span></div>';}
+    var left=day?'<div class="tw"><div class="big">'+Math.round(day.hi_f)+'°</div><div class="sub">L '+Math.round(day.lo_f)+'° · '+kind(day.code)+'</div></div>':
+      '<div class="tw"><div class="sub">'+(d.frame?'No forecast for tomorrow':'Waiting for the forecast')+'</div></div>';
+    var rows=(day?row('drop',day.precip_pct+'% chance of rain'):'')+(wx&&wx.next_sunrise?row('sunrise','Sunrise '+hm24(wx.next_sunrise)):'')+
+      row('cal',first?HV.esc(first.title)+' <em>'+(first.all_day?'All day':HV.hm(new Date(first.start))+' '+HV.ampm(new Date(first.start)))+'</em>':'Nothing on the calendar');
+    return w('today tmr s2','/frame/hv/weather/','Tomorrow · '+HV.DAYS[t.dow],'sun','<div class="tb2">'+left+'<div class="tds">'+rows+'</div></div>');
   }
 
   function weatherTile(wx){
