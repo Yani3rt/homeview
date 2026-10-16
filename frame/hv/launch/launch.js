@@ -25,13 +25,6 @@
     if((c>=71&&c<=77)||c===85||c===86)return 'Snow';if(c>=95)return 'Storms';if(c>=51&&c<=57)return 'Drizzle';return 'Rain';}
   function key(t){return t.y+'-'+HV.pad(t.mo)+'-'+HV.pad(t.d);}    // a home-time day as 'YYYY-MM-DD'
   function dayKey(iso){return key(HV.local(new Date(iso)));}
-  function upcoming(n){
-    var now=HV.now().getTime();
-    return ((d.frame&&d.frame.calendar_events)||[]).filter(function(e){return new Date(e.end||e.start).getTime()>now&&new Date(e.start).getTime()<now+14*864e5;})
-      .sort(function(a,b){return new Date(a.start)-new Date(b.start);}).slice(0,n);
-  }
-  function when(e){var s=new Date(e.start),day=HV.dayWord(s,true);
-    return (day==='Today'?'':day+' ')+(e.all_day?'All day':HV.hm(s)+' '+HV.ampm(s));}
   function thumb(u,size){return u?String(u)+'/'+(size||'medium'):'';}   // TheMealDB serves /small, /medium, /large
   function hm24(iso){var h=+iso.slice(11,13),m=iso.slice(14,16);return ((h%12)||12)+':'+m+' '+(h<12?'AM':'PM');}
   function hr(iso){var h=+iso.slice(11,13);return ((h%12)||12)+' '+(h<12?'AM':'PM');}
@@ -42,23 +35,26 @@
       '<div class="lbl">'+ic(icon)+label+'</div>'+body+(href?'</a>':'</div>');
   }
 
+  // Today: what is still ahead today (up to 3, the next one gets a badge, "+N more" top right for the rest).
+  // Once today is done the card becomes Up next: the next events, each with its day.
   function todayTile(){
-    var up=upcoming(4),tk=key(HV.local()),now=HV.now().getTime(),rows=[],line=false,shown=0,dim='style="color:rgba(235,235,245,.6)"';
-    var noCal=!(HV.cfg.calendars||[]).length;
-    if(!up.length)return w('today s2','/frame/hv/today/','Today','cal','<div class="line" '+dim+'>'+(noCal?'No calendars yet. Add ICS links in config.json':'Nothing on the calendars for two weeks')+'</div>');
-    up.forEach(function(e){
-      if(rows.length>=3)return;
-      if(!line&&dayKey(e.start)!==tk){line=true;if(rows.length<=1)rows.push('<div class="none">Nothing else today</div>');if(rows.length>=3)return;}
-      var s=new Date(e.start).getTime(),m=Math.round((s-now)/60000),em='<em>'+when(e)+'</em>';
-      if(!e.all_day&&s<=now)em='<em class="soon">Now</em>';
-      else if(!e.all_day&&m<=60)em='<em class="soon">'+HV.hm(new Date(s))+' '+HV.ampm(new Date(s))+' · in '+Math.max(1,m)+' min</em>';
-      if(dayKey(e.start)===tk)shown++;
-      rows.push('<div class="ev"><i style="background:'+HV.calColor(e.cal)+'"></i><span>'+HV.esc(e.title)+'</span>'+em+'</div>');
+    var tk=key(HV.local()),now=HV.now().getTime(),dim='style="color:rgba(235,235,245,.6)"';
+    if(!(HV.cfg.calendars||[]).length)return w('today s2','/frame/hv/today/','Today','cal','<div class="line" '+dim+'>No calendars yet. Add ICS links in config.json</div>');
+    var up=((d.frame&&d.frame.calendar_events)||[]).filter(function(e){return new Date(e.end||e.start).getTime()>now&&new Date(e.start).getTime()<now+14*864e5;})
+      .sort(function(a,b){return new Date(a.start)-new Date(b.start);});
+    function today(e){var s=dayKey(e.start);if(!e.all_day)return s===tk;var en=e.end?dayKey(e.end):s;return s<=tk&&(tk<en||s===tk);}
+    var tod=up.filter(today),later=!tod.length;
+    if(!up.length)return w('today s2','/frame/hv/today/','Up next','cal','<div class="line" '+dim+'>'+(d.frame?'Nothing on the calendars for two weeks':'Loading the calendars')+'</div>');
+    var list=later?up:tod,rows='',next=null;
+    list.slice(0,3).forEach(function(e){
+      var s=new Date(e.start).getTime(),m=Math.round((s-now)/60000),t=e.all_day?'All day':HV.hm(new Date(s))+' '+HV.ampm(new Date(s));
+      var em='<em>'+(later?HV.dayWord(new Date(s),true)+' '+(e.all_day?'':t):t)+'</em>';
+      if(!later&&!e.all_day&&s<=now)em='<em class="soon">Now</em>';
+      else if(!later&&!e.all_day&&!next&&m<=60){next=e;em='<em class="soon">'+t+' · in '+Math.max(1,m)+' min</em>';}
+      rows+='<div class="ev"><i style="background:'+HV.calColor(e.cal)+'"></i><span>'+HV.esc(e.title)+'</span>'+em+'</div>';
     });
-    // today's events that did not fit: a "+2 more" top right (they move up as earlier ones end)
-    var left=-shown;
-    upcoming(60).forEach(function(e){if(dayKey(e.start)===tk)left++;});
-    return w('today s2','/frame/hv/today/','Today'+(left>0?'<span class="more">+'+left+' more</span>':''),'cal','<div class="evs">'+rows.join('')+'</div>');
+    var left=later?0:tod.length-3;
+    return w('today s2','/frame/hv/today/',(later?'Up next':'Today')+(left>0?'<span class="more">+'+left+' more</span>':''),'cal','<div class="evs">'+rows+'</div>');
   }
 
   function weatherTile(wx){
