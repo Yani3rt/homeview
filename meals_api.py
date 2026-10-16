@@ -17,6 +17,7 @@ Routes (GET unless marked)
   /api/meals/browse?category=|area=   {ok, results:[brief]}
   /api/meals/random                   {ok, results:[brief]}   (one recipe, never cached)
   /api/meals/recipe?id=               {ok, recipe}
+  /api/meals/paprika, /api/meals/paprika/photo/<uid>   the household's Paprika recipes (paprika_api.py)
   /api/meals/favorites                {ok, favorites:[brief], usuals:[brief + times, last]}
   /api/meals/shopping?days=7          {ok, start, end, meals:[...], items:[{key, name, amount, meals, checked}]}
   POST /api/meals/plan       {date, id}  plan a recipe on a date;  {date, id: null} clears the date
@@ -39,6 +40,7 @@ from fractions import Fraction
 from zoneinfo import ZoneInfo
 
 import config
+import paprika_api
 
 BASE = "https://www.themealdb.com/api/json/v1/{key}/"
 UA = "HomeView/1 (+self-hosted kitchen dashboard)"
@@ -164,10 +166,16 @@ def search(q):
     q = str(q or "").strip()[:60]
     if not q:
         return {"ok": True, "results": []}
-    found = [brief(m) for m in _meals(api("search.php", s=q))]
-    if not found:      # "chicken thighs" finds nothing by name; try it as a main ingredient
-        found = [brief(m) for m in _meals(api("filter.php", i=q.lower().replace(" ", "_")))]
-    return {"ok": True, "results": found}
+    mine = paprika_api.search(q)        # the household's own Paprika recipes come first
+    try:
+        found = [brief(m) for m in _meals(api("search.php", s=q))]
+        if not found:      # "chicken thighs" finds nothing by name; try it as a main ingredient
+            found = [brief(m) for m in _meals(api("filter.php", i=q.lower().replace(" ", "_")))]
+    except MealsError:
+        if not mine:
+            raise
+        found = []
+    return {"ok": True, "results": mine + found}
 
 
 def browse(category=None, area=None):
@@ -190,6 +198,8 @@ def random_pick():
 
 def recipe(rid):
     rid = str(rid or "")
+    if paprika_api.ID_RE.fullmatch(rid):
+        return paprika_api.recipe(rid, steps)
     if not ID_RE.fullmatch(rid):
         raise ValueError("Unknown recipe")
     ms = _meals(api("lookup.php", ttl=RECIPE_TTL, i=rid))
@@ -295,7 +305,7 @@ def favorites_doc(now=None):
 
 def set_favorite(rid, on=True):
     rid = str(rid or "")
-    if not ID_RE.fullmatch(rid):
+    if not (ID_RE.fullmatch(rid) or paprika_api.ID_RE.fullmatch(rid)):
         raise ValueError("Unknown recipe")
     r = recipe(rid) if on else None          # outside the lock: may fetch
     with _lock:
@@ -611,6 +621,8 @@ def _query(handler):
 def dispatch_get(handler, route):
     if not route.startswith("/api/meals/"):
         return False
+    if paprika_api.dispatch_get(handler, route):
+        return True
     q = _query(handler)
     try:
         if route == "/api/meals/plan":

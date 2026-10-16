@@ -134,3 +134,5 @@
 .ml-heart svg{width:3.8vh;height:3.8vh;fill:none}
 .ml-heart.on{color:#e0245e}
 .ml-heart.on svg{fill:currentColor}
+.ml-chip.pp{color:#c8361b}
+.ml-chip.pp.on{background:#c8361b;color:#fff}

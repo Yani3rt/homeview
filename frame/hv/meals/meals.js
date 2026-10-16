@@ -2,7 +2,8 @@
    Reads : GET /api/meals/categories, /api/meals/browse?category=, /api/meals/search?q=, /api/meals/random,
            /api/meals/recipe?id=, /api/meals/plan, /api/meals/favorites (favorites + usuals from the plan history)
    Writes: POST /api/meals/plan {date, id}  (id null clears the day), POST /api/meals/favorites {id, on}
-   Pick a dinner (and ?plan=) opens on Favorites, or Usuals when nothing is hearted yet.
+   Pick a dinner (and ?plan=) opens on Favorites, or Usuals when nothing is hearted yet, then Paprika.
+   Paprika (when config.json has a paprika login): GET /api/meals/paprika?category= ; its recipes' ids start with "p". 
    URL   : ?view=week opens the week; ?plan=YYYY-MM-DD picks a dinner for that day; ?q= starts a search;
            ?open=<recipe id> opens a recipe (handy for screenshots). */
 (function(){
@@ -21,7 +22,7 @@
 
   var S={view:q('view')==='week'?'week':'browse',cats:[],cat:'',q:q('q'),results:null,err:'',plan:null,
          planFor:/^\d{4}-\d{2}-\d{2}$/.test(q('plan'))?q('plan'):'',cur:null,sel:'',busy:false,seq:0,
-         mine:'',favs:[],usuals:[]};   // mine: 'fav' or 'usual' while one of those chips is showing
+         mine:'',favs:[],usuals:[],pap:false,papCat:'',papInfo:null,papT:null};   // pap: showing Paprika recipes   // mine: 'fav' or 'usual' while one of those chips is showing
 
   root.innerHTML='<div class="ml-top"><h1 class="ml-title">Meals</h1><div class="ml-find">'+SEARCH+
     '<input id="q" type="search" placeholder="Search recipes or a main ingredient" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Search recipes">'+
@@ -52,10 +53,12 @@
     var e=$('chips');
     if(S.view!=='browse'){e.innerHTML='';e.style.display='none';return;}
     e.style.display='';
-    var h='<button class="ml-chip'+(!S.cat&&!S.q&&!S.mine?' on':'')+'" data-cat="">Ideas</button>'+
+    var h='<button class="ml-chip'+(!S.cat&&!S.q&&!S.mine&&!S.pap?' on':'')+'" data-cat="">Ideas</button>'+
       '<button class="ml-chip fv'+(S.mine==='fav'?' on':'')+'" data-mine="fav">'+HEART+'Favorites'+(S.favs.length?' <b>'+S.favs.length+'</b>':'')+'</button>'+
       (S.usuals.length?'<button class="ml-chip'+(S.mine==='usual'?' on':'')+'" data-mine="usual">Usuals</button>':'');
-    S.cats.forEach(function(c){h+='<button class="ml-chip'+(S.cat===c.name?' on':'')+'" data-cat="'+esc(c.name)+'">'+esc(c.name)+'</button>';});
+    if(HV.cfg.paprika)h+='<button class="ml-chip pp'+(S.pap&&!S.papCat?' on':'')+'" data-pap="">Paprika'+(S.papInfo&&S.papInfo.count?' <b>'+S.papInfo.count+'</b>':'')+'</button>';
+    if(S.pap&&S.papInfo)S.papInfo.categories.forEach(function(c){h+='<button class="ml-chip'+(S.papCat===c?' on':'')+'" data-pap="'+esc(c)+'">'+esc(c)+'</button>';});
+    else S.cats.forEach(function(c){h+='<button class="ml-chip'+(S.cat===c.name?' on':'')+'" data-cat="'+esc(c.name)+'">'+esc(c.name)+'</button>';});
     h+='<button class="ml-chip wk" data-random="1">Surprise me</button>';
     e.innerHTML=h;
   }
@@ -82,19 +85,26 @@
       if(!L.length){g.innerHTML=S.mine==='fav'?empty('No favorites yet','Open a recipe and tap the heart to keep it here'):empty('No usuals yet','Dinners you plan show up here');return;}
       L.forEach(function(r){h2+=card(r);});g.innerHTML=h2;return;}
     if(S.err){n.textContent='';g.innerHTML=empty('Recipes did not load',S.err);return;}
+    var P=S.pap&&S.papInfo;
+    if(P&&S.results&&!S.results.length){n.textContent='';g.innerHTML=P.syncing?empty('Getting your Paprika recipes','The first sync can take a few minutes'):
+      empty(P.error?'Paprika did not sync':'No Paprika recipes here',P.error||(S.papCat?'Nothing in '+S.papCat:'Recipes you add in Paprika show up here'));return;}
     if(!S.results){n.textContent='';g.innerHTML=empty('Loading recipes','From TheMealDB');return;}
     if(!S.results.length){n.textContent='';g.innerHTML=empty('No recipes found','Try one word, like a main ingredient: chicken, salmon, beans');return;}
-    n.textContent=S.q?S.results.length+' recipe'+(S.results.length===1?'':'s')+' for “'+S.q+'”':S.cat?S.cat+' · '+S.results.length+' recipes':S.idea?'Ideas: '+S.idea:'Ideas';
+    n.textContent=P?(S.papCat?S.papCat+' · ':'Paprika · ')+S.results.length+' recipe'+(S.results.length===1?'':'s')+(P.syncing?' · syncing':P.error?' · '+P.error:''):S.q?S.results.length+' recipe'+(S.results.length===1?'':'s')+' for “'+S.q+'”':S.cat?S.cat+' · '+S.results.length+' recipes':S.idea?'Ideas: '+S.idea:'Ideas';
     var h='';S.results.slice(0,60).forEach(function(r){h+=card(r);});g.innerHTML=h;
   }
   function fetchList(url){
-    var my=++S.seq;S.mine='';S.results=null;S.err='';draw();
-    HVJson(url).then(function(d){if(my!==S.seq)return;S.results=d.results||[];draw();},
+    var my=++S.seq,pap=url.indexOf('/api/meals/paprika')===0;S.mine='';S.pap=pap;if(!pap)S.papCat='';S.results=null;S.err='';draw();
+    clearTimeout(S.papT);
+    HVJson(url).then(function(d){if(my!==S.seq)return;S.results=d.results||[];
+      if(pap){S.papInfo=d;if(d.syncing)S.papT=setTimeout(function(){if(my===S.seq&&S.pap)fetchList(url);},20000);}   // show recipes as the sync brings them
+      draw();},
       function(e){if(my!==S.seq)return;S.err=(e&&e.message)||'TheMealDB did not answer';draw();});
   }
-  function showMine(k){S.seq++;S.mine=k;S.cat='';S.q='';S.err='';$('q').value='';$('qclr').hidden=true;draw();$('scroll').scrollTop=0;}
+  function showMine(k){S.seq++;S.mine=k;S.pap=false;S.papCat='';S.cat='';S.q='';S.err='';$('q').value='';$('qclr').hidden=true;draw();$('scroll').scrollTop=0;}
   function startPick(){   // planning a day: the household's own dinners first, then ideas
-    if(S.favs.length)showMine('fav');else if(S.usuals.length)showMine('usual');else if(!S.results||S.mine)ideas();else draw();
+    if(S.favs.length)showMine('fav');else if(S.usuals.length)showMine('usual');else if(HV.cfg.paprika)fetchList('/api/meals/paprika');
+    else if(!S.results||S.mine)ideas();else draw();
   }
   function ideas(){   // a different main-course category each day, so the first screen changes
     S.cat='';
@@ -184,6 +194,8 @@
   $('seg').onclick=function(e){var b=e.target.closest('[data-view]');if(!b)return;S.view=b.getAttribute('data-view');draw();};
   $('chips').onclick=function(e){var b=e.target.closest('button');if(!b)return;
     if(b.getAttribute('data-mine')){showMine(b.getAttribute('data-mine'));return;}
+    if(b.hasAttribute('data-pap')){S.papCat=b.getAttribute('data-pap');S.cat='';S.q='';$('q').value='';$('qclr').hidden=true;
+      fetchList('/api/meals/paprika'+(S.papCat?'?category='+encodeURIComponent(S.papCat):''));if(!S.papCat)$('chips').scrollLeft=0;return;}
     if(b.getAttribute('data-random')){S.q='';S.cat='';$('q').value='';fetchList('/api/meals/random');return;}
     S.cat=b.getAttribute('data-cat')||'';S.q='';$('q').value='';$('qclr').hidden=true;
     if(S.cat)fetchList('/api/meals/browse?category='+encodeURIComponent(S.cat));else ideas();};

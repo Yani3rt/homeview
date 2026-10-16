@@ -19,6 +19,7 @@
   "spotify": {"client_id": "", "client_secret": "", "redirect_uri": "http://127.0.0.1:8890/callback"},
 
   "meals": {"provider": "themealdb", "api_key": "1", "cache_hours": 168},
+  "paprika": {"email": "", "password": "", "sync_hours": 6},
 
   "timers": [
     {"label": "Pasta", "seconds": 600},
