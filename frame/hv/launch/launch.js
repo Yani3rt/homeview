@@ -45,7 +45,7 @@
   }
 
   function todayTile(){
-    var up=upcoming(4),tk=key(HV.local()),now=HV.now().getTime(),rows=[],line=false,dim='style="color:rgba(235,235,245,.6)"';
+    var up=upcoming(4),tk=key(HV.local()),now=HV.now().getTime(),rows=[],line=false,shown=0,dim='style="color:rgba(235,235,245,.6)"';
     var noCal=!(HV.cfg.calendars||[]).length;
     if(!up.length)return w('today s2','/frame/hv/today/','Today','cal','<div class="line" '+dim+'>'+(noCal?'No calendars yet. Add ICS links in config.json':'Nothing on the calendars for two weeks')+'</div>');
     up.forEach(function(e){
@@ -54,9 +54,13 @@
       var s=new Date(e.start).getTime(),m=Math.round((s-now)/60000),em='<em>'+when(e)+'</em>';
       if(!e.all_day&&s<=now)em='<em class="soon">Now</em>';
       else if(!e.all_day&&m<=60)em='<em class="soon">'+HV.hm(new Date(s))+' '+HV.ampm(new Date(s))+' · in '+Math.max(1,m)+' min</em>';
+      if(dayKey(e.start)===tk)shown++;
       rows.push('<div class="ev"><i style="background:'+HV.calColor(e.cal)+'"></i><span>'+HV.esc(e.title)+'</span>'+em+'</div>');
     });
-    return w('today s2','/frame/hv/today/','Today','cal','<div class="evs">'+rows.join('')+'</div>');
+    // today's events that did not fit: a "+2 more" top right (they move up as earlier ones end)
+    var left=-shown;
+    upcoming(60).forEach(function(e){if(dayKey(e.start)===tk)left++;});
+    return w('today s2','/frame/hv/today/','Today'+(left>0?'<span class="more">+'+left+' more</span>':''),'cal','<div class="evs">'+rows.join('')+'</div>');
   }
 
   function weatherTile(wx){

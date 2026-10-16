@@ -26,6 +26,7 @@
 .w.today .ev em{font-style:normal;color:rgba(235,235,245,.6);white-space:nowrap}
 .w.today .evs{display:flex;flex-direction:column;gap:1.4vh}
 .w.today .ev em.soon{background:var(--orange);color:#1c1c1e;border-radius:var(--r-pill);padding:.3vh 1vh;font-size:2.2vh;font-weight:700}
+.w.today .lbl .more{margin-left:auto;text-transform:none;letter-spacing:0;font-size:2.4vh;color:rgba(235,235,245,.7)}
 .w.today .none{font-size:2.4vh;font-weight:600;color:rgba(235,235,245,.55)}
 
 /* dinner: photo */
