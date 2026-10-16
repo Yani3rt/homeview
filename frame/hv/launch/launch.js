@@ -3,7 +3,7 @@
      [ Today (2 wide)          ] [ Weather  ] [ Outside  ]   (Outside becomes Smart Home when Home Assistant is set up)
      [ Tonight  ] [ Timer      ] [ Shopping ] [ Photos   ]   (Photos becomes Music when Sonos or Spotify is set up)
      [ This week: tomorrow + 6 days, events and dinners   ]
-   Standby is the photo chip top right. Timer shows one-tap quick timers (config.json timers) when none is running. ES5. */
+   Standby is the photo chip top right. Timer shows a big timer icon when none is running, else the countdown. ES5. */
 (function(){
   var d={frame:null,plan:null,shop:null,music:null,photos:null,ha:null};
   var grid=document.getElementById('grid');
@@ -36,8 +36,7 @@
   function thumb(u,size){return u?String(u)+'/'+(size||'medium'):'';}   // TheMealDB serves /small, /medium, /large
   function hm24(iso){var h=+iso.slice(11,13),m=iso.slice(14,16);return ((h%12)||12)+':'+m+' '+(h<12?'AM':'PM');}
   function hr(iso){var h=+iso.slice(11,13);return ((h%12)||12)+' '+(h<12?'AM':'PM');}
-  function mins(s){return s%60?HV.mmss(s):(s/60)+' min';}
-  // a tile; href makes the whole tile a link, tag:'div' for tiles with their own buttons (data-href / data-qt)
+  // a tile; href makes the whole tile a link, otherwise a div whose taps follow data-href (week strip, timer)
   function w(cls,href,label,icon,body,style){
     var a=' class="w '+cls+'"'+(style?' style="'+style+'"':'');
     return (href?'<a'+a+' href="'+href+'">':'<div'+a+' data-href="'+(cls.indexOf('timer')>=0?'/frame/hv/timer/':'/frame/hv/calendar/')+'">')+
@@ -104,10 +103,7 @@
     if(ts.length){var t=ts[0],left=t.ends-now,f=t.total?Math.max(0,Math.min(1,1-left/t.total)):0;
       return '<div><div class="big">'+(left<=0?'Done':HV.mmss(left))+'</div><div class="line" '+dim+'>'+HV.esc(t.label)+(ts.length>1?' · +'+(ts.length-1)+' more':'')+'</div></div>'+
         '<div class="bar"><i style="-webkit-transform:scaleX('+f.toFixed(3)+');transform:scaleX('+f.toFixed(3)+')"></i></div>';}
-    var q=(HV.cfg.timers||[]).slice(0,2),b='';   // two big one-tap rows; the Timer screen has the rest
-    if(!q.length)return '<div><div class="line" style="font-size:3.4vh">No timers running</div><div class="line" '+dim+'>Tap to start one</div></div>';
-    q.forEach(function(x,i){b+='<button data-qt="'+i+'"><span>'+HV.esc(x.label)+'</span><em>'+mins(x.seconds)+'</em></button>';});
-    return '<div class="qt">'+b+'</div>';   // tapping anywhere else on the tile opens the Timer screen for other lengths
+    return '<div class="tico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+I.timer+'</svg></div>';   // idle: just a big timer icon
   }
 
   function shopTile(){
@@ -163,18 +159,10 @@
     html+=weekTile();
     grid.innerHTML=html;
   }
-  // taps on tiles that hold their own buttons: a quick timer starts at once; anything else follows its data-href
-  var busy=false;
+  // taps on div tiles (timer, week strip) follow the nearest data-href
   grid.onclick=function(e){
-    var el=e.target;while(el&&el!==grid&&!el.getAttribute('data-qt')&&!el.getAttribute('data-href'))el=el.parentNode;
-    if(!el||el===grid)return;
-    var q=el.getAttribute('data-qt');
-    if(q!=null){var x=(HV.cfg.timers||[])[+q];if(!x||busy)return;busy=true;
-      HV.post('/api/hv/timer',{action:'start',label:x.label,seconds:x.seconds}).then(function(r){busy=false;
-        if(r&&r.timer)HV.state.timers=(HV.state.timers||[]).concat([r.timer]);HV.toast(x.label+' timer started');render();},
-        function(er){busy=false;HV.toast(er.message);});
-      return;}
-    location.href=el.getAttribute('data-href');
+    var el=e.target;while(el&&el!==grid&&!el.getAttribute('data-href'))el=el.parentNode;
+    if(el&&el!==grid)location.href=el.getAttribute('data-href');
   };
   // the running timer counts down every second without redrawing the grid
   setInterval(function(){if(!(HV.state.timers||[]).length)return;var tb=grid.querySelector('.w.timer .tb');if(tb)tb.innerHTML=timerBody();},1000);

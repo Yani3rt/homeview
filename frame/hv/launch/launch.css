@@ -55,11 +55,8 @@
 .w.timer .lbl{color:var(--orange)}
 .w.timer .big{color:#fff}
 .w.timer .tb{display:flex;flex-direction:column;justify-content:space-between;flex:1;gap:1vh;min-height:0}
-.w.timer .qt{display:flex;flex-direction:column;justify-content:flex-end;gap:1vh;flex:1}
-.w.timer .qt button{background:#2c2c2e;border:0;border-radius:var(--r-pill);padding:0 2vh;height:6.6vh;font:inherit;font-size:2.6vh;font-weight:600;color:#fff;
-  display:flex;align-items:center;justify-content:space-between;text-align:left}
-.w.timer .qt button:active{transform:scale(.96)}
-.w.timer .qt em{font-style:normal;color:var(--orange);font-family:var(--sfr);font-weight:600}
+.w.timer .tico{flex:1;display:flex;align-items:center;justify-content:center;color:var(--orange);min-height:0}
+.w.timer .tico svg{width:13vh;height:13vh}
 .w.timer .bar{height:.9vh;border-radius:1vh;background:#2c2c2e;overflow:hidden}
 .w.timer .bar i{display:block;height:100%;background:var(--orange);-webkit-transform-origin:0 50%;transform-origin:0 50%}
 
@@ -117,7 +114,7 @@ html.look-glass .w.wx,html.look-glass .w.wx.cloud,html.look-glass .w.wx.night,ht
 html.look-glass .w.dinner,html.look-glass .w.photos{border-color:rgba(255,255,255,.3)}
 html.look-glass .w.wx .big{font-size:6vh}
 html.look-glass .w .cnt .big{font-size:5.4vh}
-html.look-glass .w.timer .qt button,html.look-glass .w.timer .bar{background:rgba(255,255,255,.14)}
+html.look-glass .w.timer .bar{background:rgba(255,255,255,.14)}
 html.look-glass .w.on .sub{color:#fff;opacity:.75}
 html.look-glass .wk .d{background:rgba(255,255,255,.14)}
 html.look-glass .wk .d.now{background:rgba(0,0,0,.25)}
