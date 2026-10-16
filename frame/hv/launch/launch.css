@@ -87,7 +87,7 @@
 .wk .ml span{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .wk .ml svg{width:2vh;height:2vh;flex:0 0 auto}
 .wk .ml.set{color:var(--orange)}
-.wk .ml.add{color:var(--blue)}
+.wk .ml.add{color:var(--ink-3)}
 .wk .d.now .ml.set{color:#ffb340}
 
 /* lights / house tiles in Home's lavender when something is on */
