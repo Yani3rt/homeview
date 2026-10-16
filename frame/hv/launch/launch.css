@@ -27,7 +27,8 @@
 .w.today .evs{display:flex;flex-direction:column;gap:1.4vh}
 .w.today .ev em.soon{background:var(--orange);color:#1c1c1e;border-radius:var(--r-pill);padding:.3vh 1vh;font-size:2.2vh;font-weight:700}
 .w.today .lbl .more{margin-left:auto;text-transform:none;letter-spacing:0;font-size:2.4vh;color:rgba(235,235,245,.7)}
-.w.tmr .lbl{color:var(--ink-2)}
+.w.tmr .lbl{color:var(--ink);font-size:3.4vh;gap:.8vw}
+.w.tmr .lbl svg{width:3.6vh;height:3.6vh}
 .w.tmr .lbl .more{margin-left:auto;text-transform:none;letter-spacing:0;font-size:2.4vh;color:var(--ink-3)}
 .w.tmr .tcols{display:flex;align-items:stretch;gap:2.4vw;min-width:0}
 .w.tmr .tds{display:flex;flex-direction:column;justify-content:center;gap:1.4vh;min-width:0;flex:0 0 auto}
