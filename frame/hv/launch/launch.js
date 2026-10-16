@@ -23,7 +23,6 @@
   function ic(n){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+I[n]+'</svg>';}
   function kind(c){if(c==null)return '';if(c<=1)return 'Clear';if(c===2)return 'Partly cloudy';if(c===3)return 'Cloudy';if(c===45||c===48)return 'Fog';
     if((c>=71&&c<=77)||c===85||c===86)return 'Snow';if(c>=95)return 'Storms';if(c>=51&&c<=57)return 'Drizzle';return 'Rain';}
-  function wet(c){return (c>=51&&c<=67)||(c>=80&&c<=82)||c>=95;}   // drizzle, rain, showers, storms
   function key(t){return t.y+'-'+HV.pad(t.mo)+'-'+HV.pad(t.d);}    // a home-time day as 'YYYY-MM-DD'
   function dayKey(iso){return key(HV.local(new Date(iso)));}
   function upcoming(n){
@@ -65,13 +64,11 @@
   function weatherTile(wx){
     if(!wx||wx.temp_f==null)return w('wx','/frame/hv/weather/','Weather','sun','<div class="line">'+(d.frame?'The forecast did not load':'Waiting for the forecast')+'</div>');
     var wc=!wx.is_day?' night':(wx.code>=3?' cloud':''),t=HV.local(),nk=key(t)+'T'+HV.pad(t.h);
-    var hrs=(wx.hours24||wx.hourly||[]).filter(function(x){return x.t.slice(0,13)>nk;}).slice(0,12);
-    var n=wx.nowcast,rainNow=wet(wx.code)||!!(n&&(n.state==='rain'||n.state==='stop')),say='',i;
-    if(rainNow){for(i=0;i<hrs.length;i++)if(!wet(hrs[i].code)){say='Rain until '+hr(hrs[i].t);break;}if(!say)say='Rain for hours';}
-    else for(i=0;i<hrs.length;i++)if(wet(hrs[i].code)){say='Rain from '+hr(hrs[i].t);break;}
-    if(!say)say=kind(wx.code)+' · H '+Math.round(Math.max(wx.hi_f,wx.temp_f))+'° L '+Math.round(Math.min(wx.lo_f,wx.temp_f))+'°';
-    var strip='';hrs.slice(0,4).forEach(function(x){strip+='<div'+(wet(x.code)?' class="rain"':'')+'>'+hr(x.t)+'<b>'+Math.round(x.temp_f)+'°</b></div>';});
-    return w('wx'+wc,'/frame/hv/weather/','Weather','sun','<div><div class="big">'+Math.round(wx.temp_f)+'°</div><div class="say">'+say+'</div></div>'+(strip?'<div class="hrs">'+strip+'</div>':''));
+    var hrs=(wx.hours24||wx.hourly||[]).filter(function(x){return x.t.slice(0,13)>nk;}).slice(0,4);
+    // rain timing is the Rain chip's job (top right, from the minute-by-minute nowcast)
+    var say=kind(wx.code),hl='H '+Math.round(Math.max(wx.hi_f,wx.temp_f))+'° L '+Math.round(Math.min(wx.lo_f,wx.temp_f))+'°';
+    var strip='';hrs.slice(0,4).forEach(function(x){strip+='<div>'+hr(x.t)+'<b>'+Math.round(x.temp_f)+'°</b></div>';});
+    return w('wx'+wc,'/frame/hv/weather/','Weather','sun','<div><div class="tl"><div class="big">'+Math.round(wx.temp_f)+'°</div><div class="hl">'+hl+'</div></div><div class="say">'+say+'</div></div>'+(strip?'<div class="hrs">'+strip+'</div>':''));
   }
 
   // Home Assistant: the indoor temperature and humidity from its sensors; otherwise Outside: air quality and sunrise or sunset

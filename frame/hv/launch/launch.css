@@ -44,11 +44,12 @@
 .w.wx.cloud{background:linear-gradient(180deg,#6f8294,#a9b8c6)}
 .w.wx .lbl{color:rgba(255,255,255,.85)}
 .w.wx .big{font-size:6vh}
+.w.wx .tl{display:flex;align-items:baseline;justify-content:space-between;gap:.8vw}
+.w.wx .hl{font-size:2.4vh;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap}
 .w.wx .say{font-size:2.4vh;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .w.wx .hrs{display:flex;justify-content:space-between;font-size:2.1vh;font-weight:600;color:rgba(255,255,255,.9)}
 .w.wx .hrs div{display:flex;flex-direction:column;align-items:center;gap:.3vh;padding:0 .5vh;border-radius:1vh}
 .w.wx .hrs b{font-family:var(--sfr);font-size:2.6vh}
-.w.wx .hrs .rain{color:#fff;background:rgba(0,40,120,.28)}
 
 /* timer */
 .w.timer{background:#000;color:#fff}
