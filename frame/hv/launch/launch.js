@@ -60,14 +60,23 @@
   }
 
   function tomorrowTile(){
-    var t=HV.local(new Date(HV.now().getTime()+864e5)),k=key(t),wx=d.frame&&d.frame.weather,day=null,first=null;
+    var t=HV.local(new Date(HV.now().getTime()+864e5)),k=key(t),wx=d.frame&&d.frame.weather,day=null,evs=[];
     ((wx&&wx.days)||[]).forEach(function(x){if(x.date===k)day=x;});
     ((d.frame&&d.frame.calendar_events)||[]).forEach(function(e){var s=dayKey(e.start),en=e.end?dayKey(e.end):s;
-      if(e.all_day?(s<=k&&(k<en||s===k)):s===k){if(!first||(!e.all_day&&(first.all_day||new Date(e.start)<new Date(first.start))))first=e;}});
+      if(e.all_day?(s<=k&&(k<en||s===k)):s===k)evs.push(e);});
+    evs.sort(function(a,b){return a.all_day!==b.all_day?(a.all_day?-1:1):new Date(a.start)-new Date(b.start);});
     function row(icon,txt){return '<div class="tr">'+ic(icon)+'<span>'+txt+'</span></div>';}
-    var rows=(day?row('drop',day.precip_pct+'% chance of rain'):row('drop',d.frame?'No forecast for tomorrow':'Waiting for the forecast'))+(wx&&wx.next_sunrise?row('sunrise','Sunrise '+hm24(wx.next_sunrise)):'')+
-      row('cal',first?HV.esc(first.title)+' <em>'+(first.all_day?'All day':HV.hm(new Date(first.start))+' '+HV.ampm(new Date(first.start)))+'</em>':'Nothing on the calendar');
-    return w('tmr s2','/frame/hv/weather/','Tomorrow · '+HV.DAYS[t.dow],'sun','<div class="tds">'+rows+'</div>');   // light card: Today is the dark one
+    // left: the day's weather in words (no temperature: the Weather card has it); right: tomorrow's calendar
+    var sky=day&&kind(day.code),wxs=day?(sky&&!/Rain|Drizzle/.test(sky)?row('sun',sky):'')+row('drop',day.precip_pct+'% rain'):row('drop',d.frame?'No forecast for tomorrow':'Waiting for the forecast');
+    if(wx&&wx.next_sunrise)wxs+=row('sunrise','Sunrise '+hm24(wx.next_sunrise));
+    var cal='';
+    evs.slice(0,3).forEach(function(e){
+      cal+='<div class="ev"><i style="background:'+HV.calColor(e.cal)+'"></i><em>'+(e.all_day?'All day':HV.hm(new Date(e.start)))+'</em><span>'+HV.esc(e.title)+'</span></div>';
+    });
+    if(!cal)cal='<div class="none">'+ic('cal')+'<span>Nothing on the calendar</span></div>';
+    var left=evs.length-3;
+    return w('tmr s2','/frame/hv/weather/','Tomorrow · '+HV.DAYS[t.dow]+(left>0?'<span class="more">+'+left+' more</span>':''),'sun',
+      '<div class="tcols"><div class="tds">'+wxs+'</div><div class="tcal">'+cal+'</div></div>');   // light card: Today is the dark one
   }
 
   function weatherTile(wx){
