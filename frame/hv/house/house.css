@@ -1,0 +1,17 @@
+/* Household settings (/frame/hv/house/): the settings.css list look, plus text fields, steppers and swatches */
+.hs .hv-sub{font-size:2.4vh}
+.hs .st-grp h4{display:flex;align-items:center;justify-content:space-between;margin-right:.4vw}
+.hs .st-grp h4 .st-btn{height:5.6vh;font-size:2.4vh;letter-spacing:0;text-transform:none}
+.hs .st-btn:disabled{opacity:.4}
+.hs-in{flex:1;min-width:0;height:6.6vh;border-radius:var(--r-pill);border:0;background:var(--bg);padding:0 1.4vw;font:inherit;font-size:2.8vh;font-weight:600;color:var(--ink);-webkit-appearance:none}
+.hs-in:focus{outline:.3vh solid var(--blue)}
+.hs-row .l{flex:none;width:11vw}
+.hs-tm{display:flex;align-items:center;gap:.6vw;flex:none}
+.hs-tm button{width:6.6vh;height:6.6vh;border-radius:50%;background:var(--fill);font-size:3.4vh;font-weight:600;color:var(--ink)}
+.hs-tm b{min-width:10vh;text-align:center;font-size:2.8vh}
+.hs-x{width:6.6vh;height:6.6vh;border-radius:50%;background:transparent;color:var(--red);font-size:3.6vh;font-weight:600;flex:none}
+.hs-add{color:var(--blue);font-weight:600}
+.hs-cal{flex-wrap:wrap;padding-top:1.2vh;padding-bottom:1.2vh;row-gap:1.2vh}
+.hs-sw{display:flex;gap:.7vw;flex-wrap:wrap;width:100%}
+.hs-sw button{width:5.4vh;height:5.4vh;border-radius:50%;border:.4vh solid transparent;background-clip:padding-box}
+.hs-sw button.on{box-shadow:0 0 0 .4vh var(--card),0 0 0 .8vh var(--ink)}

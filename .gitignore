@@ -1,5 +1,7 @@
 # per-house settings and keys: copy config.example.json to config.json
 config.json
+config.json.bak
+config.json.tmp
 # runtime state: the meal plan, caches, Spotify token
 data/
 # your own photos, wallpapers and fonts

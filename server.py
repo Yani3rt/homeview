@@ -24,6 +24,7 @@ import config
 import frame_api
 import ha_api
 import reminders_sync
+import settings_api
 import tides_api
 import storms_api
 import hv_api
@@ -97,7 +98,7 @@ class Handler(SimpleHTTPRequestHandler):
         if route in ("/api/frame", "/api/frame/"):
             self._json(weather_api.frame_doc())
             return
-        for mod in (hv_api, meals_api, spotify_api, frame_api, camera_api, ha_api, reminders_sync, tides_api, storms_api):
+        for mod in (hv_api, settings_api, meals_api, spotify_api, frame_api, camera_api, ha_api, reminders_sync, tides_api, storms_api):
             if mod.dispatch_get(self, route):
                 return
         if route.startswith("/api/"):
@@ -115,7 +116,7 @@ class Handler(SimpleHTTPRequestHandler):
     # ------------------------------------------------------------ POST
     def do_POST(self):
         route = self._route()
-        if hv_api.dispatch_post(self, route) or spotify_api.dispatch_post(self, route) or ha_api.dispatch_post(self, route):
+        if hv_api.dispatch_post(self, route) or settings_api.dispatch_post(self, route) or spotify_api.dispatch_post(self, route) or ha_api.dispatch_post(self, route):
             return
         if route not in ("/api/meals/plan", "/api/meals/shopping", "/api/meals/staples", "/api/frame/music"):
             self._json({"ok": False, "error": "Not found"}, 404)

@@ -45,7 +45,7 @@
   var SCREENS=[
     ['Home',''],['Today','today'],['Calendar','calendar'],['Weather','weather'],['Tonight','dinner'],['Meals','meals'],
     ['Shopping','shopping'],['Timer','timer'],['Music','music'],['Photos','photos'],['Camera','camera'],[HV.cfg.ha_title||'Home Assistant','ha'],['Standby','standby'],['Night','night'],
-    ['Background','background'],['Standby faces','faces']
+    ['Background','background'],['Standby faces','faces'],['Household','house']
   ].filter(function(x){return (x[1]!=='music'||HV.cfg.sonos||HV.cfg.spotify)&&(x[1]!=='camera'||HV.cfg.camera)&&(x[1]!=='ha'||HV.cfg.ha);});
   /* Weather screen style, per frame (localStorage 'hv-wx'): 'apple' (sky gradient, glass cards) or 'modern' (light card, 24 h chart) */
   function wxStyle(){var v='apple';try{v=localStorage.getItem('hv-wx')||'apple';}catch(e){}return v==='modern'?'modern':'apple';}
@@ -64,12 +64,14 @@
   }
   function rightBody(){
     var f=frameInfo(),c=HV.cfg,h='';
+    h+=grp('This house',
+      '<a class="st-row st-nav" href="/frame/hv/house/"><div class="l">Household<small>Home, units, quick timers, calendars · every frame</small></div>'+chev()+'</a>');
     h+=grp('This frame',
       row('Screen',HV.esc(ua()),'<span class="v">'+f.size+' \u00b7 '+f.res+'</span>')+
       row('Home',HV.esc(c.place||c.home_name||'Home'),'<span class="v">'+HV.esc(c.timezone||'')+'</span>')+
       row('Photos','<span id="vph">'+(photoCount==null?'...':photoCount+' photos')+'</span>','')+
       row('Music',c.sonos||c.spotify?[c.sonos?'Sonos':'',c.spotify?'Spotify':''].filter(Boolean).join(' and '):'Not set up in config.json','<span class="v">'+(c.sonos||c.spotify?'On':'Off')+'</span>'));
-    h+='<p class="st-note">Idle uses touch inactivity. Softer and Dim shade Standby; they do not change the backlight. The night clock shows instead during the times it\u2019s scheduled (Standby faces). Location, calendars, units and music are set in config.json on the server.</p>';
+    h+='<p class="st-note">Idle uses touch inactivity. Softer and Dim shade Standby; they do not change the backlight. The night clock shows instead during the times it\u2019s scheduled (Standby faces). Calendar links, location, music and cameras are set in config.json on the server.</p>';
     return h;
   }
   function links(){
