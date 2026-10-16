@@ -27,14 +27,13 @@
 .w.today .evs{display:flex;flex-direction:column;gap:1.4vh}
 .w.today .ev em.soon{background:var(--orange);color:#1c1c1e;border-radius:var(--r-pill);padding:.3vh 1vh;font-size:2.2vh;font-weight:700}
 .w.today .lbl .more{margin-left:auto;text-transform:none;letter-spacing:0;font-size:2.4vh;color:rgba(235,235,245,.7)}
-.w.tmr .tb2{display:flex;align-items:flex-end;justify-content:space-between;gap:2vw;min-height:0}
-.w.tmr .big{font-size:9vh}
-.w.tmr .sub{color:rgba(235,235,245,.7);font-size:2.6vh;font-weight:600}
-.w.tmr .tds{display:flex;flex-direction:column;gap:1.2vh;min-width:0}
-.w.tmr .tr{display:flex;align-items:center;gap:.8vw;font-size:2.8vh;font-weight:600;white-space:nowrap;min-width:0}
-.w.tmr .tr svg{width:2.8vh;height:2.8vh;flex:0 0 auto;color:var(--orange)}
+.w.tmr .lbl{color:var(--ink-2)}
+.w.tmr .tds{display:flex;flex-direction:column;gap:1.4vh;min-width:0}
+.w.tmr .tr{display:flex;align-items:center;gap:.9vw;font-size:3vh;font-weight:600;white-space:nowrap;min-width:0}
+.w.tmr .tr svg{width:3vh;height:3vh;flex:0 0 auto;color:var(--ink-3)}
 .w.tmr .tr span{overflow:hidden;text-overflow:ellipsis}
-.w.tmr .tr em{font-style:normal;color:rgba(235,235,245,.6)}
+.w.tmr .tr em{font-style:normal;color:var(--ink-3)}
+html.look-glass .w.tmr .tr svg,html.look-glass .w.tmr .tr em{color:var(--g-ink-2)}
 .w.today .none{font-size:2.4vh;font-weight:600;color:rgba(235,235,245,.55)}
 
 /* dinner: photo */

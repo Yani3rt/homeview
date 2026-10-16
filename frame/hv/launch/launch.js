@@ -65,11 +65,9 @@
     ((d.frame&&d.frame.calendar_events)||[]).forEach(function(e){var s=dayKey(e.start),en=e.end?dayKey(e.end):s;
       if(e.all_day?(s<=k&&(k<en||s===k)):s===k){if(!first||(!e.all_day&&(first.all_day||new Date(e.start)<new Date(first.start))))first=e;}});
     function row(icon,txt){return '<div class="tr">'+ic(icon)+'<span>'+txt+'</span></div>';}
-    var left=day?'<div class="tw"><div class="big">'+Math.round(day.hi_f)+'°</div><div class="sub">L '+Math.round(day.lo_f)+'° · '+kind(day.code)+'</div></div>':
-      '<div class="tw"><div class="sub">'+(d.frame?'No forecast for tomorrow':'Waiting for the forecast')+'</div></div>';
-    var rows=(day?row('drop',day.precip_pct+'% chance of rain'):'')+(wx&&wx.next_sunrise?row('sunrise','Sunrise '+hm24(wx.next_sunrise)):'')+
+    var rows=(day?row('drop',day.precip_pct+'% chance of rain'):row('drop',d.frame?'No forecast for tomorrow':'Waiting for the forecast'))+(wx&&wx.next_sunrise?row('sunrise','Sunrise '+hm24(wx.next_sunrise)):'')+
       row('cal',first?HV.esc(first.title)+' <em>'+(first.all_day?'All day':HV.hm(new Date(first.start))+' '+HV.ampm(new Date(first.start)))+'</em>':'Nothing on the calendar');
-    return w('today tmr s2','/frame/hv/weather/','Tomorrow · '+HV.DAYS[t.dow],'sun','<div class="tb2">'+left+'<div class="tds">'+rows+'</div></div>');
+    return w('tmr s2','/frame/hv/weather/','Tomorrow · '+HV.DAYS[t.dow],'sun','<div class="tds">'+rows+'</div>');   // light card: Today is the dark one
   }
 
   function weatherTile(wx){
