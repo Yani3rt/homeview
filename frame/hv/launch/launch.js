@@ -2,7 +2,7 @@
    Layout, 4 x 3:
      [ Today (2 wide)          ] [ Weather  ] [ Outside  ]   (Outside becomes Smart Home when Home Assistant is set up)
      [ Tonight  ] [ Timer      ] [ Shopping ] [ Photos   ]   (Photos becomes Music when Sonos or Spotify is set up)
-     [ This week: 7 days, their events and dinners       ]
+     [ This week: tomorrow + 6 days, events and dinners   ]
    Standby is the photo chip top right. Timer shows one-tap quick timers (config.json timers) when none is running. ES5. */
 (function(){
   var d={frame:null,plan:null,shop:null,music:null,photos:null,ha:null};
@@ -115,24 +115,23 @@
     return w(left?'on':'','/frame/hv/shopping/','Shopping','cart',body);
   }
 
-  // This week: today and the next 6 days, each with up to 2 events and its dinner (or a + Dinner to plan one)
+  // This week: tomorrow and the 6 days after, each with up to 2 events and its dinner (or a + Dinner to plan one)
   function weekTile(){
-    var P=d.plan,days=(P&&P.week)||[],evs=(d.frame&&d.frame.calendar_events)||[],now=HV.now().getTime(),h='';
-    if(!days.length){var j;for(j=0;j<7;j++)days.push({date:key(HV.local(new Date(now+j*864e5))),meal:null});}
-    days.forEach(function(x,i){
-      var k=x.date,dt=new Date(k+'T12:00:00'),dn=i===0?'Today':HV.DAYS[dt.getDay()].slice(0,3);
-      var on=evs.filter(function(e){var s=dayKey(e.start);if(!e.all_day)return s===k&&(i>0||new Date(e.end||e.start).getTime()>now);   // today: what is still to come
+    var P=d.plan,meals=(P&&P.days)||{},evs=(d.frame&&d.frame.calendar_events)||[],now=HV.now().getTime(),h='',j;
+    for(j=1;j<=7;j++){
+      var k=key(HV.local(new Date(now+j*864e5))),dt=new Date(k+'T12:00:00'),dn=j===1?'Tomorrow':HV.DAYS[dt.getDay()].slice(0,3),meal=meals[k];
+      var on=evs.filter(function(e){var s=dayKey(e.start);if(!e.all_day)return s===k;
           var en=e.end?dayKey(e.end):s;return s<=k&&(k<en||s===k);})
         .sort(function(a,b){return (b.all_day?1:0)-(a.all_day?1:0)||new Date(a.start)-new Date(b.start);});
-      h+='<div class="d'+(i===0?' now':'')+'" data-href="/frame/hv/calendar/"><div class="dn">'+dn+'<b>'+(+k.slice(8,10))+'</b></div>';
+      h+='<div class="d" data-href="/frame/hv/calendar/"><div class="dn">'+dn+'<b>'+(+k.slice(8,10))+'</b></div>';
       on.slice(0,on.length>3?1:2).forEach(function(e){h+='<div class="e"><i style="background:'+HV.calColor(e.cal)+'"></i><span>'+HV.esc(e.title)+'</span></div>';});
       if(on.length>3)h+='<div class="free">+'+(on.length-1)+' more</div>';
       else if(on.length===3)h+='<div class="free">+1 more</div>';
-      if(!on.length)h+='<div class="free">'+(i===0?'Nothing left':'Free')+'</div>';
-      h+=x.meal?'<div class="ml set" data-href="/frame/hv/'+(i===0?'dinner/':'meals/')+'">'+ic('fork')+'<span>'+HV.esc(x.meal.name)+'</span></div>':
+      if(!on.length)h+='<div class="free">Free</div>';
+      h+=meal?'<div class="ml set" data-href="/frame/hv/meals/">'+ic('fork')+'<span>'+HV.esc(meal.name)+'</span></div>':
         '<div class="ml add" data-href="/frame/hv/meals/">'+ic('plus')+'<span>Dinner</span></div>';
       h+='</div>';
-    });
+    }
     return w('week s4',null,'This week','cal','<div class="wk">'+h+'</div>');
   }
 
