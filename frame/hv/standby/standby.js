@@ -5,12 +5,14 @@
    speaker plays), up (Coming up with today's weather and dinner).
    tomorrow (evenings: tomorrow's weather, backpack, calendar and the next school days).
    Order: the Standby schedule (Settings > Standby faces, faces/sched.js): the block for this day and home
-   time lists the faces, rotated in order, the first one leading when the block begins. Severe weather
+   time lists the faces, rotated in order, the first one leading when the block begins. A Photos turn plays
+   RUN photos in a row. Photos stay up for Settings > Photo interval (hv-idle slide, 15/30/60 s, default 30),
+   other faces 15 s. Settings > Appearance (hv-idle shade, 0/30/60) lays that much black over the stage. Severe weather
    (while a Severe/Extreme alert is active) and Now Playing (every other slide while music plays) still
    interrupt whatever is scheduled.
 
    ?face=<name> pins one face (preview and tests), ?photo=<id> pins the photo, ?at=sat-17:30 pretends it is
-   that day and home time for the schedule (preview and tests). A tap goes to Today (?back=faces: back to the schedule page).
+   that day and home time for the schedule (preview and tests). A tap goes to Home (?back=faces: back to the schedule page).
    Only two slides exist in the DOM at once (old fades out, new fades in) to keep the 1 GB frame's
    WebView small. */
 window.HVStandby={
@@ -30,6 +32,9 @@ window.HVStandby={
   var NIGHT='/frame/hv/night/'+(Q.get('back')==='faces'?'?back=faces':'');   // the Night clock is its own page
   if(PIN==='night'){location.replace(NIGHT);return;}
   var stage=document.getElementById('stage');
+  var IDLE={slide:30,shade:0},RUN=3;   // Settings > When untouched (settings/settings.js)
+  try{var iv=JSON.parse(localStorage.getItem('hv-idle')||'null')||{};
+    if([15,30,60].indexOf(+iv.slide)>=0)IDLE.slide=+iv.slide;if([0,30,60].indexOf(+iv.shade)>=0)IDLE.shade=+iv.shade;}catch(e){}
   var data={frame:null,photos:[],music:null,plan:null,alerts:[]};
   var seenSevere={};   // severe alert ids already shown: a new one jumps the queue once
   var faceIx=0, slideN=0, cur=null, timer=null, order={deck:[],last:null};
@@ -62,14 +67,16 @@ window.HVStandby={
   var AT=(function(v){var m=/^([a-z]{3}|[0-6])-(\d{1,2}):(\d\d)$/i.exec(v||'');if(!m)return null;
     var d=/^\d$/.test(m[1])?+m[1]:['sun','mon','tue','wed','thu','fri','sat'].indexOf(m[1].toLowerCase());
     return d<0?null:{dow:d,min:(+m[2])*60+(+m[3])};})(Q.get('at'));
-  var blockKey=null;
+  var blockKey=null, runLeft=0;
   function scheduled(){
     var t=HV.local(),on=HV.facesOn(),s=HVSched.load(on),now=AT||{dow:t.dow,min:t.h*60+t.mi},a=HVSched.at(s,now.dow,now.min);
-    if(a.key!==blockKey){blockKey=a.key;faceIx=0;}   // a new block begins with its first face
+    if(a.key!==blockKey){blockKey=a.key;faceIx=0;runLeft=0;}   // a new block begins with its first face
     if(a.block.faces.indexOf('night')>=0&&Q.get('thumb')!=='1'){location.replace(NIGHT);return 'photo';}   // a night block
     var faces=a.block.faces.filter(function(f){return f==='photos'||FACES[f];});
     if(!faces.length)return 'photo';
+    if(runLeft>0){runLeft--;return 'photo';}   // the rest of a Photos turn
     var f=faces[(faceIx++)%faces.length];
+    if(f==='photos'&&faces.length>1&&data.photos.length>1)runLeft=RUN-1;
     return f==='photos'?'photo':f;
   }
   function nextFace(){
@@ -620,7 +627,7 @@ window.HVStandby={
     void d.offsetWidth; d.classList.add('on');
     if(old){old.classList.remove('on');setTimeout(function(){if(old.parentNode)old.parentNode.removeChild(old);},1400);}
     clearTimeout(timer);
-    if(!PIN)timer=setTimeout(show,/photo|depth|plain/.test(d.className)?20000:15000);
+    if(!PIN)timer=setTimeout(show,/photo|depth|plain/.test(d.className)?IDLE.slide*1000:15000);
   }
   setInterval(function(){if(cur&&cur.tick&&(cur.fast||HV.local().s<2))cur.tick();},1000);
   setInterval(function(){load().then(function(){if(!PIN&&HV.facesOn().alert&&newSevere())show();});},60000);
@@ -628,6 +635,7 @@ window.HVStandby={
   var BACK=Q.get('back')==='faces'?'/frame/hv/faces/':'/frame/hv/';   // ?back=faces: previews from the schedule page return there
   document.addEventListener('click',function(e){if(e.target.closest('.hv-chrome,.hv-timers,button'))return;location.href=BACK;});
   var THUMB=Q.get('thumb')==='1';   // scripts/make_face_thumbs.py renders clean previews for the faces chooser
+  if(IDLE.shade&&!THUMB){var dimEl=document.createElement('div');dimEl.className='sb-dim';dimEl.style.opacity=IDLE.shade/100;document.body.appendChild(dimEl);}
   if(!THUMB){
     var hint=document.createElement('div');hint.className='hint';hint.textContent='Tap anywhere to return';document.body.appendChild(hint);
     setTimeout(function(){hint.classList.add('on');},400);setTimeout(function(){hint.classList.remove('on');},8000);

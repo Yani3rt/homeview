@@ -2,6 +2,8 @@
    Sizes come from vh/vw so the 10-inch (1280x800) and 15-inch (1920x1080) match. */
 body.sb{background:#000;color:#fff}
 #stage{position:fixed;inset:0;overflow:hidden}
+/* Settings > Appearance: black laid over every face (opacity set from hv-idle shade); under the hint and chrome */
+.sb-dim{position:fixed;inset:0;background:#000;pointer-events:none;z-index:20}
 .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s var(--ease)}
 .slide.on{opacity:1}
 .slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}

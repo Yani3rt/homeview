@@ -150,7 +150,7 @@
   poll();
 
   /* Idle return (Settings > When untouched): localStorage 'hv-idle'
-     {mode: off|photos|dim, minutes: 1|3|5|10}. After that many minutes with no touch, go to Standby,
+     {mode: off|photos, minutes: 1|3|5|10; an old 'dim' acts as photos}. After that many minutes with no touch, go to Standby,
      or to the night clock while the Standby schedule has it (faces/sched.js; 23:00-05:00 when that isn't loaded).
      Pages opt out with <body data-idle="off"> (Standby, Night, Timer, Cook). Typing or an open sheet holds it. */
   HV.nightNow=function(){var t=HV.local();

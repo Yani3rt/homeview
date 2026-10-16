@@ -1,11 +1,13 @@
 /* HomeView Settings: Apple-Settings style grouped list for this frame. Idle choices are stored per frame
-   in localStorage "hv-idle" (mode off|photos|dim, minutes 1|3|5|10, slide 15|30|60, shade 0|30|60).
+   in localStorage "hv-idle" (mode off|photos, minutes 1|3|5|10, slide 15|30|60, shade 0|30|60): hv.js reads
+   mode and minutes for the idle jump, Standby reads slide (seconds per photo) and shade (% black over Standby).
+   An older saved mode 'dim' counts as 'photos'.
    Everything else that is per house lives in config.json on the server. */
 (function(){
   var KEY='hv-idle';
   var settings={mode:'photos',minutes:3,slide:30,shade:0};
   function pick(list,v,d){v=+v;for(var i=0;i<list.length;i++)if(list[i]===v)return v;return d;}
-  function valid(s){s=s||{};return {mode:['off','photos','dim'].indexOf(s.mode)>=0?s.mode:'photos',minutes:pick([1,3,5,10],s.minutes,3),slide:pick([15,30,60],s.slide,30),shade:pick([0,30,60],s.shade,0)};}
+  function valid(s){s=s||{};return {mode:s.mode==='off'?'off':'photos',minutes:pick([1,3,5,10],s.minutes,3),slide:pick([15,30,60],s.slide,30),shade:pick([0,30,60],s.shade,0)};}
   try{settings=valid(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(e){}
   var photoCount=null, avail={};
 
@@ -28,12 +30,13 @@
   }
 
   function left(){
-    var idleOn=settings.mode!=='off',ph=settings.mode==='photos';
+    var idleOn=settings.mode!=='off';
+    /* Photo interval and Appearance stay live with Stay on: the Standby button still opens Standby */
     var h=grp('When untouched',
-      row('Switch to','',seg('mode',[['photos','Standby'],['dim','Dim'],['off','Stay on']],settings.mode))+
+      row('Switch to','',seg('mode',[['photos','Standby'],['off','Stay on']],settings.mode))+
       row('After','',seg('minutes',[[1,'1 min'],[3,'3 min'],[5,'5 min'],[10,'10 min']],settings.minutes),idleOn?'':'off')+
-      row('Photo interval','',seg('slide',[[15,'15 s'],[30,'30 s'],[60,'1 min']],settings.slide),ph?'':'off')+
-      row('Appearance','',seg('shade',[[0,'Normal'],[30,'Softer'],[60,'Dim']],settings.shade),idleOn?'':'off'));
+      row('Photo interval','Each photo in Standby',seg('slide',[[15,'15 s'],[30,'30 s'],[60,'1 min']],settings.slide))+
+      row('Appearance','Standby brightness',seg('shade',[[0,'Normal'],[30,'Softer'],[60,'Dim']],settings.shade)));
     return h;
   }
   /* every HomeView screen, named as its own title reads ('' is the Home launcher). Music only when Sonos or Spotify is set up, Camera only when a camera is. */
@@ -64,7 +67,7 @@
       row('Home',HV.esc(c.place||c.home_name||'Home'),'<span class="v">'+HV.esc(c.timezone||'')+'</span>')+
       row('Photos','<span id="vph">'+(photoCount==null?'...':photoCount+' photos')+'</span>','')+
       row('Music',c.sonos||c.spotify?[c.sonos?'Sonos':'',c.spotify?'Spotify':''].filter(Boolean).join(' and '):'Not set up in config.json','<span class="v">'+(c.sonos||c.spotify?'On':'Off')+'</span>'));
-    h+='<p class="st-note">Idle uses touch inactivity. Dimming shades the image; it does not change the backlight. The night clock shows instead during the times it\u2019s scheduled (Standby faces). Location, calendars, units and music are set in config.json on the server.</p>';
+    h+='<p class="st-note">Idle uses touch inactivity. Softer and Dim shade Standby; they do not change the backlight. The night clock shows instead during the times it\u2019s scheduled (Standby faces). Location, calendars, units and music are set in config.json on the server.</p>';
     return h;
   }
   function links(){
