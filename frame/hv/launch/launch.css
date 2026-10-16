@@ -40,9 +40,15 @@
 .w.tmr .none svg{width:5vh;height:5vh}
 .w.tmr .tr{display:flex;align-items:center;gap:.9vw;font-size:3vh;font-weight:600;white-space:nowrap;min-width:0}
 .w.tmr .tr svg{width:3vh;height:3vh;flex:0 0 auto;color:var(--ink-3)}
+.w.tmr .lbl svg{color:var(--orange)}
+.w.tmr .tr.i-drop svg{color:var(--blue)}
+.w.tmr .tr.i-sunrise svg{color:var(--orange)}
+.w.tmr .tr.i-sun svg{color:#f5b800}
 .w.tmr .tr span{overflow:hidden;text-overflow:ellipsis}
 .w.tmr .tr em{font-style:normal;color:var(--ink-3)}
-html.look-glass .w.tmr .tr svg,html.look-glass .w.tmr .tr em,html.look-glass .w.tmr .ev em,html.look-glass .w.tmr .none{color:var(--g-ink-2)}
+html.look-glass .w.tmr .tr.i-drop svg{color:#7cc4ff}
+html.look-glass .w.tmr .tr.i-sunrise svg,html.look-glass .w.tmr .tr.i-sun svg{color:#ffe14d}
+html.look-glass .w.tmr .tr:not(.i-drop):not(.i-sunrise):not(.i-sun) svg,html.look-glass .w.tmr .tr em,html.look-glass .w.tmr .ev em,html.look-glass .w.tmr .none{color:var(--g-ink-2)}
 html.look-glass .w.tmr .lbl .more{color:var(--g-ink-2)}
 html.look-glass .w.tmr .tcal{border-left-color:rgba(255,255,255,.3)}
 .w.today .none{font-size:2.4vh;font-weight:600;color:rgba(235,235,245,.55)}

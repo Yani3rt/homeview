@@ -65,7 +65,7 @@
     ((d.frame&&d.frame.calendar_events)||[]).forEach(function(e){var s=dayKey(e.start),en=e.end?dayKey(e.end):s;
       if(e.all_day?(s<=k&&(k<en||s===k)):s===k)evs.push(e);});
     evs.sort(function(a,b){return a.all_day!==b.all_day?(a.all_day?-1:1):new Date(a.start)-new Date(b.start);});
-    function row(icon,txt){return '<div class="tr">'+ic(icon)+'<span>'+txt+'</span></div>';}
+    function row(icon,txt){return '<div class="tr i-'+icon+'">'+ic(icon)+'<span>'+txt+'</span></div>';}
     // left: the day's weather in words (no temperature: the Weather card has it); right: tomorrow's calendar
     var sky=day&&kind(day.code),wxs=day?(sky&&!/Rain|Drizzle/.test(sky)?row('sun',sky):'')+row('drop',day.precip_pct+'% rain'):row('drop',d.frame?'No forecast for tomorrow':'Waiting for the forecast');
     if(wx&&wx.next_sunrise)wxs+=row('sunrise','Sunrise '+hm24(wx.next_sunrise));
