@@ -1,5 +1,5 @@
 /* Household settings (/frame/hv/house/): the part of config.json every frame shares and may edit, through
-   GET/POST /api/settings (settings_api.py): home name, place name and units; the quick timer buttons on Tonight (up to four); each
+   GET/POST /api/settings (settings_api.py): home name, place name and units; the quick timer buttons on Tonight and the Timer screen (up to four); each
    calendar's name, color and Holidays switch. Each card saves on its own Save button. Secrets never reach here. ES5. */
 (function(){
   var D=null, dirty={};
@@ -25,7 +25,7 @@
         '<div class="hs-tm"><button data-step="-1" data-ix="'+i+'" aria-label="Shorter">−</button><b class="tnum">'+dur(x.seconds)+'</b><button data-step="1" data-ix="'+i+'" aria-label="Longer">+</button></div>'+
         '<button class="hs-x" data-rm="'+i+'" aria-label="Remove '+esc(x.label)+'">×</button></div>';});
     if(D.timers.length<4)t+='<button class="st-row hs-add" data-addtimer="1">Add a timer</button>';
-    return home+grp('timers','Quick timers on Tonight',t);
+    return home+grp('timers','Quick timers \u00b7 Tonight and Timer',t);
   }
   function right(){
     var c='';

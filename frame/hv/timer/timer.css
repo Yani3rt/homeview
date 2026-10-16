@@ -33,3 +33,16 @@ body.tm{background:#000;color:#fff}
 .tm-val small{font-size:3.4vh;color:rgba(235,235,245,.6);margin-left:1vh;font-weight:600}
 .tm-go{position:absolute;left:50%;top:78vh;margin-left:-17vh;width:34vh;height:11vh;padding:0}
 .tm-x{position:absolute;left:2.5vw;top:3vh;height:7vh;padding:0 3vh;border-radius:999px;background:#1c1c1e;color:#ff9f0a;font-size:3vh;font-weight:600}
+
+/* quick timers (config.json "timers"): a column on the picker's left, styled like the running timers' side pills;
+   the picker then centers in the space to its right */
+.tm-pick.has-q{left:24vw}
+.tm-quick{position:absolute;left:2.5vw;top:14vh;width:20vw;display:flex;flex-direction:column;gap:1.8vh;text-align:left}
+.tm-quick h2{margin:0 0 .2vh 1vh;font-size:2.4vh;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(235,235,245,.6)}
+.tm-q{display:flex;align-items:center;gap:1.6vh;width:100%;border-radius:3.4vh;background:#1c1c1e;padding:1.8vh 1.8vh 1.8vh 2.4vh;text-align:left;color:#fff}
+.tm-q span{flex:1;min-width:0}
+.tm-q b{display:block;font-size:2.7vh;font-weight:600;color:#ff9f0a;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-q em{display:block;font-style:normal;font-size:4.6vh;font-weight:500;margin-top:.4vh;font-variant-numeric:tabular-nums;line-height:1.05}
+.tm-q i{flex:none;width:7vh;height:7vh;border-radius:50%;background:#ff9f0a;color:#1d1309;display:flex;align-items:center;justify-content:center}
+.tm-q i svg{width:3.4vh;height:3.4vh;margin-left:.4vh}
+.tm-q:active{background:#2c2c2e}

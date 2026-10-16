@@ -20,7 +20,7 @@ import config
 TEMPS = ("fahrenheit", "celsius")
 WINDS = ("mph", "kmh", "ms", "kn")
 COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
-MAX_TIMERS = 4   # Tonight shows the first four
+MAX_TIMERS = 4   # Tonight and the Timer screen show the first four
 MAX_BODY = 8192
 _lock = threading.Lock()
 
