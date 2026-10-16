@@ -1,0 +1,29 @@
+{
+  "home_name": "Home",
+  "timezone": "America/Chicago",
+  "location": {"name": "Home", "latitude": 41.8781, "longitude": -87.6298},
+  "units": {"temperature": "fahrenheit", "wind": "mph"},
+
+  "server": {"bind": "0.0.0.0", "port": 8806},
+  "data_dir": "data",
+  "photos_dir": "samples/photos",
+  "wallpapers_dir": "wallpapers",
+  "fonts_dir": "fonts",
+
+  "calendars": [
+    {"name": "Family", "color": "#ff9f0a", "url": "samples/sample-calendar.ics"},
+    {"name": "Holidays", "color": "#34c759", "holidays": true, "url": "https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics"}
+  ],
+
+  "sonos": {"enabled": false, "hosts": []},
+  "spotify": {"client_id": "", "client_secret": "", "redirect_uri": "http://127.0.0.1:8890/callback"},
+
+  "meals": {"provider": "themealdb", "api_key": "1", "cache_hours": 168},
+
+  "timers": [
+    {"label": "Pasta", "seconds": 600},
+    {"label": "Eggs", "seconds": 420},
+    {"label": "Rice", "seconds": 1080},
+    {"label": "Tea", "seconds": 240}
+  ]
+}

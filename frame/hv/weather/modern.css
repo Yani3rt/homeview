@@ -1,0 +1,70 @@
+/* HomeView Weather, Modern style (Settings > Weather style): a single warm light card. The next 24 hours as a
+   smooth temperature curve with the current hour marked, icons and hours under it, then the next 7 days.
+   Old WebView: no backdrop-filter, rgba() only, animate opacity/transform only. */
+body.wm-body{background:#efe7dc}
+.wm{position:fixed;inset:0;padding:10.6vh 3.2vw 3.2vh;display:flex;
+  background:radial-gradient(120% 90% at 15% 0%,#f8f2ea 0%,#efe7dc 55%,#e9dfd1 100%);
+  --ink:#231f1b;--ink2:#6f665c;--ink3:#a1968a;--line:#ece3d7;--sand:#f6efe5;--sand2:#efe5d7;--sun:#f29a1f;--rain:#2a73d6}
+.wm-card{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;background:#fffdfa;border-radius:3.4vh;color:var(--ink);
+  padding:3.2vh 2.6vw 2.2vh;box-shadow:0 .2vh .6vh rgba(70,50,20,.05),0 2.4vh 6vh rgba(70,50,20,.08)}
+
+/* header: icon, big temperature, condition + place, three pills */
+.wm-top{display:flex;align-items:center;gap:1.6vw;min-height:0}
+.wm-ic{flex:0 0 11vh;height:12vh}.wm-ic svg{width:100%;height:100%;overflow:visible}
+.wm-t{font-family:var(--sfr);font-weight:700;font-size:15.5vh;line-height:.82;letter-spacing:-.06em;margin-right:.6vw}
+.wm-cs{min-width:0}
+.wm-c{font-size:4.2vh;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+.wm-s{font-size:2.6vh;font-weight:500;color:var(--ink2);margin-top:.7vh;white-space:nowrap}
+.wm-pills{margin-left:auto;display:flex;gap:.9vw}
+.wm-pill{width:10.4vh;height:12vh;border-radius:2.2vh;background:var(--sand);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5vh}
+.wm-pill svg{width:3.6vh;height:3.6vh}
+.wm-pill b{font-family:var(--sfr);font-size:3.4vh;font-weight:700;letter-spacing:-.02em;line-height:1}
+.wm-pill b small{font-family:var(--sf);font-size:1.7vh;font-weight:600;color:var(--ink2);margin-left:.1em}
+.wm-pill em{font-style:normal;font-size:1.7vh;font-weight:600;color:var(--ink3);letter-spacing:.02em}
+
+/* headline chips: storms (tap: cone), rain soon, cooler outside, the week */
+.wm-chips{display:flex;gap:.8vw;margin-top:1.8vh;min-width:0;overflow:hidden}
+.wm-chip{flex:0 1 auto;min-width:0;display:flex;align-items:center;gap:.7vw;height:5.6vh;padding:0 1.5vw 0 1.1vw;border-radius:999px;background:var(--sand);font-size:2.3vh;white-space:nowrap}
+.wm-chip svg{flex:none;width:2.8vh;height:2.8vh;color:var(--ink2)}
+.wm-chip b{font-weight:700}
+.wm-chip span{color:var(--ink2);font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.wm-storm{cursor:pointer;color:#fff;flex:none}.wm-storm svg,.wm-storm span{color:rgba(255,255,255,.88)}
+.wm-storm.ts{background:#b35f00}.wm-storm.hu{background:#b3261e}.wm-storm:not(.ts):not(.hu){background:#8a5a14}
+
+/* the curve */
+.wm-plot{flex:1;min-height:0;display:flex;flex-direction:column;position:relative;margin-top:1.2vh}
+.wm-nowcol{position:absolute;top:0;bottom:0;border-radius:1.8vh;background:linear-gradient(180deg,rgba(242,154,31,0) 0%,rgba(242,154,31,.10) 35%,rgba(242,154,31,.16) 100%)}
+.wm-chart{flex:1;min-height:12vh;position:relative}
+.wm-chart svg{position:absolute;left:0;top:0;display:block;overflow:visible}
+.wm-tl{font-family:var(--sfr);font-weight:600;fill:var(--ink2);letter-spacing:-.02em}
+.wm-tl.now,.wm-tl.hi{fill:var(--ink);font-weight:700}.wm-tl.lo{fill:#4f6fa8}
+.wm-nl{font-weight:600;fill:#8190ad;letter-spacing:.01em}
+.wm-hrs{display:grid;position:relative;border-top:1px solid var(--line);padding:1.1vh 0 1.3vh}
+.wm-hrs div{display:flex;flex-direction:column;align-items:center;gap:.4vh;min-width:0}
+.wm-hrs span{width:3.4vh;height:3.8vh}.wm-hrs svg{width:100%;height:100%;overflow:visible}
+.wm-hrs small{font-size:1.85vh;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.wm-rp{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:4.4vh;width:100%}
+.wm-rp em{font-style:normal;font-size:1.55vh;font-weight:700;color:#4a86d8;line-height:1;margin-bottom:.45vh;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.wm-rp u{display:block;width:42%;flex:none;border-radius:.4vh .4vh .15vh .15vh;background:#7fa9e6;opacity:.55}
+.wm-rp.hi em{color:#2a6fd0}.wm-rp.hi u{background:#3b7ddb;opacity:.85}
+.wm-hrs .now small{color:#c96a0a;font-weight:800}
+
+/* 7 days */
+.wm-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.6vw;border-top:1px solid var(--line);padding-top:1.4vh}
+.wm-day{display:flex;flex-direction:column;align-items:center;gap:.5vh;padding:1.2vh .3vw 1.3vh;border-radius:2.2vh;cursor:pointer;transition:transform .12s}
+.wm-day:active{transform:scale(.96)}
+.wm-day.today{background:linear-gradient(180deg,#fdf0dc,#f9e6c8);box-shadow:inset 0 0 0 1px rgba(242,154,31,.22)}
+.wm-day .n{font-size:2.6vh;font-weight:600;letter-spacing:-.01em}
+.wm-day .di{width:4.6vh;height:5vh}.wm-day .di svg{width:100%;height:100%;overflow:visible}
+.wm-day .hl{font-family:var(--sfr);font-size:2.9vh;font-weight:700;letter-spacing:-.02em}
+.wm-day .hl span{color:var(--ink3);font-weight:500;margin-left:.2em}
+.wm-day .p{display:flex;align-items:center;gap:.3vw;font-size:2.2vh;font-weight:700;color:var(--rain)}
+.wm-day .p svg{width:2.2vh;height:2.2vh}
+
+/* the tap-a-day sheet, light to match */
+.wm-body .wx-shade{background:rgba(60,45,25,.22)}
+.wm-body .wx-daysheet{background:#fffdfa;color:#231f1b;box-shadow:0 -1vh 5vh rgba(70,50,20,.18)}
+.wm-body .wx-daysheet .ds-nav,.wm-body .wx-daysheet .ds-x{background:#f3eadf;color:#231f1b}
+.wm-body .wx-daysheet .ds-strip{background:#f8f2ea}
+.wm-body .wx-daysheet .wx-hc i{color:#2a73d6}
+.wm-body .wx-daysheet .ds-s,.wm-body .wx-daysheet .ds-k{color:#6f665c;opacity:1}

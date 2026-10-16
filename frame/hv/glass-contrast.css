@@ -1,0 +1,34 @@
+/* precomputed: accent colors that stay readable on the glass look over a wallpaper */
+html.look-glass .cl-day.today .cl-lb b{color:#ffc2bc}
+html.look-glass .cl-lb span u{color:#ffffff}
+html.look-glass .cl-nav button.w{color:#ffc2bc}
+html.look-glass .links a{color:#ffffff}
+html.look-glass .kt-hero.plain .eb{color:#ffd08a}
+html.look-glass .kt-tm .ic{color:#ffd08a}
+html.look-glass .kt-tm .go{color:#ffd08a}
+html.look-glass .kt-tm .t.done{color:#ffd08a}
+html.look-glass .key .ic{color:#ffd08a}
+html.look-glass .sh-p.warn{color:#ffc2bc}
+html.look-glass .w.today .lbl{color:#ffd08a}
+html.look-glass .w.timer .lbl{color:#ffd08a}
+html.look-glass .ml-banner{color:#ffffff}
+html.look-glass .ml-src{color:#ffffff}
+html.look-glass .ml-dl.np .ml-x{color:#ffffff}
+html.look-glass .rm .grp{color:#ffffff}
+html.look-glass .qi.cur b{color:#ffffff}
+html.look-glass .sh-warn{color:#ffd08a}
+html.look-glass .gr.blocked small{color:#ffd08a}
+html.look-glass .it .lb small.hot{color:#ffc2bc}
+html.look-glass .it.g .lb b{color:#ffc2bc}
+html.look-glass .it.l .lb b{color:#ffd08a}
+html.look-glass .uu b{color:#ffd08a}
+html.look-glass .uu b.hot{color:#ffc2bc}
+html.look-glass .s.out b{color:#ffc2bc}
+html.look-glass .ph-url{color:#ffffff}
+html.look-glass .url{color:#ffffff}
+html.look-glass .ml b{color:#ffffff}
+html.look-glass .sg b{color:#ffffff}
+html.look-glass .td-ev.soon em{color:#ffd08a}
+html.look-glass .wk-free{color:#ffffff}
+html.look-glass .wk-sr .d{color:#ffffff}
+html.look-glass .hv-pill.red{color:#ffc2bc}

@@ -1,0 +1,18 @@
+/* Camera: the live feed, full screen on black. Only opacity is animated (old WebView). */
+body.cam{background:#000;color:#fff;overflow:hidden;height:100vh}
+.cam-feed{position:fixed;left:0;top:0;width:100vw;height:100vh;object-fit:contain;background:#000;opacity:0;transition:opacity .3s}
+.cam-feed.on{opacity:1}
+.cam-feed.fill{object-fit:cover}
+.cam-msg{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;font-size:3.4vh;font-weight:600;
+  color:rgba(235,235,245,.85);max-width:70vw;transition:opacity .3s}
+.cam-msg small{display:block;margin-top:1.4vh;font-size:2.4vh;font-weight:400;color:rgba(235,235,245,.6)}
+.cam-msg.off{opacity:0;pointer-events:none}
+.cam-tags{position:fixed;left:1.6vw;bottom:2.8vh;right:1.6vw;display:flex;flex-wrap:wrap-reverse;z-index:40;pointer-events:none}
+.cam-tag{height:6.5vh;padding:0 2.4vh;margin:1.2vh 1.2vh 0 0;border-radius:999px;display:flex;align-items:center;
+  background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.22);color:rgba(235,235,245,.7);font:inherit;font-size:2.6vh;font-weight:600;
+  -webkit-tap-highlight-color:transparent;outline:none;pointer-events:auto}
+.cam-tag i{width:1.4vh;height:1.4vh;margin-right:1.2vh;border-radius:50%;background:#8e8e93;display:none}
+.cam-tag.cur{background:rgba(255,255,255,.9);border-color:#fff;color:#000}
+.cam-tag.cur i{display:block}
+.cam-tag.live i{background:#ff3b30}
+.cam-tags.one .cam-tag{background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.22);color:#fff;pointer-events:none}

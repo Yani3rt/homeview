@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Music</title>
+<link rel="stylesheet" href="/frame/hv/hv.css?v=7">
+<link rel="stylesheet" href="music.css?v=sp2">
+</head>
+<body>
+<div class="mu-seg" id="seg" role="tablist">
+  <button data-mode="np" role="tab">Now Playing</button><button data-mode="sp" role="tab">Spotify</button>
+</div>
+<main class="hv-screen mu" id="main"><div class="hv-empty">Loading Sonos</div></main>
+<div class="mu-scrim" id="scrim" data-close="1"></div>
+<div class="hv-sheet mu-sheet" id="sheet" role="dialog" aria-modal="true"></div>
+<script src="/frame/hv/config.js"></script>
+<script src="/frame/shared/cond.js"></script>
+<script src="/frame/hv/hv.js?v=10"></script>
+<script src="/frame/hv/faces/sched.js?v=3"></script>
+<script src="music.js?v=sp2"></script>
+</body></html>

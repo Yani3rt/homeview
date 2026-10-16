@@ -1,0 +1,62 @@
+/* Devices (Home Assistant): a hand-picked list of tiles, Apple Home style. On = bright card, off = gray fill. */
+.ha{padding-bottom:3vh}
+.ha header{padding-right:22vw}
+.ha-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;margin:0 -1vw;padding:0 1vw 9vh}
+.ha-sec{margin:2.6vh 0 1.4vh;font-size:2.6vh;font-weight:700;color:var(--ink-2);letter-spacing:.02em;text-transform:uppercase}
+.ha-sec:first-child{margin-top:0}
+.ha-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.8vh 1.4vw}
+.tile{position:relative;height:19vh;border-radius:var(--r-lg);padding:2.2vh 1.4vw;background:var(--fill);color:var(--ink);
+  display:flex;flex-direction:column;justify-content:space-between;text-align:left;min-width:0;overflow:hidden;transition:transform .12s}
+.tile:active{transform:scale(.97)}
+.tile.on{background:var(--card);box-shadow:0 .15vh .6vh rgba(0,0,0,.08)}
+.tile .ic{flex:0 0 auto;width:6.4vh;height:6.4vh;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(120,120,128,.18);color:var(--ink-2)}
+.tile .ic svg{width:3.4vh;height:3.4vh}
+.tile.on .ic{background:var(--yellow);color:#5a4500}
+.tile.k-automation.on .ic{background:var(--green);color:#fff}
+.tile.k-run .ic{background:var(--blue);color:#fff}
+.tile.k-sensor .ic{background:rgba(120,120,128,.18);color:var(--ink-2)}
+.tile.k-sensor.on .ic{background:var(--orange);color:#3d2500}
+.tile .nm{font-size:2.8vh;font-weight:700;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile .st{font-size:2.5vh;font-weight:600;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.4vh}
+.tile.on .st{color:var(--ink-2)}
+.tile .val{font-family:var(--sfr);font-size:4.6vh;font-weight:600;letter-spacing:-.03em;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile.off{opacity:.45}
+.tile.busy{opacity:.7}
+/* brightness button on dimmable lights (top right, a full touch target) */
+.tile .more{position:absolute;top:1.2vh;right:1vw;width:8vh;height:8vh;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink-3)}
+.tile .more svg{width:3.2vh;height:3.2vh}
+/* climate: two columns wide */
+.tile.k-climate{grid-column:span 2}
+.tile.k-climate .top{display:flex;align-items:center;gap:1vw;padding-right:12vw;min-width:0}
+.tile.k-climate .top>div{min-width:0}
+.tile.k-climate .row{display:flex;align-items:flex-end;justify-content:space-between;gap:1vw}
+.tile.k-climate .cur{font-family:var(--sfr);font-size:7.4vh;font-weight:600;letter-spacing:-.04em;line-height:.9}
+.tile.k-climate .cur small{font-family:var(--sf);font-size:2.3vh;font-weight:600;color:var(--ink-3);letter-spacing:0;margin-left:.6vw}
+.tile.k-climate .set{display:flex;align-items:center;gap:1vw}
+.tile.k-climate .set b{font-family:var(--sfr);font-size:4.4vh;font-weight:600;min-width:9vh;text-align:center;font-variant-numeric:tabular-nums}
+.tile.k-climate .set button{width:8vh;height:8vh;border-radius:50%;background:rgba(120,120,128,.18);font-size:4.4vh;font-weight:600;line-height:1;display:flex;align-items:center;justify-content:center}
+.tile.k-climate .mode{position:absolute;top:2vh;right:1.4vw;height:6.4vh;padding:0 2.2vh;border-radius:999px;background:rgba(120,120,128,.18);font-size:2.4vh;font-weight:700;display:flex;align-items:center}
+.tile.k-climate.on .ic{background:var(--orange);color:#3d2500}
+.tile.k-climate.cool .ic{background:var(--blue);color:#fff}
+.ha-msg{font-size:3vh;font-weight:600;color:var(--ink-3);padding:2vh 0}
+/* sheet: brightness steps or climate modes */
+.ha-shade{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .25s;z-index:49}
+.ha-shade.on{opacity:1;pointer-events:auto}
+.ha-sheet h2{margin:0 0 2.4vh;font-size:4vh;font-weight:700}
+.ha-opts{display:flex;flex-wrap:wrap;gap:1.6vh 1.2vw}
+.ha-opts button{height:9vh;min-width:13vw;padding:0 2.4vw;border-radius:999px;background:var(--fill);font-size:3vh;font-weight:700}
+.ha-opts button.on{background:var(--yellow);color:#5a4500}
+.ha-sheet .close{margin-top:3vh;height:8vh;padding:0 4vw;border-radius:999px;background:var(--fill);font-size:3vh;font-weight:600}
+/* glass look */
+html.look-glass .tile{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18)}
+html.look-glass .tile.on{background:rgba(255,255,255,.88);color:#1d1d1f;border-color:transparent}
+html.look-glass .tile.on .st{color:#6e6e73}
+html.look-glass .tile.on .more{color:#8e8e93}
+html.look-glass .tile:not(.on) .ic{background:rgba(255,255,255,.18);color:#fff}
+html.look-glass .tile.on .set button,html.look-glass .tile.on .mode{background:rgba(0,0,0,.08)}
+html.look-glass .ha-opts button{background:rgba(255,255,255,.14);color:#fff}
+html.look-glass .ha-opts button.on{background:var(--yellow);color:#5a4500}
+html.look-glass .ha-sheet .close{background:rgba(255,255,255,.14);color:#fff}
+html.look-glass .tile.on .cur small{color:#8e8e93}
+/* fans: blue when on */
+.tile.d-fan.on .ic{background:var(--blue);color:#fff}

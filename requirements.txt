@@ -1,0 +1,5 @@
+Pillow>=10
+icalendar>=5
+recurring-ical-events>=2
+soco>=0.30
+segno>=1.5

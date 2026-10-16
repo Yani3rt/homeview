@@ -1,0 +1,27 @@
+/* Background picker: look switch + live preview on the left, color swatches and wallpapers on the right. */
+.bg-pg{padding-top:10vh}
+.bg-cols{flex:1;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.6fr);gap:3vw;min-height:0}
+.bg-left{display:flex;flex-direction:column;gap:2.4vh;min-height:0}
+.bg-look{display:flex;background:var(--fill);border-radius:999px;padding:.6vh}
+.bg-look button{flex:1;height:7vh;border-radius:999px;font-size:2.8vh;font-weight:600;color:var(--ink-2)}
+.bg-look button.on{background:var(--card);color:var(--ink);box-shadow:0 .2vh .6vh rgba(0,0,0,.14)}
+html.look-glass .bg-look button.on{background:rgba(255,255,255,.9);color:#7a3a0c}
+.bg-prev{flex:1;border-radius:var(--r-xl);overflow:hidden;position:relative;background:#e0791c center/cover no-repeat;
+  box-shadow:0 1vh 3vh rgba(0,0,0,.18);display:flex;flex-direction:column;justify-content:space-between;padding:3vh 2vw;color:#fff}
+.bg-prev .pt b{display:block;font-family:var(--sfr);font-weight:600;font-size:11vh;line-height:1;letter-spacing:-.04em}
+.bg-prev .pt span{font-size:2.6vh;font-weight:600;opacity:.8}
+.bg-prev .pg{display:grid;grid-template-columns:repeat(3,1fr);gap:1vw}
+.bg-prev .pg i{display:block;height:11vh;border-radius:2.4vh;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.bg-right{display:flex;flex-direction:column;gap:1.6vh;min-height:0;overflow:hidden}
+.bg-h{margin:0;font-size:2.6vh;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-2)}
+.bg-h span{font-weight:600;text-transform:none;letter-spacing:0;color:var(--ink-3)}
+.bg-sw{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:1vh}
+.bg-sw button{aspect-ratio:1;border-radius:50%;min-height:5.6vh;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);position:relative}
+.bg-sw button.auto{background:conic-gradient(#f3a942,#e0791c,#7d3d5c,#1b2140,#f6b26b,#f3a942);}
+.bg-sw button.on:after{content:"";position:absolute;inset:-.6vh;border-radius:50%;border:.5vh solid #fff;box-shadow:0 0 0 .3vh rgba(0,0,0,.35)}
+.bg-wp{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:15vh;gap:1.2vh;overflow-y:auto;min-height:0}
+.bg-wp button{border-radius:2.2vh;background:#333 center/cover no-repeat;position:relative;overflow:hidden;text-align:left}
+.bg-wp button span{position:absolute;left:0;right:0;bottom:0;padding:1vh 1vw;font-size:2.2vh;font-weight:600;color:#fff;
+  background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.6));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bg-wp button.on{box-shadow:0 0 0 .5vh #fff,0 0 0 .8vh rgba(0,0,0,.35)}
+.bg-wp .none{grid-column:1/-1;font-size:2.8vh;color:var(--ink-2);font-weight:600;line-height:1.4;align-self:start}
