@@ -143,8 +143,7 @@
       if(on.length>3)h+='<div class="free">+'+(on.length-1)+' more</div>';
       else if(on.length===3)h+='<div class="free">+1 more</div>';
       if(!on.length)h+='<div class="free">Free</div>';
-      h+=meal?'<div class="ml set" data-href="/frame/hv/meals/">'+ic('fork')+'<span>'+HV.esc(meal.name)+'</span></div>':
-        '<div class="ml add" data-href="/frame/hv/meals/">'+ic('plus')+'<span>Dinner</span></div>';
+      if(meal)h+='<div class="ml set" data-href="/frame/hv/meals/">'+ic('fork')+'<span>'+HV.esc(meal.name)+'</span></div>';   // no "+ Dinner": keeps the strip short
       h+='</div>';
     }
     return '<div class="w week s4"><div class="wk">'+h+'</div></div>';   // no title: the day cells say it all
