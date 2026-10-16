@@ -129,7 +129,7 @@
         '<div class="ml add" data-href="/frame/hv/meals/">'+ic('plus')+'<span>Dinner</span></div>';
       h+='</div>';
     }
-    return w('week s4',null,'This week','cal','<div class="wk">'+h+'</div>');
+    return '<div class="w week s4"><div class="wk">'+h+'</div></div>';   // no title: the day cells say it all
   }
 
   function render(){

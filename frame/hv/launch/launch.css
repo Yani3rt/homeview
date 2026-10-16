@@ -1,7 +1,7 @@
 /* Home launcher: HomeView's home screen. 4 columns x 3 rows of live widgets (the last row is This week); each opens its screen. */
 .launch{padding:5vh 4.5vw 4vh;gap:2.6vh}
 .launch header{padding-right:22vw}
-.wgrid{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2vh 1.4vw;min-height:0}
+.wgrid{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:minmax(0,1fr) minmax(0,1fr) minmax(0,.72fr);gap:2vh 1.4vw;min-height:0}
 .w{display:flex;flex-direction:column;justify-content:space-between;gap:1vh;border-radius:var(--r-lg);padding:2.4vh 1.6vw;
   background:var(--card);box-shadow:0 .15vh .5vh rgba(0,0,0,.05);text-align:left;min-width:0;min-height:0;overflow:hidden;position:relative;color:var(--ink);text-decoration:none}
 .w *{text-decoration:none}
@@ -71,7 +71,7 @@
 .w .items span{opacity:.6}
 
 /* this week: 7 day cells, events and the dinner */
-.w.week{padding:2vh 1.4vw 1.8vh}
+.w.week{padding:1.4vh 1vw}
 .wk{flex:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.7vw;min-height:0}
 .wk .d{background:var(--bg);border-radius:1.8vh;padding:1.1vh .7vw;display:flex;flex-direction:column;gap:.6vh;min-width:0;overflow:hidden}
 .wk .d.now{background:#1c1c1e;color:#fff}
