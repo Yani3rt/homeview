@@ -104,10 +104,10 @@
     if(ts.length){var t=ts[0],left=t.ends-now,f=t.total?Math.max(0,Math.min(1,1-left/t.total)):0;
       return '<div><div class="big">'+(left<=0?'Done':HV.mmss(left))+'</div><div class="line" '+dim+'>'+HV.esc(t.label)+(ts.length>1?' · +'+(ts.length-1)+' more':'')+'</div></div>'+
         '<div class="bar"><i style="-webkit-transform:scaleX('+f.toFixed(3)+');transform:scaleX('+f.toFixed(3)+')"></i></div>';}
-    var q=(HV.cfg.timers||[]).slice(0,3),b='';
+    var q=(HV.cfg.timers||[]).slice(0,2),b='';   // two big one-tap rows; the Timer screen has the rest
     if(!q.length)return '<div><div class="line" style="font-size:3.4vh">No timers running</div><div class="line" '+dim+'>Tap to start one</div></div>';
-    q.forEach(function(x,i){b+='<button data-qt="'+i+'">'+HV.esc(x.label)+'<em>'+mins(x.seconds)+'</em></button>';});
-    return '<div class="qt">'+b+'<button class="more" data-href="/frame/hv/timer/">Other…</button></div>';
+    q.forEach(function(x,i){b+='<button data-qt="'+i+'"><span>'+HV.esc(x.label)+'</span><em>'+mins(x.seconds)+'</em></button>';});
+    return '<div class="qt">'+b+'</div>';   // tapping anywhere else on the tile opens the Timer screen for other lengths
   }
 
   function shopTile(){

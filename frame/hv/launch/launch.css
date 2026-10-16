@@ -55,12 +55,11 @@
 .w.timer .lbl{color:var(--orange)}
 .w.timer .big{color:#fff}
 .w.timer .tb{display:flex;flex-direction:column;justify-content:space-between;flex:1;gap:1vh;min-height:0}
-.w.timer .qt{display:grid;grid-template-columns:1fr 1fr;gap:1vh;flex:1}
-.w.timer .qt button{background:#2c2c2e;border:0;border-radius:1.6vh;padding:1.1vh 1vh;font:inherit;font-size:2.4vh;font-weight:700;color:#fff;
-  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;line-height:1.15;text-align:left;min-height:7vh}
+.w.timer .qt{display:flex;flex-direction:column;justify-content:flex-end;gap:1vh;flex:1}
+.w.timer .qt button{background:#2c2c2e;border:0;border-radius:var(--r-pill);padding:0 2vh;height:6.6vh;font:inherit;font-size:2.6vh;font-weight:600;color:#fff;
+  display:flex;align-items:center;justify-content:space-between;text-align:left}
 .w.timer .qt button:active{transform:scale(.96)}
-.w.timer .qt em{font-style:normal;color:var(--orange);font-family:var(--sfr);font-size:2.6vh}
-.w.timer .qt .more{color:rgba(235,235,245,.7);align-items:center}
+.w.timer .qt em{font-style:normal;color:var(--orange);font-family:var(--sfr);font-weight:600}
 .w.timer .bar{height:.9vh;border-radius:1vh;background:#2c2c2e;overflow:hidden}
 .w.timer .bar i{display:block;height:100%;background:var(--orange);-webkit-transform-origin:0 50%;transform-origin:0 50%}
 
