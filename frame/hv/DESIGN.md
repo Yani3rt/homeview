@@ -44,8 +44,9 @@ Size everything in `vh`/`vw` (or `clamp()` with vh) so one page fits both. Check
 - No permanent top bar. Every screen gets `HV.chrome()`: a clock chip and a Standby chip top-right,
   running-timer pills at the bottom. Screens below the Home launcher add a **Back chip top-left**
   (`HV.back(label)`, goes to `/frame/hv/` unless given a URL).
-- **`/frame/hv/` is the Home launcher:** a grid of live widgets (Today, Tonight, Weather, Calendar, Timer,
-  Shopping, Meals, Music or Standby, Photos, Outside). Tap a widget to open its full screen. Standby returns here on tap.
+- **`/frame/hv/` is the Home launcher:** a grid of live widgets (Today, Weather, Smart Home or Outside; Tonight,
+  Timer with one-tap quick timers, Shopping, Photos or Music; a This week strip of events and dinners). Tap a widget
+  to open its full screen. Standby is the chip next to the clock, and returns here on tap.
 - **Information density:** every screen answers its question at a glance from 3 m in the hero, then gives
   the details people actually use in a second row. An empty area larger than a quarter of the screen is a
   bug. If data is missing, say what is missing in one line; never show a blank card.

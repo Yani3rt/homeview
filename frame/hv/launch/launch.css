@@ -1,4 +1,4 @@
-/* Home launcher: HomeView's home screen. 4 columns x 3 rows of live widgets; each opens its screen. */
+/* Home launcher: HomeView's home screen. 4 columns x 3 rows of live widgets (the last row is This week); each opens its screen. */
 .launch{padding:5vh 4.5vw 4vh;gap:2.6vh}
 .launch header{padding-right:22vw}
 .wgrid{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2vh 1.4vw;min-height:0}
@@ -13,6 +13,8 @@
 .w .muted{color:var(--ink-3)}
 .w.s2{grid-column:span 2}
 .w.r2{grid-row:span 2}
+.w.s4{grid-column:span 4}
+.w .sub{font-size:2.4vh;font-weight:600;color:var(--ink-3);line-height:1.25}
 
 /* today: dark, two columns wide */
 .w.today{background:#1c1c1e;color:#fff}
@@ -22,24 +24,73 @@
 .w.today .ev i{width:1vh;height:3.4vh;border-radius:1vh;flex:0 0 auto}
 .w.today .ev span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
 .w.today .ev em{font-style:normal;color:rgba(235,235,245,.6);white-space:nowrap}
+.w.today .evs{display:flex;flex-direction:column;gap:1.4vh}
+.w.today .ev em.soon{background:var(--orange);color:#1c1c1e;border-radius:var(--r-pill);padding:.3vh 1vh;font-size:2.2vh;font-weight:700}
+.w.today .none{font-size:2.4vh;font-weight:600;color:rgba(235,235,245,.55)}
 
 /* dinner: photo */
 .w.dinner{background:#2c2c2e center/cover no-repeat;color:#fff}
 .w.dinner:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 30%,rgba(0,0,0,.7) 100%)}
 .w.dinner>*{position:relative;z-index:1}
 .w.dinner .lbl{color:rgba(255,255,255,.85)}
-.w.dinner .name{font-size:3.6vh;font-weight:700;line-height:1.15;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.w.dinner:after{background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,.1) 35%,rgba(0,0,0,.75) 100%)}
+.w.dinner .name{font-size:3vh;font-weight:700;line-height:1.15;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.w.dinner .line{font-size:2.3vh;color:rgba(255,255,255,.75);-webkit-line-clamp:1}
 
 /* weather: sky */
 .w.wx{background:linear-gradient(180deg,#3d7fd0,#8fc1ee);color:#fff}
 .w.wx.night{background:linear-gradient(180deg,#0b1631,#2a3d6b)}
 .w.wx.cloud{background:linear-gradient(180deg,#6f8294,#a9b8c6)}
 .w.wx .lbl{color:rgba(255,255,255,.85)}
+.w.wx .big{font-size:6vh}
+.w.wx .say{font-size:2.4vh;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w.wx .hrs{display:flex;justify-content:space-between;font-size:2.1vh;font-weight:600;color:rgba(255,255,255,.9)}
+.w.wx .hrs div{display:flex;flex-direction:column;align-items:center;gap:.3vh;padding:0 .5vh;border-radius:1vh}
+.w.wx .hrs b{font-family:var(--sfr);font-size:2.6vh}
+.w.wx .hrs .rain{color:#fff;background:rgba(0,40,120,.28)}
 
 /* timer */
 .w.timer{background:#000;color:#fff}
 .w.timer .lbl{color:var(--orange)}
 .w.timer .big{color:#fff}
+.w.timer .tb{display:flex;flex-direction:column;justify-content:space-between;flex:1;gap:1vh;min-height:0}
+.w.timer .qt{display:grid;grid-template-columns:1fr 1fr;gap:1vh;flex:1}
+.w.timer .qt button{background:#2c2c2e;border:0;border-radius:1.6vh;padding:1.1vh 1vh;font:inherit;font-size:2.4vh;font-weight:700;color:#fff;
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;line-height:1.15;text-align:left;min-height:7vh}
+.w.timer .qt button:active{transform:scale(.96)}
+.w.timer .qt em{font-style:normal;color:var(--orange);font-family:var(--sfr);font-size:2.6vh}
+.w.timer .qt .more{color:rgba(235,235,245,.7);align-items:center}
+.w.timer .bar{height:.9vh;border-radius:1vh;background:#2c2c2e;overflow:hidden}
+.w.timer .bar i{display:block;height:100%;background:var(--orange);-webkit-transform-origin:0 50%;transform-origin:0 50%}
+
+/* shopping: the count and the first items to buy */
+.w .cnt{display:flex;align-items:baseline;gap:.6vw}
+.w .cnt .big{font-size:5.4vh}
+.w.on .sub{color:var(--lav-ink-2)}
+.w .items{font-size:2.4vh;font-weight:600;line-height:1.35}
+.w .items div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w .items div:before{content:"";display:inline-block;width:1.6vh;height:1.6vh;border:.3vh solid currentColor;border-radius:50%;margin-right:.7vw;vertical-align:-.15vh;opacity:.55}
+.w .items span{opacity:.6}
+
+/* this week: 7 day cells, events and the dinner */
+.w.week{padding:2vh 1.4vw 1.8vh}
+.wk{flex:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.7vw;min-height:0}
+.wk .d{background:var(--bg);border-radius:1.8vh;padding:1.1vh .7vw;display:flex;flex-direction:column;gap:.6vh;min-width:0;overflow:hidden}
+.wk .d.now{background:#1c1c1e;color:#fff}
+.wk .dn{font-size:2.3vh;font-weight:700;display:flex;justify-content:space-between;color:var(--ink-2)}
+.wk .d.now .dn{color:var(--orange)}
+.wk .dn b{font-family:var(--sfr);color:var(--ink)}
+.wk .d.now .dn b{color:#fff}
+.wk .e{font-size:1.95vh;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:.4vw;min-width:0}
+.wk .e i{width:.7vh;height:2.2vh;border-radius:1vh;flex:0 0 auto}
+.wk .e span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wk .free{font-size:1.95vh;color:var(--ink-3);font-weight:600}
+.wk .ml{margin-top:auto;font-size:1.95vh;font-weight:600;white-space:nowrap;overflow:hidden;display:flex;align-items:center;gap:.3vw;min-width:0}
+.wk .ml span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wk .ml svg{width:2vh;height:2vh;flex:0 0 auto}
+.wk .ml.set{color:var(--orange)}
+.wk .ml.add{color:var(--blue)}
+.wk .d.now .ml.set{color:#ffb340}
 
 /* lights / house tiles in Home's lavender when something is on */
 .w.on{background:var(--lav);color:var(--lav-ink)}
@@ -64,6 +115,15 @@ html.look-glass .w.on{background:rgba(255,255,255,.34);color:#fff}
 html.look-glass .w.on .lbl{color:#fff}
 html.look-glass .w.wx,html.look-glass .w.wx.cloud,html.look-glass .w.wx.night,html.look-glass .w.music{background:var(--g-fill)}
 html.look-glass .w.dinner,html.look-glass .w.photos{border-color:rgba(255,255,255,.3)}
+html.look-glass .w.wx .big{font-size:6vh}
+html.look-glass .w .cnt .big{font-size:5.4vh}
+html.look-glass .w.timer .qt button,html.look-glass .w.timer .bar{background:rgba(255,255,255,.14)}
+html.look-glass .w.on .sub{color:#fff;opacity:.75}
+html.look-glass .wk .d{background:rgba(255,255,255,.14)}
+html.look-glass .wk .d.now{background:rgba(0,0,0,.25)}
+html.look-glass .wk .dn,html.look-glass .wk .dn b{color:#fff}
+html.look-glass .wk .free{color:rgba(255,255,255,.7)}
+html.look-glass .wk .ml.add{color:#fff;opacity:.8}
 
 /* Smart Home tile: a soft pastel tint by indoor temperature (never a strong color) */
 .w.temp .lbl,.w.temp .muted{color:inherit;opacity:.7}
