@@ -7,7 +7,7 @@
    Order: the Standby schedule (Settings > Standby faces, faces/sched.js): the block for this day and home
    time lists the faces, rotated in order, the first one leading when the block begins. A Photos turn plays
    RUN photos in a row. Photos stay up for Settings > Photo interval (hv-idle slide, 15/30/60 s, default 30),
-   other faces 15 s. Settings > Appearance (hv-idle shade, 0/30/60) lays that much black over the stage. Severe weather
+   other faces for Face interval (hv-idle face, 15/30/60/120 s, default 30). Settings > Appearance (hv-idle shade, 0/30/60) lays that much black over the stage. Severe weather
    (while a Severe/Extreme alert is active) and Now Playing (every other slide while music plays) still
    interrupt whatever is scheduled.
 
@@ -32,9 +32,9 @@ window.HVStandby={
   var NIGHT='/frame/hv/night/'+(Q.get('back')==='faces'?'?back=faces':'');   // the Night clock is its own page
   if(PIN==='night'){location.replace(NIGHT);return;}
   var stage=document.getElementById('stage');
-  var IDLE={slide:30,shade:0},RUN=3;   // Settings > When untouched (settings/settings.js)
+  var IDLE={slide:30,face:30,shade:0},RUN=3;   // Settings > When untouched (settings/settings.js)
   try{var iv=JSON.parse(localStorage.getItem('hv-idle')||'null')||{};
-    if([15,30,60].indexOf(+iv.slide)>=0)IDLE.slide=+iv.slide;if([0,30,60].indexOf(+iv.shade)>=0)IDLE.shade=+iv.shade;}catch(e){}
+    if([15,30,60].indexOf(+iv.slide)>=0)IDLE.slide=+iv.slide;if([15,30,60,120].indexOf(+iv.face)>=0)IDLE.face=+iv.face;if([0,30,60].indexOf(+iv.shade)>=0)IDLE.shade=+iv.shade;}catch(e){}
   var data={frame:null,photos:[],music:null,plan:null,alerts:[]};
   var seenSevere={};   // severe alert ids already shown: a new one jumps the queue once
   var faceIx=0, slideN=0, cur=null, timer=null, order={deck:[],last:null};
@@ -627,7 +627,7 @@ window.HVStandby={
     void d.offsetWidth; d.classList.add('on');
     if(old){old.classList.remove('on');setTimeout(function(){if(old.parentNode)old.parentNode.removeChild(old);},1400);}
     clearTimeout(timer);
-    if(!PIN)timer=setTimeout(show,/photo|depth|plain/.test(d.className)?IDLE.slide*1000:15000);
+    if(!PIN)timer=setTimeout(show,/photo|depth|plain/.test(d.className)?IDLE.slide*1000:IDLE.face*1000);
   }
   setInterval(function(){if(cur&&cur.tick&&(cur.fast||HV.local().s<2))cur.tick();},1000);
   setInterval(function(){load().then(function(){if(!PIN&&HV.facesOn().alert&&newSevere())show();});},60000);

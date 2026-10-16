@@ -1,13 +1,14 @@
 /* HomeView Settings: Apple-Settings style grouped list for this frame. Idle choices are stored per frame
-   in localStorage "hv-idle" (mode off|photos, minutes 1|3|5|10, slide 15|30|60, shade 0|30|60): hv.js reads
-   mode and minutes for the idle jump, Standby reads slide (seconds per photo) and shade (% black over Standby).
+   in localStorage "hv-idle" (mode off|photos, minutes 1|3|5|10, slide 15|30|60, face 15|30|60|120, shade 0|30|60):
+   hv.js reads mode and minutes for the idle jump, Standby reads slide (seconds per photo), face (seconds per
+   other face) and shade (% black over Standby).
    An older saved mode 'dim' counts as 'photos'.
    Everything else that is per house lives in config.json on the server. */
 (function(){
   var KEY='hv-idle';
-  var settings={mode:'photos',minutes:3,slide:30,shade:0};
+  var settings={mode:'photos',minutes:3,slide:30,face:30,shade:0};
   function pick(list,v,d){v=+v;for(var i=0;i<list.length;i++)if(list[i]===v)return v;return d;}
-  function valid(s){s=s||{};return {mode:s.mode==='off'?'off':'photos',minutes:pick([1,3,5,10],s.minutes,3),slide:pick([15,30,60],s.slide,30),shade:pick([0,30,60],s.shade,0)};}
+  function valid(s){s=s||{};return {mode:s.mode==='off'?'off':'photos',minutes:pick([1,3,5,10],s.minutes,3),slide:pick([15,30,60],s.slide,30),face:pick([15,30,60,120],s.face,30),shade:pick([0,30,60],s.shade,0)};}
   try{settings=valid(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(e){}
   var photoCount=null, avail={};
 
@@ -31,11 +32,12 @@
 
   function left(){
     var idleOn=settings.mode!=='off';
-    /* Photo interval and Appearance stay live with Stay on: the Standby button still opens Standby */
+    /* Photo interval, Face interval and Appearance stay live with Stay on: the Standby button still opens Standby */
     var h=grp('When untouched',
       row('Switch to','',seg('mode',[['photos','Standby'],['off','Stay on']],settings.mode))+
       row('After','',seg('minutes',[[1,'1 min'],[3,'3 min'],[5,'5 min'],[10,'10 min']],settings.minutes),idleOn?'':'off')+
       row('Photo interval','Each photo in Standby',seg('slide',[[15,'15 s'],[30,'30 s'],[60,'1 min']],settings.slide))+
+      row('Face interval','Each other face in Standby',seg('face',[[15,'15 s'],[30,'30 s'],[60,'1 min'],[120,'2 min']],settings.face))+
       row('Appearance','Standby brightness',seg('shade',[[0,'Normal'],[30,'Softer'],[60,'Dim']],settings.shade)));
     return h;
   }
