@@ -51,6 +51,14 @@ html.look-glass .w.tmr .tr.i-sunrise svg,html.look-glass .w.tmr .tr.i-sun svg{co
 html.look-glass .w.tmr .tr:not(.i-drop):not(.i-sunrise):not(.i-sun) svg,html.look-glass .w.tmr .tr em,html.look-glass .w.tmr .ev em,html.look-glass .w.tmr .none{color:var(--g-ink-2)}
 html.look-glass .w.tmr .lbl .more{color:var(--g-ink-2)}
 html.look-glass .w.tmr .tcal{border-left-color:rgba(255,255,255,.3)}
+/* Tomorrow uses Today's dark card (Yani, 2026-10-16) */
+.w.tmr{background:#1c1c1e;color:#fff}
+.w.tmr .lbl{color:rgba(235,235,245,.7)}
+.w.tmr .lbl .more,.w.tmr .ev em,.w.tmr .tr em,.w.tmr .none{color:rgba(235,235,245,.6)}
+.w.tmr .tcal{border-left-color:rgba(235,235,245,.18)}
+.w.tmr .tr.i-drop svg{color:#64b5ff}
+.w.tmr .tr.i-sun svg{color:var(--yellow)}
+html.look-glass .w.tmr{background:rgba(0,0,0,.22)}
 .w.today .none{font-size:2.4vh;font-weight:600;color:rgba(235,235,245,.55)}
 
 /* dinner: photo */

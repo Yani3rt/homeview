@@ -76,7 +76,7 @@
     if(!cal)cal='<div class="none">'+ic('cal')+'<span>Nothing on the calendar</span></div>';
     var left=evs.length-3;
     return w('tmr s2','/frame/hv/weather/','Tomorrow · '+HV.DAYS[t.dow]+(left>0?'<span class="more">+'+left+' more</span>':''),'sun',
-      '<div class="tcols"><div class="tds">'+wxs+'</div><div class="tcal">'+cal+'</div></div>');   // light card: Today is the dark one
+      '<div class="tcols"><div class="tds">'+wxs+'</div><div class="tcal">'+cal+'</div></div>');   // same dark card as Today
   }
 
   function weatherTile(wx){
