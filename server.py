@@ -118,7 +118,7 @@ class Handler(SimpleHTTPRequestHandler):
         route = self._route()
         if hv_api.dispatch_post(self, route) or settings_api.dispatch_post(self, route) or spotify_api.dispatch_post(self, route) or ha_api.dispatch_post(self, route):
             return
-        if route not in ("/api/meals/plan", "/api/meals/shopping", "/api/meals/staples", "/api/frame/music"):
+        if route not in ("/api/meals/plan", "/api/meals/shopping", "/api/meals/staples", "/api/meals/favorites", "/api/frame/music"):
             self._json({"ok": False, "error": "Not found"}, 404)
             return
         if not self._same_origin():

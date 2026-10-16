@@ -123,3 +123,14 @@
 .ml-wd .acts .hv-pill{height:7vh;padding:0;font-size:max(15px,2.4vh);width:100%}
 .ml-wd.pl .acts .hv-pill{background:rgba(255,255,255,.22);color:#fff}
 .ml-ir .q{margin-left:auto}
+
+/* favorites: heart chip, heart on cards, heart button on the recipe */
+.ml-chip svg{width:2.8vh;height:2.8vh;fill:none}
+.ml-chip.fv svg{color:#e0245e}
+.ml-chip.fv.on svg{color:#fff;fill:currentColor}
+.ml-fv{position:absolute;left:1vh;top:1vh;width:4.6vh;height:4.6vh;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;color:#e0245e}
+.ml-fv svg{position:static;width:2.8vh;height:2.8vh;margin:0;fill:currentColor;color:#e0245e}
+.ml-acts .ml-heart{flex:0 0 8vh;color:var(--ink-2)}
+.ml-heart svg{width:3.8vh;height:3.8vh;fill:none}
+.ml-heart.on{color:#e0245e}
+.ml-heart.on svg{fill:currentColor}

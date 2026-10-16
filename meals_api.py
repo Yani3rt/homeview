@@ -17,8 +17,10 @@ Routes (GET unless marked)
   /api/meals/browse?category=|area=   {ok, results:[brief]}
   /api/meals/random                   {ok, results:[brief]}   (one recipe, never cached)
   /api/meals/recipe?id=               {ok, recipe}
+  /api/meals/favorites                {ok, favorites:[brief], usuals:[brief + times, last]}
   /api/meals/shopping?days=7          {ok, start, end, meals:[...], items:[{key, name, amount, meals, checked}]}
   POST /api/meals/plan       {date, id}  plan a recipe on a date;  {date, id: null} clears the date
+  POST /api/meals/favorites  {id, on}  heart (on: true) or un-heart a recipe
   POST /api/meals/shopping   {key, checked}  |  {add: "milk"}  |  {remove: key}  |  {clear_checked: true}  |  {clear_all: true}
                              (clearing also drops the hand-added items that were checked off: they're bought)
 
@@ -251,6 +253,60 @@ def set_day(day, rid):
         d["days"][day] = {"id": r["id"], "name": r["name"], "thumb": r["thumb"], "category": r["category"], "area": r["area"]}
         _save_plan(d)
     return plan_doc()
+
+
+# ---------------------------------------------------------------- favorites and usuals (chips on Meals)
+# Favorites: recipes the household hearted, newest first, in <data_dir>/meal_favorites.json as {"items": [brief]}.
+# Usuals: worked out from the plan history (meal_plan.json keeps every past day), most planned first.
+MAX_FAVORITES = 60
+USUALS_DAYS = 120
+MAX_USUALS = 12
+
+
+def _favorites_file():
+    return config.data_dir() / "meal_favorites.json"
+
+
+def favorites():
+    try:
+        items = json.loads(_favorites_file().read_text()).get("items")
+    except (OSError, ValueError, AttributeError):
+        items = None
+    return [x for x in items if isinstance(x, dict) and x.get("id")] if isinstance(items, list) else []
+
+
+def usuals(now=None):
+    """Dinners planned in the last USUALS_DAYS days up to today: [{brief.., times, last}], most often, then most recent."""
+    t = now or today()
+    start = (t - timedelta(days=USUALS_DAYS)).isoformat()
+    seen = {}
+    for day, m in sorted(load_plan()["days"].items()):
+        if not (start <= day <= t.isoformat()) or not isinstance(m, dict) or not m.get("id"):
+            continue
+        u = seen.setdefault(m["id"], dict(m, times=0))
+        u.update(m, times=u["times"] + 1, last=day)
+    out = sorted(seen.values(), key=lambda u: (u["times"], u["last"]), reverse=True)
+    return out[:MAX_USUALS]
+
+
+def favorites_doc(now=None):
+    return {"ok": True, "favorites": favorites(), "usuals": usuals(now)}
+
+
+def set_favorite(rid, on=True):
+    rid = str(rid or "")
+    if not ID_RE.fullmatch(rid):
+        raise ValueError("Unknown recipe")
+    r = recipe(rid) if on else None          # outside the lock: may fetch
+    with _lock:
+        items = [x for x in favorites() if x["id"] != rid]
+        if on:
+            if len(items) >= MAX_FAVORITES:
+                raise ValueError("Favorites is full: remove one first")
+            items.insert(0, {k: r[k] for k in ("id", "name", "thumb", "category", "area")})
+        p = _favorites_file(); tmp = p.with_suffix(".tmp")
+        tmp.write_text(json.dumps({"items": items}, indent=1)); tmp.replace(p)
+    return favorites_doc()
 
 
 # ---------------------------------------------------------------- shopping list
@@ -571,6 +627,8 @@ def dispatch_get(handler, route):
             handler._json({"ok": True, "recipe": recipe(q.get("id"))})
         elif route == "/api/meals/staples":
             handler._json(staples_doc())
+        elif route == "/api/meals/favorites":
+            handler._json(favorites_doc())
         elif route == "/api/meals/shopping":
             n = q.get("days", "7")
             handler._json(shopping_doc(int(n) if n.isdigit() else 7))
@@ -586,6 +644,8 @@ def dispatch_get(handler, route):
 def dispatch_post(handler, route, payload):
     if route == "/api/meals/staples":
         return staples_post(payload)
+    if route == "/api/meals/favorites":
+        return set_favorite(payload.get("id"), bool(payload.get("on", True)))
     if route == "/api/meals/plan":
         return set_day(payload.get("date"), payload.get("id"))
     if route == "/api/meals/shopping" and "add" in payload:

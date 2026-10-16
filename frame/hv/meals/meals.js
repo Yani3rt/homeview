@@ -1,7 +1,8 @@
 /* Meals: browse and search TheMealDB, plan dinners for the next 7 days. ES5 (old WebView).
    Reads : GET /api/meals/categories, /api/meals/browse?category=, /api/meals/search?q=, /api/meals/random,
-           /api/meals/recipe?id=, /api/meals/plan
-   Writes: POST /api/meals/plan {date, id}  (id null clears the day)
+           /api/meals/recipe?id=, /api/meals/plan, /api/meals/favorites (favorites + usuals from the plan history)
+   Writes: POST /api/meals/plan {date, id}  (id null clears the day), POST /api/meals/favorites {id, on}
+   Pick a dinner (and ?plan=) opens on Favorites, or Usuals when nothing is hearted yet.
    URL   : ?view=week opens the week; ?plan=YYYY-MM-DD picks a dinner for that day; ?q= starts a search;
            ?open=<recipe id> opens a recipe (handy for screenshots). */
 (function(){
@@ -9,6 +10,7 @@
   var CHECK='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   var PLATE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/></svg>';
   var SEARCH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
+  var HEART='<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></svg>';
   var BACK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
   function q(k){var m=location.search.match(new RegExp('[?&]'+k+'=([^&]*)'));return m?decodeURIComponent(m[1].replace(/\+/g,' ')):'';}
   function $(i){return document.getElementById(i);}
@@ -18,7 +20,8 @@
   function img(u,size){return u?String(u)+'/'+(size||'medium'):'';}   // TheMealDB serves /small, /medium, /large
 
   var S={view:q('view')==='week'?'week':'browse',cats:[],cat:'',q:q('q'),results:null,err:'',plan:null,
-         planFor:/^\d{4}-\d{2}-\d{2}$/.test(q('plan'))?q('plan'):'',cur:null,sel:'',busy:false,seq:0};
+         planFor:/^\d{4}-\d{2}-\d{2}$/.test(q('plan'))?q('plan'):'',cur:null,sel:'',busy:false,seq:0,
+         mine:'',favs:[],usuals:[]};   // mine: 'fav' or 'usual' while one of those chips is showing
 
   root.innerHTML='<div class="ml-top"><h1 class="ml-title">Meals</h1><div class="ml-find">'+SEARCH+
     '<input id="q" type="search" placeholder="Search recipes or a main ingredient" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Search recipes">'+
@@ -33,6 +36,10 @@
 
   /* ---------- the plan ---------- */
   function plannedOn(id){var w=(S.plan&&S.plan.week)||[],i;for(i=0;i<w.length;i++)if(w[i].meal&&w[i].meal.id===id)return w[i].date;return '';}
+  function isFav(id){for(var i=0;i<S.favs.length;i++)if(S.favs[i].id===id)return true;return false;}
+  function loadFavs(){return HVJson('/api/meals/favorites').then(function(d){S.favs=d.favorites||[];S.usuals=d.usuals||[];},function(){});}
+  function ago(day){var t=S.plan?S.plan.today:'',n=t?Math.round((pd(t)-pd(day))/864e5):-1;
+    return n===0?'tonight':n===1?'yesterday':n>1?n+' days ago':dayLong(day);}
   function loadPlan(){return HVJson('/api/meals/plan').then(function(d){S.plan=d;},function(){});}
 
   /* ---------- top bar ---------- */
@@ -45,7 +52,9 @@
     var e=$('chips');
     if(S.view!=='browse'){e.innerHTML='';e.style.display='none';return;}
     e.style.display='';
-    var h='<button class="ml-chip'+(!S.cat&&!S.q?' on':'')+'" data-cat="">Ideas</button>';
+    var h='<button class="ml-chip'+(!S.cat&&!S.q&&!S.mine?' on':'')+'" data-cat="">Ideas</button>'+
+      '<button class="ml-chip fv'+(S.mine==='fav'?' on':'')+'" data-mine="fav">'+HEART+'Favorites'+(S.favs.length?' <b>'+S.favs.length+'</b>':'')+'</button>'+
+      (S.usuals.length?'<button class="ml-chip'+(S.mine==='usual'?' on':'')+'" data-mine="usual">Usuals</button>':'');
     S.cats.forEach(function(c){h+='<button class="ml-chip'+(S.cat===c.name?' on':'')+'" data-cat="'+esc(c.name)+'">'+esc(c.name)+'</button>';});
     h+='<button class="ml-chip wk" data-random="1">Surprise me</button>';
     e.innerHTML=h;
@@ -60,14 +69,18 @@
 
   /* ---------- browse ---------- */
   function card(r){
-    var on=plannedOn(r.id);
+    var on=plannedOn(r.id),mt=r.times?(r.times===1?'Once':r.times+' times')+' · '+ago(r.last):[r.category,r.area].filter(Boolean).join(' · ')||'Recipe';
     return '<button class="ml-card" data-id="'+esc(r.id)+'"><div class="ml-ph">'+PLATE+(r.thumb?'<img alt="" src="'+esc(img(r.thumb,'medium'))+'" onload="this.className=\'ld\'">':'')+
-      (on?'<span class="ml-badge pl">'+esc(on===S.plan.today?'Tonight':dayShort(on))+'</span>':'')+'</div>'+
-      '<div class="ml-nm">'+esc(r.name)+'</div><div class="ml-mt">'+esc([r.category,r.area].filter(Boolean).join(' · ')||'Recipe')+'</div></button>';
+      (isFav(r.id)?'<span class="ml-fv">'+HEART+'</span>':'')+(on?'<span class="ml-badge pl">'+esc(on===S.plan.today?'Tonight':dayShort(on))+'</span>':'')+'</div>'+
+      '<div class="ml-nm">'+esc(r.name)+'</div><div class="ml-mt">'+esc(mt)+'</div></button>';
   }
   function empty(t,s){return '<div class="ml-empty" style="grid-column:1/-1"><b>'+esc(t)+'</b>'+(s?'<span>'+esc(s)+'</span>':'')+'</div>';}
   function drawBrowse(){
     var g=$('grid'),n=$('note');
+    if(S.mine){var L=S.mine==='fav'?S.favs:S.usuals,h2='';
+      n.textContent=S.mine==='fav'?(L.length?'Favorites · '+L.length:''):'Usuals: the dinners you plan most';
+      if(!L.length){g.innerHTML=S.mine==='fav'?empty('No favorites yet','Open a recipe and tap the heart to keep it here'):empty('No usuals yet','Dinners you plan show up here');return;}
+      L.forEach(function(r){h2+=card(r);});g.innerHTML=h2;return;}
     if(S.err){n.textContent='';g.innerHTML=empty('Recipes did not load',S.err);return;}
     if(!S.results){n.textContent='';g.innerHTML=empty('Loading recipes','From TheMealDB');return;}
     if(!S.results.length){n.textContent='';g.innerHTML=empty('No recipes found','Try one word, like a main ingredient: chicken, salmon, beans');return;}
@@ -75,9 +88,13 @@
     var h='';S.results.slice(0,60).forEach(function(r){h+=card(r);});g.innerHTML=h;
   }
   function fetchList(url){
-    var my=++S.seq;S.results=null;S.err='';draw();
+    var my=++S.seq;S.mine='';S.results=null;S.err='';draw();
     HVJson(url).then(function(d){if(my!==S.seq)return;S.results=d.results||[];draw();},
       function(e){if(my!==S.seq)return;S.err=(e&&e.message)||'TheMealDB did not answer';draw();});
+  }
+  function showMine(k){S.seq++;S.mine=k;S.cat='';S.q='';S.err='';$('q').value='';$('qclr').hidden=true;draw();$('scroll').scrollTop=0;}
+  function startPick(){   // planning a day: the household's own dinners first, then ideas
+    if(S.favs.length)showMine('fav');else if(S.usuals.length)showMine('usual');else if(!S.results||S.mine)ideas();else draw();
   }
   function ideas(){   // a different main-course category each day, so the first screen changes
     S.cat='';
@@ -120,10 +137,19 @@
       '<div class="ml-dr"><div><div class="ml-src">'+esc([r.category,r.area].filter(Boolean).join(' · ')||'Recipe')+'</div><h2 class="ml-dn">'+esc(r.name)+'</h2>'+
       '<div class="ml-sub">'+r.ingredients.length+' ingredients · '+r.steps.length+' step'+(r.steps.length===1?'':'s')+(on?' · planned for '+esc(on===S.plan.today?'tonight':dayLong(on)):'')+'</div></div>'+
       '<div class="ml-ing"><h3>Ingredients</h3>'+ing+'</div>'+
-      '<div class="ml-acts"><button class="hv-pill primary" id="dplan">'+esc(primary)+'</button><button class="hv-pill" id="dcook">Cook now</button></div></div>';
+      '<div class="ml-acts"><button class="hv-pill primary" id="dplan">'+esc(primary)+'</button><button class="hv-pill" id="dcook">Cook now</button>'+
+      '<button class="hv-pill ml-heart'+(isFav(r.id)?' on':'')+'" id="dfav" aria-label="Favorite">'+HEART+'</button></div></div>';
     $('dx').onclick=closeRecipe;
     $('dcook').onclick=function(){location.href='/frame/hv/dinner/?id='+encodeURIComponent(r.id);};
+    $('dfav').onclick=function(){toggleFav(r);};
     $('dplan').onclick=function(){if(S.planFor)planDay(S.planFor,r.id,true);else openPlanSheet();};
+  }
+  function toggleFav(r){
+    if(S.busy)return;S.busy=true;var on=!isFav(r.id);
+    HV.post('/api/meals/favorites',{id:r.id,on:on}).then(function(d){
+      S.favs=d.favorites||[];S.usuals=d.usuals||[];HV.toast(on?'Saved to Favorites':'Removed from Favorites');
+      if(S.cur&&S.cur.id===r.id)drawRecipe();draw();
+    },function(e){HV.toast(e.message);}).then(function(){S.busy=false;});
   }
   function closeRecipe(){$('dt').classList.remove('on');document.body.classList.remove('hv-cover');S.cur=null;}
 
@@ -141,7 +167,7 @@
   function planDay(day,id,leave){
     if(S.busy)return;S.busy=true;
     HV.post('/api/meals/plan',{date:day,id:id}).then(function(d){
-      S.plan=d;HV.toast(id?'Planned for '+(day===d.today?'tonight':dayLong(day)):'Cleared '+dayLong(day));
+      S.plan=d;loadFavs().then(draw);HV.toast(id?'Planned for '+(day===d.today?'tonight':dayLong(day)):'Cleared '+dayLong(day));
       closePlanSheet();
       if(leave&&S.planFor){S.planFor='';closeRecipe();S.view='week';}
       else if(S.cur)drawRecipe();
@@ -157,12 +183,13 @@
   /* ---------- events ---------- */
   $('seg').onclick=function(e){var b=e.target.closest('[data-view]');if(!b)return;S.view=b.getAttribute('data-view');draw();};
   $('chips').onclick=function(e){var b=e.target.closest('button');if(!b)return;
+    if(b.getAttribute('data-mine')){showMine(b.getAttribute('data-mine'));return;}
     if(b.getAttribute('data-random')){S.q='';S.cat='';$('q').value='';fetchList('/api/meals/random');return;}
     S.cat=b.getAttribute('data-cat')||'';S.q='';$('q').value='';$('qclr').hidden=true;
     if(S.cat)fetchList('/api/meals/browse?category='+encodeURIComponent(S.cat));else ideas();};
   $('grid').onclick=function(e){
     var b=e.target.closest('[data-pick]');
-    if(b){S.planFor=b.getAttribute('data-pick');S.view='browse';draw();if(!S.results)ideas();return;}
+    if(b){S.planFor=b.getAttribute('data-pick');S.view='browse';startPick();return;}
     b=e.target.closest('[data-clear]');if(b){planDay(b.getAttribute('data-clear'),null,false);return;}
     b=e.target.closest('[data-id]');if(b)openRecipe(b.getAttribute('data-id'));
   };
@@ -175,10 +202,13 @@
   /* ---------- start ---------- */
   draw();
   loadPlan().then(draw);
-  HVJson('/api/meals/categories').then(function(d){S.cats=d.categories||[];},function(e){S.err=(e&&e.message)||'TheMealDB did not answer';}).then(function(){
-    if(S.err){draw();return;}
-    if(S.q)fetchList('/api/meals/search?q='+encodeURIComponent(S.q));else ideas();
+  var favsP=loadFavs();
+  HVJson('/api/meals/categories').then(function(d){S.cats=d.categories||[];},function(e){S.err=(e&&e.message)||'TheMealDB did not answer';}).then(function(){return favsP;}).then(function(){
+    if(S.q){if(!S.err)fetchList('/api/meals/search?q='+encodeURIComponent(S.q));else draw();}
+    else if(S.planFor&&(S.favs.length||S.usuals.length)){S.err='';startPick();}   // works even when TheMealDB is down
+    else if(S.err)draw();else ideas();
   });
   if(q('open'))openRecipe(q('open'));
+  favsP.then(function(){if(S.cur)drawRecipe();});   // the heart on a recipe opened before favorites loaded
   setInterval(function(){if(!$('dt').classList.contains('on'))loadPlan().then(draw);},60000);
 })();

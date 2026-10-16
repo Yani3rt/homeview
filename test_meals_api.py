@@ -190,6 +190,32 @@ class PlanTest(Base):
         self.assertEqual(M.load_plan()["days"], {})
 
 
+class FavoritesTest(Base):
+    def test_heart_and_unheart(self):
+        d = M.set_favorite("1")
+        self.assertEqual([f["name"] for f in d["favorites"]], ["Garlic Pasta"])
+        M.set_favorite("2")
+        self.assertEqual([f["id"] for f in M.favorites()], ["2", "1"])
+        M.set_favorite("2")                                  # hearting again moves it to the top, no duplicate
+        self.assertEqual([f["id"] for f in M.favorites()], ["2", "1"])
+        d = M.set_favorite("1", on=False)
+        self.assertEqual([f["id"] for f in d["favorites"]], ["2"])
+
+    def test_bad_or_unknown_ids(self):
+        for bad in ("", None, "abc", "999"):
+            with self.assertRaises(ValueError):
+                M.set_favorite(bad)
+        self.assertEqual(M.favorites(), [])
+
+    def test_usuals_count_past_dinners_only(self):
+        t = M.today()
+        for off, rid in ((-20, "1"), (-10, "2"), (-5, "1"), (0, "3"), (2, "2"), (-200, "2")):
+            M.set_day((t + timedelta(days=off)).isoformat(), rid)
+        u = M.usuals()
+        self.assertEqual([(x["id"], x["times"]) for x in u], [("1", 2), ("3", 1), ("2", 1)])
+        self.assertEqual(u[0]["last"], (t - timedelta(days=5)).isoformat())
+
+
 class ShoppingOffTest(Base):
     def test_planned_dinners_stay_off_the_list_by_default(self):
         M.set_day(M.today().isoformat(), "1")
