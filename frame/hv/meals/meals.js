@@ -3,11 +3,12 @@
            /api/meals/recipe?id=, /api/meals/plan, /api/meals/favorites (favorites + usuals from the plan history)
    Writes: POST /api/meals/plan {date, id}  (id null clears the day), POST /api/meals/favorites {id, on}
    Pick a dinner (and ?plan=) opens on Favorites, or Usuals when nothing is hearted yet, then Paprika.
+   Paprika only (config.json meals.provider "paprika", HV.cfg.meals_source): no TheMealDB; All + the top 12 Paprika categories.
    Paprika (when config.json has a paprika login): GET /api/meals/paprika?category= ; its recipes' ids start with "p". 
    URL   : ?view=week opens the week; ?plan=YYYY-MM-DD picks a dinner for that day; ?q= starts a search;
            ?open=<recipe id> opens a recipe (handy for screenshots). */
 (function(){
-  var root=document.getElementById('root'),esc=HV.esc;
+  var root=document.getElementById('root'),esc=HV.esc,PO=HV.cfg.meals_source==='paprika',TOP=12;
   var CHECK='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   var PLATE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/></svg>';
   var SEARCH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
@@ -28,7 +29,7 @@
     '<input id="q" type="search" placeholder="Search recipes or a main ingredient" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Search recipes">'+
     '<button class="ml-clr" id="qclr" hidden aria-label="Clear">&times;</button></div><div class="ml-seg" id="seg"></div></div>'+
     '<div class="ml-chips" id="chips"></div><div class="ml-banner" id="banner" hidden></div>'+
-    '<div class="ml-scroll" id="scroll"><div class="ml-note" id="note"></div><div class="ml-grid" id="grid"></div><div class="ml-credit">Recipes from TheMealDB (themealdb.com)</div></div>'+
+    '<div class="ml-scroll" id="scroll"><div class="ml-note" id="note"></div><div class="ml-grid" id="grid"></div>'+(PO?'':'<div class="ml-credit">Recipes from TheMealDB (themealdb.com)</div>')+'</div>'+
     '<div class="ml-dt" id="dt"></div><div class="ml-scrim" id="scrim"></div>'+
     '<div class="hv-sheet ml-sheet" id="psheet"><div class="ml-sh"><div style="flex:1;min-width:0"><h2 id="ptitle">Plan dinner</h2><p>Pick a day. A day that already has a dinner gets replaced.</p></div>'+
     '<button class="hv-pill" id="pcancel">Cancel</button></div><div class="ml-pds" id="pds"></div><div class="ml-sf"><span class="h" id="phint"></span><button class="hv-pill primary" id="pgo" style="padding:0 4vw">Plan</button></div></div>';
@@ -53,11 +54,16 @@
     var e=$('chips');
     if(S.view!=='browse'){e.innerHTML='';e.style.display='none';return;}
     e.style.display='';
-    var h='<button class="ml-chip'+(!S.cat&&!S.q&&!S.mine&&!S.pap?' on':'')+'" data-cat="">Ideas</button>'+
+    var h=PO?'<button class="ml-chip'+(S.pap&&!S.papCat&&!S.q?' on':'')+'" data-pap="">All'+(S.papInfo&&S.papInfo.count?' <b>'+S.papInfo.count+'</b>':'')+'</button>':
+      '<button class="ml-chip'+(!S.cat&&!S.q&&!S.mine&&!S.pap?' on':'')+'" data-cat="">Ideas</button>';
+    h+=
       '<button class="ml-chip fv'+(S.mine==='fav'?' on':'')+'" data-mine="fav">'+HEART+'Favorites'+(S.favs.length?' <b>'+S.favs.length+'</b>':'')+'</button>'+
       (S.usuals.length?'<button class="ml-chip'+(S.mine==='usual'?' on':'')+'" data-mine="usual">Usuals</button>':'');
-    if(HV.cfg.paprika)h+='<button class="ml-chip pp'+(S.pap&&!S.papCat?' on':'')+'" data-pap="">Paprika'+(S.papInfo&&S.papInfo.count?' <b>'+S.papInfo.count+'</b>':'')+'</button>';
-    if(S.pap&&S.papInfo)S.papInfo.categories.forEach(function(c){h+='<button class="ml-chip'+(S.papCat===c?' on':'')+'" data-pap="'+esc(c)+'">'+esc(c)+'</button>';});
+    if(PO)(S.papInfo?S.papInfo.categories:S.cats.map(function(c){return c.name;})).slice(0,TOP).forEach(function(c){
+      h+='<button class="ml-chip'+(S.pap&&S.papCat===c?' on':'')+'" data-pap="'+esc(c)+'">'+esc(c)+'</button>';});
+    else if(HV.cfg.paprika)h+='<button class="ml-chip pp'+(S.pap&&!S.papCat?' on':'')+'" data-pap="">Paprika'+(S.papInfo&&S.papInfo.count?' <b>'+S.papInfo.count+'</b>':'')+'</button>';
+    if(PO){}
+    else if(S.pap&&S.papInfo)S.papInfo.categories.slice(0,TOP).forEach(function(c){h+='<button class="ml-chip'+(S.papCat===c?' on':'')+'" data-pap="'+esc(c)+'">'+esc(c)+'</button>';});
     else S.cats.forEach(function(c){h+='<button class="ml-chip'+(S.cat===c.name?' on':'')+'" data-cat="'+esc(c.name)+'">'+esc(c.name)+'</button>';});
     h+='<button class="ml-chip wk" data-random="1">Surprise me</button>';
     e.innerHTML=h;
@@ -72,7 +78,7 @@
 
   /* ---------- browse ---------- */
   function card(r){
-    var on=plannedOn(r.id),mt=r.times?(r.times===1?'Once':r.times+' times')+' · '+ago(r.last):[r.category,r.area].filter(Boolean).join(' · ')||'Recipe';
+    var on=plannedOn(r.id),mt=r.times?(r.times===1?'Once':r.times+' times')+' · '+ago(r.last):[r.category,PO&&r.area==='Paprika'?'':r.area].filter(Boolean).join(' · ')||'Recipe';
     return '<button class="ml-card" data-id="'+esc(r.id)+'"><div class="ml-ph">'+PLATE+(r.thumb?'<img alt="" src="'+esc(img(r.thumb,'medium'))+'" onload="this.className=\'ld\'">':'')+
       (isFav(r.id)?'<span class="ml-fv">'+HEART+'</span>':'')+(on?'<span class="ml-badge pl">'+esc(on===S.plan.today?'Tonight':dayShort(on))+'</span>':'')+'</div>'+
       '<div class="ml-nm">'+esc(r.name)+'</div><div class="ml-mt">'+esc(mt)+'</div></button>';
@@ -88,9 +94,9 @@
     var P=S.pap&&S.papInfo;
     if(P&&S.results&&!S.results.length){n.textContent='';g.innerHTML=P.syncing?empty('Getting your Paprika recipes','The first sync can take a few minutes'):
       empty(P.error?'Paprika did not sync':'No Paprika recipes here',P.error||(S.papCat?'Nothing in '+S.papCat:'Recipes you add in Paprika show up here'));return;}
-    if(!S.results){n.textContent='';g.innerHTML=empty('Loading recipes','From TheMealDB');return;}
+    if(!S.results){n.textContent='';g.innerHTML=empty('Loading recipes',PO?'From Paprika':'From TheMealDB');return;}
     if(!S.results.length){n.textContent='';g.innerHTML=empty('No recipes found','Try one word, like a main ingredient: chicken, salmon, beans');return;}
-    n.textContent=P?(S.papCat?S.papCat+' · ':'Paprika · ')+S.results.length+' recipe'+(S.results.length===1?'':'s')+(P.syncing?' · syncing':P.error?' · '+P.error:''):S.q?S.results.length+' recipe'+(S.results.length===1?'':'s')+' for “'+S.q+'”':S.cat?S.cat+' · '+S.results.length+' recipes':S.idea?'Ideas: '+S.idea:'Ideas';
+    n.textContent=P?(S.papCat?S.papCat+' · ':PO?'All · ':'Paprika · ')+S.results.length+' recipe'+(S.results.length===1?'':'s')+(P.syncing?' · syncing':P.error?' · '+P.error:''):S.q?S.results.length+' recipe'+(S.results.length===1?'':'s')+' for “'+S.q+'”':S.cat?S.cat+' · '+S.results.length+' recipes':S.idea?'Ideas: '+S.idea:'Ideas';
     var h='';S.results.slice(0,60).forEach(function(r){h+=card(r);});g.innerHTML=h;
   }
   function fetchList(url){
@@ -103,11 +109,12 @@
   }
   function showMine(k){S.seq++;S.mine=k;S.pap=false;S.papCat='';S.cat='';S.q='';S.err='';$('q').value='';$('qclr').hidden=true;draw();$('scroll').scrollTop=0;}
   function startPick(){   // planning a day: the household's own dinners first, then ideas
-    if(S.favs.length)showMine('fav');else if(S.usuals.length)showMine('usual');else if(HV.cfg.paprika)fetchList('/api/meals/paprika');
+    if(S.favs.length)showMine('fav');else if(S.usuals.length)showMine('usual');else if(HV.cfg.paprika&&!PO)fetchList('/api/meals/paprika');
     else if(!S.results||S.mine)ideas();else draw();
   }
   function ideas(){   // a different main-course category each day, so the first screen changes
     S.cat='';
+    if(PO){S.papCat='';fetchList('/api/meals/paprika');return;}   // Paprika only: everything, favorites and top-rated first
     if(!S.cats.length){S.idea='';fetchList('/api/meals/browse');return;}
     var t=HV.local(),n=Math.round(Date.UTC(t.y,t.mo-1,t.d)/864e5),pool=S.cats.filter(function(c){return !/^(Dessert|Starter|Side|Breakfast|Goat|Miscellaneous)$/.test(c.name);});
     if(!pool.length)pool=S.cats;

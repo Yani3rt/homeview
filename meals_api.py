@@ -154,7 +154,15 @@ def _meals(data):
 
 # ---------------------------------------------------------------- reads
 
+def paprika_only():
+    """config.json meals.provider "paprika": TheMealDB is off and every list comes from the Paprika recipes."""
+    return str(config.get("meals").get("provider") or "").strip().lower() == "paprika"
+
+
 def categories():
+    if paprika_only():
+        return {"ok": True, "areas": [], "categories": [{"name": c, "thumb": "", "about": "", "count": n}
+                                                         for c, n in paprika_api.top_categories()]}
     cats = [{"name": c.get("strCategory"), "thumb": c.get("strCategoryThumb") or "",
              "about": (c.get("strCategoryDescription") or "").split(". ")[0][:160]}
             for c in (api("categories.php") or {}).get("categories") or []]
@@ -167,6 +175,8 @@ def search(q):
     if not q:
         return {"ok": True, "results": []}
     mine = paprika_api.search(q)        # the household's own Paprika recipes come first
+    if paprika_only():
+        return {"ok": True, "results": mine}
     try:
         found = [brief(m) for m in _meals(api("search.php", s=q))]
         if not found:      # "chicken thighs" finds nothing by name; try it as a main ingredient
@@ -179,6 +189,8 @@ def search(q):
 
 
 def browse(category=None, area=None):
+    if paprika_only():
+        return {"ok": True, "results": paprika_api.list_doc(category)["results"]}
     if category:
         res = _meals(api("filter.php", c=str(category)[:40]))
     elif area:
@@ -193,6 +205,8 @@ def browse(category=None, area=None):
 
 
 def random_pick():
+    if paprika_only():
+        return {"ok": True, "results": paprika_api.random_pick()}
     return {"ok": True, "results": [brief(m) for m in _meals(api("random.php", ttl=0))]}
 
 

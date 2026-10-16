@@ -11,7 +11,7 @@
 
   function empty(){
     root.innerHTML='<div class="dn-empty"><div class="eh"><h1>Nothing planned tonight</h1><p>Pick one of these, or open Meals to plan the week.</p></div>'+
-      '<div class="picks" id="picks"><div class="none">Loading ideas from TheMealDB</div></div>'+
+      '<div class="picks" id="picks"><div class="none">Loading ideas</div></div>'+
       '<div class="ef"><button class="dn-b" id="pick">Open Meals</button>'+(plan&&plan.tomorrow?'<div class="nx">Tomorrow: <b>'+esc(plan.tomorrow.name)+'</b></div>':'')+'</div></div>';
     $('pick').onclick=function(){location.href='/frame/hv/meals/?plan='+(plan?plan.today:'');};
     HVJson('/api/meals/random').then(function(a){return HVJson('/api/meals/browse').then(function(b){return (a.results||[]).concat(b.results||[]);});})

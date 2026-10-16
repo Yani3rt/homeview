@@ -130,6 +130,34 @@ class MealsTest(Base):
             M.recipe("pZZZZ9999-not-there")
 
 
+class PaprikaOnlyTest(Base):
+    def setUp(self):
+        self.cm0 = None
+        super().setUp()
+        cfg = json.loads((self.dir / "config.json").read_text())
+        cfg["meals"]["provider"] = "paprika"
+        (self.dir / "config.json").write_text(json.dumps(cfg))
+        import config; config._cache.update(path=None, mtime=None, value=None)
+        P.sync()
+        self.fake.recipes[U2]["categories"] = ["c1"]
+        self.k = mock.patch.object(P, "kick"); self.k.start()
+        self.m = mock.patch.object(M, "http_get", mock.Mock(side_effect=AssertionError("TheMealDB called"))); self.m.start()
+
+    def tearDown(self):
+        self.k.stop(); self.m.stop()
+        super().tearDown()
+
+    def test_every_list_comes_from_paprika(self):
+        self.assertEqual([c["name"] for c in M.categories()["categories"]], ["Family"])
+        self.assertEqual(M.categories()["categories"][0]["count"], 2)
+        self.assertEqual(len(M.browse()["results"]), 2)
+        self.assertEqual(len(M.browse("Family")["results"]), 2)
+        self.assertEqual(M.browse("Nope")["results"], [])
+        self.assertEqual([r["name"] for r in M.search("tacos")["results"]], ["Weeknight Tacos"])
+        self.assertEqual(M.search("zzz")["results"], [])
+        self.assertTrue(M.random_pick()["results"][0]["id"].startswith("p"))
+
+
 class LoginFallbackTest(Base):
     def test_refused_v2_login_falls_back_to_basic_auth(self):
         self.fake.login_ok = False

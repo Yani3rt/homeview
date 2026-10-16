@@ -101,6 +101,7 @@ def public():
         "sonos": bool(c["sonos"].get("enabled")),
         "spotify": bool(c["spotify"].get("client_id")),
         "timers": c.get("timers") or [],
+        "meals_source": "paprika" if str(c["meals"].get("provider") or "").strip().lower() == "paprika" else "themealdb",
         "paprika": bool(isinstance(c.get("paprika"), dict) and str(c["paprika"].get("email") or "").strip() and c["paprika"].get("password")),
         "camera": bool(cams),
         "camera_name": (cams[cam_default(cams)]["name"] if cams else "Camera"),

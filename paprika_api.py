@@ -5,7 +5,8 @@ which people have documented. It only reads: nothing is ever changed in your Pap
 
 config.json
   "paprika": {"email": "you@example.com", "password": "...", "sync_hours": 6}
-Empty email turns the whole thing off (Meals shows no Paprika chip).
+Empty email turns the whole thing off (Meals shows no Paprika chip). With "meals": {"provider": "paprika"} Meals
+uses only these recipes: TheMealDB is never called, and the chips are your most-used Paprika categories.
 
 What it does
   * signs in (POST /api/v2/account/login/ -> bearer token, kept in <data_dir>/paprika/token.json), falling back to
@@ -20,6 +21,7 @@ Recipe ids in HomeView are "p" + Paprika uid, next to TheMealDB's numeric ids.
 Routes (GET): /api/meals/paprika?category=   {ok, enabled, syncing, synced, error, categories:[name], results:[brief]}
               /api/meals/paprika/photo/<uid>[/small|medium|large]   the photo as a JPEG"""
 import base64
+import random
 import json
 import re
 import threading
@@ -238,6 +240,21 @@ def _order(rs):
     return sorted(rs, key=lambda r: (not r.get("favorite"), -r.get("rating", 0), r["name"].lower()))
 
 
+def top_categories(d=None):
+    """Paprika categories, most-used first: [(name, count)]."""
+    n = {}
+    for r in (d or load())["recipes"].values():
+        for c in r["categories"]:
+            n[c] = n.get(c, 0) + 1
+    return sorted(n.items(), key=lambda x: (-x[1], x[0].lower()))
+
+
+def random_pick():
+    kick()
+    rs = list(load()["recipes"].values())
+    return [brief(random.choice(rs))] if rs else []
+
+
 def list_doc(category=None):
     kick()
     d = load()
@@ -245,7 +262,7 @@ def list_doc(category=None):
     if category:
         rs = [r for r in rs if category in r["categories"]]
     return {"ok": True, "enabled": enabled(), "syncing": _state["syncing"], "synced": d["synced"], "error": _state["error"],
-            "count": len(d["recipes"]), "categories": d["categories"], "results": [brief(r) for r in _order(rs)]}
+            "count": len(d["recipes"]), "categories": [c for c, _ in top_categories(d)], "results": [brief(r) for r in _order(rs)]}
 
 
 def search(q):
