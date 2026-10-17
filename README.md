@@ -242,6 +242,8 @@ Two Standby faces made for a kid who loves cats. Neither is in the schedule by d
 
 **The picture cats.** Each face shows one picture cat chosen for the day: a cat for each backpack item (PE, library, art, music, snack, picture day, field trip), a dress-up cat in the color named in the event title, a raincoat cat for a plain rainy day, the school backpack cat, or the weekend yarn cat. PE, music, art and library give way to any other backpack item. On Kitty today, rain plus another item keeps that item's cat and adds an umbrella and puddle. The original images live in `data/cats/` (not in git); the faces use 640-pixel WebP copies in `frame/hv/standby/cats/`.
 
+![The picture cats with what brings each one: school day, weekend, rain, rain plus library with the umbrella and puddle, no school, field trip, PE, library, art, music, snack, picture day and the six dress-up colors](docs/images/picture-cats.jpg)
+
 **Backpack rules** turn calendar entries into backpack items. Each rule has the words to look for in an event title (any of several, separated by `|`, not case sensitive), the item, a short note, an icon, and whether it means a day off (no backpack that day; only "No school" is one by default). Rules match all-day entries and timed ones such as an 8 AM class; a matched class shows as a sticker instead of a calendar card. Edit them on any frame in Settings > This house > Backpack (up to 30 rules; "Back to the built-in list" restores the 10 built-in ones).
 
 ![Settings > This house > Backpack: the built-in rules, with the Gym clothes rule open for editing](docs/images/backpack-rules.jpg)
