@@ -6,7 +6,7 @@ HomeView is a kitchen-wall home screen in the style of Apple's HomeView, for ine
 
 A small Python server on your home network serves the pages; each frame shows them full screen in its browser. There are no accounts, no cloud service of its own and no database. Everything specific to your house lives in one file, `config.json`.
 
-The screenshots in this README were taken from this repository with its sample data (a made-up calendar, drawn sample photos and a few TheMealDB recipes). The top image and the screenshots in each section show the current version; the older overview images further down (the Standby faces animation, the Meals screens and the screen strip) predate the launcher redesign and the Kitty faces, so their Home screen looks different from today's.
+The screenshots in this README were taken from this repository with its sample data (a made-up calendar, drawn sample photos and a few TheMealDB recipes). The top image and the screenshots in each section show the current version; the two older overview images further down (the Standby faces animation and the Meals screens) predate the launcher redesign and the Kitty faces, so their Home screen looks different from today's.
 
 ## Features
 
@@ -32,7 +32,7 @@ The screenshots in this README were taken from this repository with its sample d
 
 ## Screens
 
-![Home, Today, Weather, Meals, Tonight, Shopping, Music and Settings](docs/images/screens.jpg)
+![Home, Today, Weather, Meals week, Tonight, Shopping, Music, Settings, Standby faces and This house](docs/images/screens.jpg)
 
 ### Every screen and its path
 
