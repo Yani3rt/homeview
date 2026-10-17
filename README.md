@@ -10,13 +10,13 @@ The screenshots were taken from this repository with its sample data (a made-up 
 
 1. [**Home launcher**](#home-launcher): a greeting, live tiles and a week strip.
 2. [**Standby faces**](#standby-faces-and-schedule): clock and information faces on a day-and-time schedule.
-3. [**Kitty faces**](#kitty-faces-and-backpack-rules): a cat-themed day for the kids, with backpack reminders.
+3. [**Kitty faces**](#kitty-faces-and-backpack-rules): a cat-themed day for the kids, with backpack reminders. Cat image changes per your rules.
 4. [**Weather and calendars**](#today-weather-and-calendars): forecast, air quality, ICS calendars, tides, hurricane watch and weather alerts.
-5. [**Meal planning**](#meal-planning): TheMealDB or Paprika recipes, a 7-day plan and a step-by-step cook view.
-6. [**Shopping list**](#shopping-list-and-apple-reminders): every planned ingredient merged, synced with Apple Reminders.
+5. [**Meal planning**](#meal-planning): TheMealDB or **Paprika** recipes, a 7-day plan and a step-by-step cook view.
+6. [**Shopping list**](#shopping-list-and-apple-reminders): every planned ingredient merged, **synced** with **Apple Reminders**. (Apple)
 7. [**Kitchen timers**](#kitchen-timers): shared timers with one-tap quick timers.
 8. [**Music**](#music-sonos-and-spotify): Sonos rooms and Spotify.
-9. [**Smart Home and Sleep Mode**](#smart-home-and-sleep-mode): Home Assistant tiles and a bedtime switch.
+9. [**Smart Home and Sleep Mode**](#smart-home-and-sleep-mode): **Home Assistant** tiles, entities, automations, scenes.
 10. [**Camera**](#camera): live RTSP cameras.
 11. [**Settings**](#settings-and-this-house): per frame and per house, edited on the frame.
 12. [**Remote commands**](#remote-commands): open a screen or start a timer from a phone or automation.
@@ -69,11 +69,11 @@ Settings > Standby faces (`/frame/hv/faces/`) turns faces on and off and sets th
 - Each photo stays up for the Photo interval and each other face for the Face interval (15 seconds to 2 minutes, default 30 seconds). A Photos turn plays three photos in a row. Appearance shades Standby to make it dimmer.
 - `?face=<id>` opens one face, and `&return=<seconds>` goes back Home when untouched.
 
-## Kitty faces and backpack rules
+## Kid styled faces and school backpack rules
 
 ![Kitty today on a Monday morning with library, PE and picture day stickers, and Kitty tomorrow with a blue dress-up cat and snack money](docs/images/kitty-faces.jpg)
 
-Two Standby faces made for a kid who loves cats. Neither is in the schedule by default; add them in Settings > Standby faces, or use the Kids button on the launcher.
+Two Standby faces made for household kids. Neither is in the schedule by default; add them in Settings > Standby faces, or use the Kids button on the launcher.
 
 - **Kitty tomorrow** (afternoon and evening): a speech bubble from the cat, tomorrow's name in rainbow letters, tomorrow's events as cards and the backpack items as stickers.
 - **Kitty today** (mornings): a sunrise sky, today's remaining events, the backpack, and a rain heads-up in cat words. It warns about later rain only when the 2 to 4 PM school pickup window has a 50% or higher chance.
