@@ -191,7 +191,8 @@
     if(HV.cfg.sonos)jobs.push(HVJson('/api/frame/music').then(function(x){d.music=x;},function(){}));
     return Promise.all(jobs).then(render).then(drawSleep).then(drawCool);
   }
-  HV.chrome({light:true});   // the Standby chip (photo icon) sits next to the clock
+  HV.chrome({light:true,standby:false});   // no Standby button here (Yani); the frame still goes to Standby on its own
+  (function(){var cam=document.querySelector('.hv-chrome .hv-cam');if(cam)cam.insertAdjacentHTML('beforeend','<span>Camera</span>');})();
   // heads-up chips (alert, cooler outside, rain) wrap onto a second row under the icon buttons, clear of the greeting
   (function(){var c=document.querySelector('.hv-chrome');if(!c)return;c.className+=' two';var br=document.createElement('i');br.className='hv-brk';c.appendChild(br);})();
   // Settings chip: a cog, far right of the top-right chips
@@ -219,7 +220,7 @@
     var it=sleepItem();
     sleepChip.style.display=it&&it.avail!==false&&sleepWindow()?'':'none';
     sleepChip.classList.toggle('on',!!(it&&it.on));
-    sleepChip.innerHTML='<svg viewBox="0 0 24 24" fill="'+(it&&it.on?'currentColor':'none')+'" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+    sleepChip.innerHTML='<svg viewBox="0 0 24 24" fill="'+(it&&it.on?'currentColor':'none')+'" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span>Sleep Mode</span>';
   }
   setInterval(drawSleep,30000);
 
