@@ -115,7 +115,7 @@ html.look-glass .w.tmr{background:rgba(0,0,0,.22)}
 .wk .e i{width:.7vh;height:2.2vh;border-radius:1vh;flex:0 0 auto}
 .wk .e span{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .wk .free{font-size:1.95vh;color:var(--ink-3);font-weight:600}
-.wk .ml{margin-top:auto;font-size:1.95vh;font-weight:600;white-space:nowrap;overflow:hidden;display:flex;align-items:center;gap:.3vw;min-width:0}
+.wk .ml{flex:none;margin-top:auto;font-size:1.95vh;font-weight:600;white-space:nowrap;overflow:hidden;display:flex;align-items:center;gap:.3vw;min-width:0}
 .wk .ml span{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .wk .ml svg{width:2vh;height:2vh;flex:0 0 auto}
 .wk .ml.set{color:var(--orange)}

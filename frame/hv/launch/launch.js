@@ -139,9 +139,10 @@
           var en=e.end?dayKey(e.end):s;return s<=k&&(k<en||s===k);})
         .sort(function(a,b){return (b.all_day?1:0)-(a.all_day?1:0)||new Date(a.start)-new Date(b.start);});
       h+='<div class="d" data-href="/frame/hv/calendar/"><div class="dn">'+dn+'<b>'+(+k.slice(8,10))+'</b></div>';
-      on.slice(0,on.length>3?1:2).forEach(function(e){h+='<div class="e"><i style="background:'+HV.calColor(e.cal)+'"></i><span>'+HV.esc(e.title)+'</span></div>';});
-      if(on.length>3)h+='<div class="free">+'+(on.length-1)+' more</div>';
-      else if(on.length===3)h+='<div class="free">+1 more</div>';
+      // room for 2 event lines above a dinner (3 without one); past that, the last line is "+N more"
+      var room=meal?2:3,show=on.length>room?room-1:on.length;
+      on.slice(0,show).forEach(function(e){h+='<div class="e"><i style="background:'+HV.calColor(e.cal)+'"></i><span>'+HV.esc(e.title)+'</span></div>';});
+      if(on.length>show)h+='<div class="free">+'+(on.length-show)+' more</div>';
       if(!on.length)h+='<div class="free">Free</div>';
       if(meal)h+='<div class="ml set" data-href="/frame/hv/meals/">'+ic('fork')+'<span>'+HV.esc(meal.name)+'</span></div>';   // no "+ Dinner": keeps the strip short
       h+='</div>';
