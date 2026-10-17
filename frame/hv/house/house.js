@@ -1,8 +1,26 @@
 /* Household settings (/frame/hv/house/): the part of config.json every frame shares and may edit, through
    GET/POST /api/settings (settings_api.py): home name, place name and units; the quick timer buttons on Tonight and the Timer screen (up to four); each
-   calendar's name, color and Holidays switch. Each card saves on its own Save button. Secrets never reach here. ES5. */
+   calendar's name, color and Holidays switch; the backpack rules for Standby's Tomorrow and Today board faces
+   (config.json "backpack"; the built-in list until the first save). Each card saves on its own Save button, and a
+   save only replaces that card's values. Secrets never reach here. ES5. */
 (function(){
-  var D=null, dirty={};
+  var D=null, dirty={}, openRule=-1;
+  /* the backpack icons and colors, as Standby draws them (PACK_ICONS / PACK_COLOR in standby/standby.js) */
+  var PACK_ICONS={
+    coin:'<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.4c-.5-.9-1.4-1.4-2.6-1.4-1.5 0-2.6.8-2.6 2s1.1 1.7 2.6 2 2.6.8 2.6 2-1.1 2-2.6 2c-1.2 0-2.2-.6-2.7-1.6M12 6.4V8M12 16v1.6"/>',
+    book:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
+    shoe:'<path d="M3 16.5h18V19H3zM3 16.5V9l4 1 3 3 6 1.2c2.6.5 5 1.4 5 2.3"/>',
+    music:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+    art:'<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.8 1.5-1.5S13 18 13 17s.8-1.5 1.7-1.5H17a4 4 0 0 0 4-4C21 6.8 17 3 12 3z"/><path d="M7.5 11h.01M10 7h.01M15 7h.01"/>',
+    shirt:'<path d="M8 3L3 6l2 4 3-1v12h8V9l3 1 2-4-5-3a4 4 0 0 1-8 0z"/>',
+    bus:'<rect x="4" y="3" width="16" height="15" rx="3"/><path d="M4 11h16M8 21v-3M16 21v-3M8 14.5h.01M16 14.5h.01"/>',
+    home:'<path d="M4 11l8-6.5 8 6.5M6 9.5V20h12V9.5"/><path d="M10 20v-5h4v5"/>',
+    bag:'<path d="M6 8h12l1 12H5z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+    star:'<path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8 6.6 19.7l1.1-6.1-4.5-4.2 6.1-.8z"/>'};
+  var PACK_COLOR={coin:'#ffb340',book:'#64d2ff',shoe:'#30d158',music:'#bf5af2',art:'#ff6482',shirt:'#ff9f0a',bus:'#ffd60a',home:'#8e8e93',bag:'#5ac8fa',star:'#ffd60a'};
+  var ICON_ORDER=['coin','book','shoe','bus','star','shirt','art','music','home','bag'];
+  function ico(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(PACK_ICONS[k]||PACK_ICONS.star)+'</svg>';}
+  function words(m){return String(m||'').split('|').map(function(w){return w.trim();}).filter(Boolean).join(', ');}
   var COLORS=['#ff9f0a','#ff3b30','#ff2d55','#bf5af2','#5e5ce6','#0a84ff','#64d2ff','#30b0c7','#34c759','#a2845e','#8e8e93'];
   var STEPS=[1,2,3,4,5,6,7,8,9,10,12,15,18,20,25,30,40,45,60,75,90,120,150,180,240];   // minutes
   function esc(s){return HV.esc(String(s==null?'':s));}
@@ -34,7 +52,31 @@
         sw+='<button data-color="'+k+'" data-ix="'+i+'" style="background:'+k+'"'+(k===x.color?' class="on"':'')+' aria-label="Color"></button>';});sw+='</div>';
       c+='<div class="st-row hs-cal">'+input('calendars','name',x.name,30,i)+seg('hol'+i,[['no','Calendar'],['yes','Holidays']],x.holidays?'yes':'no')+sw+'</div>';});
     if(!D.calendars.length)c='<div class="st-row"><div class="l">No calendars yet<small>Add calendar links in config.json on the server</small></div></div>';
-    return grp('calendars','Calendars',c)+'<p class="st-note">Changes show on each frame the next time a screen opens. Holidays calendars show as days off, not events.</p>';
+    return grp('calendars','Calendars',c)+backpack()+'<p class="st-note">Changes show on each frame the next time a screen opens. Holidays calendars show as days off, not events.</p>';
+  }
+  /* one summary row per rule; tapping it opens that rule's editor (one at a time) */
+  function backpack(){
+    var h='';
+    if(D.backpack_default)h+='<div class="st-row hs-bp-note"><div class="l">The built-in list<small>Change anything and save to make it yours</small></div></div>';
+    D.backpack.forEach(function(r,i){
+      var ic='<span class="hs-ic" style="background:'+(PACK_COLOR[r.icon]||PACK_COLOR.star)+'">'+ico(r.icon)+'</span>';
+      if(i!==openRule){
+        h+='<button class="st-row hs-bp" data-rule="'+i+'">'+ic+'<div class="l">'+esc(r.item||'New item')+
+          '<small>'+(r.off?'Day off \u00b7 ':'')+'When the calendar says '+esc(words(r.match)||'\u2026')+(r.note?' \u00b7 '+esc(r.note):'')+'</small></div>'+
+          '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>';
+        return;}
+      var pick='<div class="hs-icons">';ICON_ORDER.forEach(function(k){
+        pick+='<button data-icon="'+k+'" data-ix="'+i+'" style="color:'+PACK_COLOR[k]+'"'+(k===r.icon?' class="on"':'')+' aria-label="'+k+'">'+ico(k)+'</button>';});pick+='</div>';
+      h+='<div class="hs-bp-ed">'+
+        '<div class="hs-f">'+ic+input('backpack','item',r.item,40,i)+'<button class="hs-x" data-rmrule="'+i+'" aria-label="Remove rule">\u00d7</button></div>'+
+        '<label class="hs-f"><span class="hs-lb">When the calendar says</span><input class="hs-in" data-sec="backpack" data-f="match" data-ix="'+i+'" maxlength="80" value="'+esc(words(r.match))+'" placeholder="PE, gym" autocomplete="off"></label>'+
+        '<label class="hs-f"><span class="hs-lb">Note</span><input class="hs-in" data-sec="backpack" data-f="note" data-ix="'+i+'" maxlength="60" value="'+esc(r.note)+'" placeholder="Optional" autocomplete="off"></label>'+
+        pick+
+        '<div class="hs-f"><span class="hs-lb">Day off, no backpack</span>'+seg('off'+i,[['no','No'],['yes','Yes']],r.off?'yes':'no')+'<button class="st-btn blue hs-done" data-rule="-1">Done</button></div>'+
+        '</div>';});
+    if(D.backpack.length<30)h+='<button class="st-row hs-add" data-addrule="1">Add a rule</button>';
+    if(!D.backpack_default)h+='<button class="st-row hs-reset" data-resetbp="1">Go back to the built-in list</button>';
+    return grp('backpack','Backpack',h)+'<p class="st-note">A calendar event with one of these words puts the item on Standby\u2019s Tomorrow and Today board faces. Separate words with commas.</p>';
   }
   function draw(){
     var a=document.getElementById('colL'),b=document.getElementById('colR'),sa=a.scrollTop,sb=b.scrollTop;
@@ -53,18 +95,30 @@
     var sg=b.parentNode.getAttribute('data-id');
     if(sg){var v=b.getAttribute('data-v');
       if(sg==='temperature'||sg==='wind'){D.home[sg]=v;mark('home');}
+      else if(sg.indexOf('off')===0){var rr=D.backpack[+sg.slice(3)];if(v==='yes')rr.off=true;else delete rr.off;mark('backpack');}
       else{D.calendars[+sg.slice(3)].holidays=v==='yes';mark('calendars');}
       draw();return;}
     if(b.getAttribute('data-step')){var x=D.timers[+b.getAttribute('data-ix')];x.seconds=step(x.seconds,+b.getAttribute('data-step'));mark('timers');draw();return;}
     if(b.getAttribute('data-rm')){D.timers.splice(+b.getAttribute('data-rm'),1);mark('timers');draw();return;}
     if(b.getAttribute('data-addtimer')){D.timers.push({label:'Timer',seconds:300});mark('timers');draw();
       var ins=document.querySelectorAll('[data-sec="timers"]');if(ins.length){ins[ins.length-1].focus();ins[ins.length-1].select();}return;}
+    if(b.getAttribute('data-rule')){openRule=+b.getAttribute('data-rule');draw();
+      if(openRule>=0){var it=document.querySelector('[data-sec="backpack"][data-f="item"]');if(it&&it.scrollIntoView)it.scrollIntoView(false);}return;}
+    if(b.getAttribute('data-icon')){D.backpack[+b.getAttribute('data-ix')].icon=b.getAttribute('data-icon');mark('backpack');draw();return;}
+    if(b.getAttribute('data-rmrule')){D.backpack.splice(+b.getAttribute('data-rmrule'),1);openRule=-1;mark('backpack');draw();return;}
+    if(b.getAttribute('data-addrule')){D.backpack.push({match:'',item:'',note:'',icon:'star'});openRule=D.backpack.length-1;mark('backpack');draw();
+      var ni=document.querySelector('[data-sec="backpack"][data-f="item"]');if(ni){if(ni.scrollIntoView)ni.scrollIntoView(false);ni.focus();}return;}
+    if(b.getAttribute('data-resetbp')){   // two taps, no confirm(): the frame's WebView may not show dialogs
+      if(!b.getAttribute('data-sure')){b.setAttribute('data-sure','1');b.textContent='Tap again to replace your rules';return;}
+      HV.post('/api/settings',{section:'backpack',reset:true}).then(function(d){D.backpack=d.backpack;D.backpack_default=d.backpack_default;dirty.backpack=false;openRule=-1;draw();HV.toast('Back to the built-in list');},
+        function(err){HV.toast(err.message||'Not saved. Try again.');});return;}
     if(b.getAttribute('data-color')){D.calendars[+b.getAttribute('data-ix')].color=b.getAttribute('data-color');mark('calendars');draw();return;}
     var sv=b.getAttribute('data-save');
     if(sv){var body={section:sv};
       if(sv==='home'){for(var k in D.home)body[k]=D.home[k];}else body[sv]=D[sv];
       b.disabled=true;
-      HV.post('/api/settings',body).then(function(d){D=d;dirty[sv]=false;draw();HV.toast('Saved for every frame');},
+      HV.post('/api/settings',body).then(function(d){D[sv]=d[sv];if(sv==='backpack'){D.backpack_default=d.backpack_default;openRule=-1;}
+          dirty[sv]=false;draw();HV.toast('Saved for every frame');},
         function(err){b.disabled=false;HV.toast(err.message||'Not saved. Try again.');});}
   });
 

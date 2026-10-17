@@ -68,6 +68,27 @@ class SettingsTest(unittest.TestCase):
         self.assertEqual(self.post({"section": "home", "home_name": "a", "place": "b", "temperature": "kelvin", "wind": "mph"}).code, 400)
         self.assertEqual(self.raw(), before)
 
+    def test_backpack_starts_from_the_built_in_list(self):
+        h = FakeHandler(); S.dispatch_get(h, '/api/settings')
+        self.assertTrue(h.out["backpack_default"])
+        self.assertEqual(h.out["backpack"][0]["item"], "Snack money")
+        self.assertIsNone(config.public()["backpack"])
+
+    def test_backpack_saves_cleans_and_resets(self):
+        h = self.post({"section": "backpack", "backpack": [
+            {"match": "PE, gym", "item": "Gym shoes", "note": " PE  day ", "icon": "shoe"},
+            {"match": "no school", "item": "Day off", "icon": "rocket", "off": True}]})
+        self.assertEqual(h.code, 200, h.out)
+        self.assertFalse(h.out["backpack_default"])
+        self.assertEqual(self.raw()["backpack"], [
+            {"match": "PE|gym", "item": "Gym shoes", "note": "PE day", "icon": "shoe"},
+            {"match": "no school", "item": "Day off", "note": "", "icon": "star", "off": True}])
+        self.assertEqual(config.public()["backpack"][1]["off"], True)
+        self.assertEqual(self.post({"section": "backpack", "backpack": [{"match": "", "item": "x"}]}).code, 400)
+        self.assertEqual(self.post({"section": "backpack", "backpack": [{"match": "a", "item": "x"}] * 31}).code, 400)
+        self.assertEqual(self.post({"section": "backpack", "reset": True}).code, 200)
+        self.assertNotIn("backpack", self.raw())
+
     def test_browser_write_needs_same_origin(self):
         h = self.post({"section": "timers", "timers": []}, origin='http://evil')
         self.assertEqual(h.code, 403)

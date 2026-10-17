@@ -15,3 +15,22 @@
 .hs-sw{display:flex;gap:.7vw;flex-wrap:wrap;width:100%}
 .hs-sw button{width:5.4vh;height:5.4vh;border-radius:50%;border:.4vh solid transparent;background-clip:padding-box}
 .hs-sw button.on{box-shadow:0 0 0 .4vh var(--card),0 0 0 .8vh var(--ink)}
+
+/* backpack rules: a summary row each, one editor open at a time */
+.hs-ic{flex:none;width:6vh;height:6vh;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#1d1d1f}
+.hs-ic svg{width:3.4vh;height:3.4vh}
+.hs-bp{text-align:left;color:var(--ink)}
+.hs-bp .l small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hs-bp-note .l{color:var(--ink-2)}
+.hs-bp-ed{padding:1.4vh 1.6vw;display:flex;flex-direction:column;gap:1.2vh;background:var(--bg)}
+.st-row+.hs-bp-ed,.hs-bp-ed+.st-row{border-top:1px solid var(--sep)}
+.hs-bp-ed .hs-in{background:var(--card)}
+.hs-f{display:flex;align-items:center;gap:1vw}
+.hs-f .hs-lb{flex:none;width:12vw;font-size:2.4vh;font-weight:600;color:var(--ink-2)}
+.hs-done{margin-left:auto}
+.hs-icons{display:flex;flex-wrap:wrap;gap:.8vw}
+.hs-icons button{width:6.2vh;height:6.2vh;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center}
+.hs-icons button svg{width:3.4vh;height:3.4vh}
+.hs-icons button.on{background:currentColor}
+.hs-icons button.on svg{color:#1d1d1f}
+.hs-reset{color:var(--red);font-weight:600}

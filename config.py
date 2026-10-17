@@ -134,8 +134,11 @@ def backpack_rules(raw):
         if not m or not item:
             continue
         ic = str(r.get("icon") or "star").strip().lower()
-        out.append({"match": m, "item": item, "note": str(r.get("note") or "").strip()[:60],
-                    "icon": ic if ic in BACKPACK_ICONS else "star"})
+        rule = {"match": m, "item": item, "note": str(r.get("note") or "").strip()[:60],
+                "icon": ic if ic in BACKPACK_ICONS else "star"}
+        if r.get("off") is True:   # a day off (no school): the Tomorrow face shows no backpack that day
+            rule["off"] = True
+        out.append(rule)
     return out
 
 
