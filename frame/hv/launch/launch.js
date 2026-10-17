@@ -153,7 +153,7 @@
     var t=HV.local(),h=t.h,wx=d.frame&&d.frame.weather,P=d.plan,din=P&&P.tonight;
     HV.rainChip(wx&&wx.nowcast);                    // rain soon, left of the camera button
     document.getElementById('hello').textContent=h<5?'Good night':h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-    document.getElementById('date').textContent=HV.DAYS[t.dow]+', '+HV.MONTHS[t.mo-1]+' '+t.d;
+    drawDate();
     var html=todayTile()+weatherTile(wx)+homeTile(wx);
     // Tonight (photo), with tomorrow's dinner as a nudge
     var tm=P&&P.tomorrow,dsub=din?'Tomorrow: '+(tm?tm.name:'not planned'):P?'Tap to pick a dinner':'Loading the plan';
@@ -246,5 +246,8 @@
       'Cooler outside \u00b7 '+Math.round(x.out)+'\u00b0';
   }
   HV.on(function(){if(d.frame)render();});
+  // date line with the time, e.g. "Friday, October 16, 8:17 PM"; ticks on its own like the clock chip
+  function drawDate(){var t=HV.local();document.getElementById('date').textContent=HV.DAYS[t.dow]+', '+HV.MONTHS[t.mo-1]+' '+t.d+', '+HV.hm()+' '+HV.ampm();}
+  setInterval(drawDate,5000);
   render();load();setInterval(load,30000);
 })();
