@@ -58,8 +58,6 @@ The launcher (`/frame/hv/`) is the screen the frame comes back to. From top to b
 
 When nobody has touched the frame for a while it switches to Standby (`/frame/hv/standby/`) and cycles through faces: Photos, Info, Today, This week, Weather, Tomorrow, Kitty tomorrow, Kitty today, Today board, Coming up, Analog, Numerals, Minimal, Month and the Night clock. Tap to go back Home.
 
-![The Standby faces, one after another](docs/images/standby.gif)
-
 *This animation predates the launcher redesign and the Kitty faces, so its Home screen looks different from today's.*
 
 Settings > Standby faces (`/frame/hv/faces/`) turns faces on and off and sets the schedule for this frame (it is kept in the frame's browser). The week is split into day groups, Weekdays and Weekend by default, and each group into time blocks; each block lists the faces it rotates through, in order. The default blocks are Morning (5 AM), Day (9 AM), Evening (3 PM) and Night (11 PM).
