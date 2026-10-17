@@ -187,3 +187,4 @@ html.look-glass .hv-chip.hv-cool{background:rgba(160,235,215,.4);color:#fff}
 .hv-chrome>.hv-chip.tnum{display:none}   /* no clock button here: the date line under the greeting has the time */
 /* Rain always sits in the top row (after Sleep Mode when it shows); alert and Cooler outside stay below */
 .hv-chrome.two .hv-chip.hv-chip.hv-rain{order:0;margin-top:0;height:6.5vh;font-size:2.4vh;padding:0 2.2vh;max-width:30vw}
+.hv-chrome.two .hv-chip.hv-alert,.hv-chrome.two .hv-chip.hv-cool{position:relative;left:-2.9vw}   /* row 2 ends at the cards' right edge (page gutter 4.5vw, chrome sits at 1.6vw) */
