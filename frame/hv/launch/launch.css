@@ -185,3 +185,5 @@ html.look-glass .hv-chip.hv-cool{background:rgba(160,235,215,.4);color:#fff}
 .hv-chrome.two .hv-chip.hv-rain{max-width:27vw}
 .hv-chrome .hv-cam,.hv-chrome .hv-sleep{gap:1vh;font-weight:600}
 .hv-chrome>.hv-chip.tnum{display:none}   /* no clock button here: the date line under the greeting has the time */
+/* while the Sleep Mode button shows, Rain moves up to the top row right after it (alert and Cooler outside stay below) */
+.hv-chrome.two .hv-sleep:not([style*="none"])~.hv-chip.hv-rain{order:0;margin-top:0;height:6.5vh;font-size:2.4vh;padding:0 2.2vh;max-width:30vw}
