@@ -2,27 +2,33 @@
 
 # HomeView
 
-HomeView is a kitchen-wall home screen in the style of Apple's HomeView, for inexpensive Android photo frames: a Home screen of live tiles, Standby clock faces, weather, calendars, dinner planning with a shopping list, and Sonos and Spotify controls.
+HomeView is a kitchen-wall home screen in the style of Apple's HomeView, for inexpensive Android photo frames: a Home screen of live tiles, Standby clock faces on a day-and-time schedule, two cat-themed faces for the kids, weather with tides and hurricane watch, calendars, dinner planning (TheMealDB or your own Paprika recipes) with a shopping list, kitchen timers, Home Assistant, cameras, and Sonos and Spotify controls.
 
 A small Python server on your home network serves the pages; each frame shows them full screen in its browser. There are no accounts, no cloud service of its own and no database. Everything specific to your house lives in one file, `config.json`.
 
-The screenshots in this README were taken from this repository with its sample data (a made-up calendar, drawn sample photos and a few TheMealDB recipes).
+The screenshots in this README were taken from this repository with its sample data (a made-up calendar, drawn sample photos and a few TheMealDB recipes). They predate the launcher redesign and the Kitty faces, so the Home screen now looks different from the pictures; the text below describes the current version.
 
 ## Features
 
-**Standby faces.** When nobody has touched the frame for a while it switches to Standby and cycles through clock and information faces: photos, Info, Today, This week, Weather, Coming up, Analog, Numerals, Minimal and Month. A Now Playing face takes over while music plays. Tap to go back Home.
+**Standby faces.** When nobody has touched the frame for a while it switches to Standby and cycles through clock and information faces: Photos, Info, Today, This week, Weather, Tomorrow, Kitty tomorrow, Kitty today, Today board, Coming up, Analog, Numerals, Minimal, Month and the Night clock. Which faces show, and in what order, follows a schedule by day and time (morning, day, evening and night blocks, weekdays and weekend separately). A Now Playing face takes over while music plays, and a Severe weather face interrupts during a severe alert. Tap to go back Home.
 
 ![The Standby faces, one after another](docs/images/standby.gif)
 
-**Home, Today, Weather and Calendar.** The Home launcher is a grid of live tiles. Today shows the date, the hourly forecast, the next events, tonight's dinner and the shopping count. Weather and air quality come from Open-Meteo; calendars come from any ICS link, with several calendars in different colors.
+**Home launcher.** A greeting with the date and live time, a row of buttons (Camera, Sleep Mode in the evening, the Kids paw button and Settings) and a grid of live tiles: Today's remaining events (it turns into a Tomorrow card once today is over), Weather, Smart Home or Outside, Tonight's dinner, a Timer, Shopping, Photos or Music, and a This week strip that starts with tomorrow. Heads-up chips (Rain, a weather alert, Cooler outside) show only when they apply. See [The Home launcher](#the-home-launcher).
 
-**Meal planning.** Browse or search recipes from TheMealDB, plan dinners for the next 7 days, cook from a one-step-per-screen view with one-tap kitchen timers, and get a shopping list that merges the ingredients of every planned dinner. You can add your own items (milk, paper towels) to the list. Timers, the plan and checked-off items are kept on the server, so every frame shows the same thing.
+**Kitty faces for the kids.** Kitty today (mornings) and Kitty tomorrow (afternoon and evening) show the day's events, what goes in the backpack, and a picture cat dressed for the day: PE clothes, library books, picture day, dress-up colors, a raincoat when it rains. The backpack items come from rules that match words in calendar entries, edited on the frame. See [Kitty faces and backpack rules](#kitty-faces-and-backpack-rules).
+
+**Today, Weather and Calendar.** Today shows the date, the hourly forecast, the next events, tonight's dinner and the shopping count. Weather and air quality come from Open-Meteo, with optional tides (NOAA) and a hurricane watch (National Hurricane Center); calendars come from any ICS link, with several calendars in different colors.
+
+**Meal planning.** Browse or search recipes from TheMealDB or your own Paprika recipes, heart Favorites, see your Usuals (the dinners you plan most), plan dinners for the next 7 days, cook from a one-step-per-screen view with one-tap kitchen timers, and get a shopping list that merges the ingredients of every planned dinner. You can add your own items (milk, paper towels) to the list. Timers, the plan, favorites and checked-off items are kept on the server, so every frame shows the same thing.
+
+**Kitchen timers.** The Timer screen has a column of quick timers (one tap starts one) next to the usual picker. The quick timers are set once for the house in Settings > This house, and also show on the Tonight screen.
 
 ![Meals week, a cook step and the shopping list](docs/images/meals.jpg)
 
 **Music.** Sonos rooms with grouping, volume, queue, favorites, sleep timer and EQ, plus Spotify search, playlists and Spotify Connect. A QR code on the Music screen lets a phone on the same Wi-Fi send a Spotify link to a room. The Music shot above uses the built-in preview data (`?demo=1`, with made-up titles) because the screenshots were taken without Sonos speakers.
 
-**Light and Glass looks, and a Night clock.** Settings picks when to go to Standby, the look, the background and which Standby faces are on. A dim clock shows from 11 PM to 5 AM.
+**Settings, per frame and per house.** Settings sets, for this frame, when to go to Standby (after how many minutes, and whether to switch to Standby or stay on), the look (Light or Glass), the background, Standby's brightness (Appearance), how long each photo and each other face stays up, which Standby faces are on and the Standby schedule. Settings > This house edits what every frame shares: the home name and place, units, quick timers, calendar names and colors, and the backpack rules. A dim Night clock shows during the schedule's Night block (11 PM to 5 AM by default).
 
 ## Screens
 
@@ -32,26 +38,30 @@ The screenshots in this README were taken from this repository with its sample d
 
 | Screen | Path | What it shows |
 |---|---|---|
-| Home | `/frame/hv/` | Tiles: Today, Tonight's dinner, Weather, Calendar, Timer, Shopping, Meals, Music (or Standby), Photos, Outside (air quality, sunset) |
-| Standby | `/frame/hv/standby/` | One face at a time: photos (date bottom left, time bottom right), Info, Today, This week, Weather, Coming up, Analog, Numerals, Minimal, Month, and Now Playing while music plays |
+| Home | `/frame/hv/` | Tiles: Today (or Tomorrow), Weather, Smart Home (or Outside), Tonight, Timer, Shopping, Photos (or Music), and the This week strip; heads-up chips and the Kids button |
+| Standby | `/frame/hv/standby/` | One face at a time, from the schedule: Photos, Info, Today, This week, Weather, Tomorrow, Kitty tomorrow, Kitty today, Today board, Coming up, Analog, Numerals, Minimal, Month; Now Playing while music plays, Severe weather during an alert. `?face=<id>` opens one face, `&return=<seconds>` goes back Home when untouched |
 | Today | `/frame/hv/today/` | The date, weather and hourly forecast, the next events, tonight's dinner, timers and the shopping count |
 | Calendar | `/frame/hv/calendar/` | The next seven days with events, forecast and dinners, and a month grid |
-| Weather | `/frame/hv/weather/` | Now, hourly, 7-day range bars, sunrise and sunset, wind, air quality |
-| Meals | `/frame/hv/meals/` | Browse and search recipes, plan dinners for the next 7 days |
+| Weather | `/frame/hv/weather/` | Now, hourly, 7-day range bars, sunrise and sunset, wind, air quality; tides and hurricane watch when set up |
+| Meals | `/frame/hv/meals/` | Favorites, Usuals, browse and search recipes (TheMealDB and/or Paprika), plan dinners for the next 7 days |
 | Tonight | `/frame/hv/dinner/` | Tonight's recipe with ingredients, one-tap timers and a step-by-step cook view |
 | Shopping | `/frame/hv/shopping/` | Every ingredient for the planned dinners, merged, plus anything you add by hand, with check boxes |
-| Timer | `/frame/hv/timer/` | Kitchen timers, shared by every frame |
+| Timer | `/frame/hv/timer/` | Kitchen timers, shared by every frame, with a column of one-tap quick timers |
 | Music | `/frame/hv/music/` | Sonos rooms, grouping, queue, favorites; Spotify search and Spotify Connect |
 | Photos | `/frame/hv/photos/` | The photos in your photo folder, full screen |
-| Night | `/frame/hv/night/` | A dim clock from 11 PM to 5 AM |
-| Settings | `/frame/hv/settings/` | When to go to Standby, the look (Light or Glass), background, Standby faces |
+| Camera | `/frame/hv/camera/` | Live RTSP cameras (see Camera below) |
+| Smart Home | `/frame/hv/ha/` | Hand-picked Home Assistant entities (see Home Assistant below) |
+| Night | `/frame/hv/night/` | A dim red clock and what's next, during the schedule's Night block |
+| Settings | `/frame/hv/settings/` | This frame: when untouched, look, background, Appearance, photo and face intervals, Standby faces and schedule |
+| Standby faces | `/frame/hv/faces/` | Turn faces on and off and edit the Standby schedule |
+| This house | `/frame/hv/house/` | Household settings saved to `config.json` for every frame |
 
 ## Quick start
 
 You need Python 3.10 or newer and a device with a browser on the same network. The server was tested on Python 3.14.
 
 ```sh
-git clone https://github.com/mcconnellj-Dev/homeview.git
+git clone https://github.com/Yani3rt/homeview.git
 cd homeview
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
@@ -145,12 +155,19 @@ default in `config.py`. Most changes apply without a restart (the file is re-rea
 | `calendars` | see below | ICS calendar links |
 | `sonos` | `{"enabled": false, "hosts": []}` | Turn Sonos on; optionally list speaker IP addresses |
 | `spotify` | `{"client_id": "", "client_secret": "", "redirect_uri": "..."}` | Your own Spotify app keys |
-| `meals` | `{"api_key": "1", "cache_hours": 168}` | TheMealDB key and how long to keep cached lists |
-| `timers` | `[{"label": "Pasta", "seconds": 600}]` | One-tap timers on the Tonight screen (up to four are shown) |
+| `meals` | `{"api_key": "1", "cache_hours": 168}` | TheMealDB key and how long to keep cached lists; `"provider": "paprika"` uses only your Paprika recipes |
+| `paprika` | `{"email": "", "password": "", "sync_hours": 6}` | Your Paprika 3 account, read-only (see Paprika below) |
+| `timers` | `[{"label": "Pasta", "seconds": 600}]` | Quick timers on the Timer and Tonight screens (up to four) |
+| `backpack` | see Kitty faces below | Backpack rules for the Tomorrow and Kitty faces (up to 30) |
 | `cameras` | see Camera below | RTSP cameras shown on the Camera screen (older single `camera` still works) |
-| `home_assistant` | see Home Assistant below | Entities shown on the Devices screen |
+| `home_assistant` | see Home Assistant below | Entities shown on the Smart Home screen, and weather alerts |
+| `reminders` | see Shopping list below | Two-way sync with an Apple Reminders list (Mac only) |
+| `tides` | `{"station": "", "king_ft": 2.4}` | NOAA tide station for the Tides tile |
+| `storms` | `{"basins": ["AL"], "radius_mi": 1500, "near_mi": 400}` | Hurricane watch |
 
 Relative paths are relative to the project folder. `~` is expanded.
+
+Settings > This house on any frame edits `home_name`, the place name, `units`, `timers`, the calendars' names, colors and holiday flags, and `backpack`, and writes them to `config.json` (keeping the previous version as `config.json.bak`). Calendar links, passwords, keys and tokens are never sent to the frames and cannot be changed from them; edit those in the file.
 
 ### Calendars
 
@@ -195,6 +212,50 @@ The pages are designed for Apple's SF Pro and SF Rounded. They are not included,
 font license does not allow redistributing them. If you are allowed to use them, put `sf-pro.woff2`
 and `sf-rounded.woff2` in `fonts_dir`. Without them, each device uses its own system font.
 
+## The Home launcher
+
+The launcher (`/frame/hv/`) is the screen the frame comes back to. From top to bottom:
+
+- **Greeting and date line**, with the live time (there is no separate clock button).
+- **Top buttons:** Camera (when a camera is set up), Sleep Mode (9:30 PM to 3 AM), the Rain chip when rain is coming, the Kids button (a black button with an orange cat paw) and Settings. The Kids button opens Kitty today before 3 PM and Kitty tomorrow from 3 PM; the face goes back Home after a minute untouched, or at a tap.
+- **Second row of chips**, right-aligned under the buttons, only when they apply: a weather alert and Cooler outside.
+- **Tiles:** Today (two wide; today's remaining events, "+N more" when some are hidden; once today is over it becomes a Tomorrow card with rain chance, sunrise and tomorrow's first events), Weather (temperature with high and low), Smart Home (or Outside without Home Assistant), Tonight's dinner, Timer (a big timer icon, or the countdown while one runs), Shopping (the first items), and Photos (or Music when Sonos or Spotify is set up).
+- **This week:** seven days starting tomorrow, with events, planned dinners and backpack icons.
+
+## Standby schedule
+
+Settings > Standby faces turns faces on and off and sets the schedule for this frame (it is kept in the frame's browser). The week is split into day groups, Weekdays and Weekend by default, and each group into time blocks; each block lists the faces it rotates through, in order. The default blocks are Morning (5 AM), Day (9 AM), Evening (3 PM) and Night (11 PM). A block with the Night clock is a night block: when idle the frame shows the dim clock instead of Standby. Severe weather and Now Playing are not scheduled; they interrupt when they apply.
+
+Each photo stays up for the Photo interval and each other face for the Face interval (15 seconds to 2 minutes, default 30 seconds). A Photos turn plays three photos in a row. Appearance shades Standby to make it dimmer.
+
+## Kitty faces and backpack rules
+
+Two Standby faces made for a kid who loves cats. Neither is in the schedule by default; add them in Settings > Standby faces, or use the Kids button on the launcher.
+
+- **Kitty tomorrow:** a speech bubble from the cat, tomorrow's name in rainbow letters, tomorrow's events as cards and the backpack items as stickers.
+- **Kitty today:** a sunrise sky, today's remaining events, the backpack, and a rain heads-up in cat words. It warns about later rain only when the 2 to 4 PM school pickup window has a 50% or higher chance.
+- On school days both show a Cell phone sticker.
+
+**The picture cats.** Each face shows one picture cat chosen for the day: a cat for each backpack item (PE, library, art, music, snack, picture day, field trip), a dress-up cat in the color named in the event title, a raincoat cat for a plain rainy day, the school backpack cat, or the weekend yarn cat. PE, music, art and library give way to any other backpack item. On Kitty today, rain plus another item keeps that item's cat and adds an umbrella and puddle. The original images live in `data/cats/` (not in git); the faces use 640-pixel WebP copies in `frame/hv/standby/cats/`.
+
+**Backpack rules** turn calendar entries into backpack items. Each rule has the words to look for in an event title (any of several, separated by `|`, not case sensitive), the item, a short note, an icon, and whether it means a day off (no backpack that day; only "No school" is one by default). Rules match all-day entries and timed ones such as an 8 AM class; a matched class shows as a sticker instead of a calendar card. Edit them on any frame in Settings > This house > Backpack (up to 30 rules; "Back to the built-in list" restores the 10 built-in ones). In `config.json`:
+
+```json
+"backpack": [
+  {"match": "physical education|pe|gym", "item": "Gym clothes", "note": "PE day · sneakers", "icon": "shoe"},
+  {"match": "no school|teacher workday", "item": "No school", "icon": "home", "off": true}
+]
+```
+
+Without a `backpack` key the built-in list is used. The rules also feed the Tomorrow face and the backpack icons in the launcher's week strip.
+
+## Tides and hurricane watch
+
+Both are free and need no key.
+
+- **Tides** come from NOAA CO-OPS. Set `"tides": {"station": "<station id>"}` (find yours at tidesandcurrents.noaa.gov). The Weather screen gets a Tides tile with the next high and low, a 24-hour curve and the water temperature. `king_ft` flags a very high tide at or above that height (feet above MLLW). Predictions are cached 6 hours.
+- **Hurricane watch** reads active storms from the National Hurricane Center. `basins` are `AL` (Atlantic, Gulf and Caribbean), `EP` and `CP`; storms farther than `radius_mi` are left out, and one within `near_mi` (or a hurricane or storm surge alert from Home Assistant) counts as near and is checked every hour. Tap a storm for NHC's 5-day cone and a QR code to open it on a phone.
+
 ## Camera
 
 An RTSP camera on your network (most IP cameras and NVRs) can be shown on a Camera screen. A camera
@@ -233,8 +294,8 @@ Add `?cam=<id>` for another camera; the id is its name in lowercase letters and 
 
 ## Home Assistant
 
-A Devices screen shows a hand-picked list of Home Assistant entities as tiles, and a tile on the Home
-launcher (in place of Outside) shows how many are on. The server talks to Home Assistant; the frames
+A Smart Home screen shows a hand-picked list of Home Assistant entities as tiles, and a tile on the Home
+launcher (in place of Outside) shows how many are on. `title` names the screen. The server talks to Home Assistant; the frames
 never see its address or token, and can only act on the entities you list.
 
 1. In Home Assistant, open your profile > Security > Long-lived access tokens > Create token.
@@ -261,7 +322,7 @@ Open it from the launcher tile, Settings > Open a screen, or the remote command 
 ## Weather alerts
 
 With the Home Assistant NWS Alerts integration, set `"alerts_entity": "sensor.nws_alerts_alerts"` under
-`home_assistant`. A chip appears left of the camera button while an alert is active (orange for Moderate,
+`home_assistant`. A chip appears on the launcher's second chip row (and in the top bar of other screens) while an alert is active (orange for Moderate,
 red for Severe and Extreme; tap it for the full text). `"alerts_min_severity"` (default `"Moderate"`) hides
 anything below it. A **Severe weather** Standby face shows only while a Severe or Extreme alert is active:
 a new one jumps the queue, then it comes back every other slide.
@@ -371,8 +432,15 @@ What this means for HomeView:
 - Some recipe photos belong to third parties; TheMealDB marks the Creative Commons ones. Do not reuse
   the photos outside this app.
 
+### Paprika
+
+If you keep recipes in [Paprika 3](https://www.paprikaapp.com), HomeView can show them in Meals. Put your Paprika account under `paprika` (`email`, `password`, optional `sync_hours`, default 6). The server signs in with the sync API the Paprika apps use, reads only (nothing in your account is changed), fetches new and changed recipes and their photos, and keeps a copy in `data_dir/paprika/`, so Meals still works offline. The password stays in `config.json` on the server.
+
+With Paprika set up, Meals gets a Paprika chip next to TheMealDB's categories. With `"meals": {"provider": "paprika"}` it uses only your Paprika recipes: TheMealDB is never called, and the chips are your most-used Paprika categories.
+
 ### How it works
 
+- **Favorites and Usuals.** Heart a recipe to add it to Favorites. Usuals are worked out from the plan history: the dinners you plan most often. "Pick a dinner" opens on them.
 - **Meals** opens on "Ideas", a different main-course category each day. Tap a category, search by
   name, or search a main ingredient ("salmon", "chickpeas"): when a name search finds nothing, the
   server tries it as an ingredient. "Surprise me" picks a random recipe.
@@ -422,7 +490,11 @@ photo folder are not.
 server.py          the HTTP server; serves frame/ and routes the API
 config.py          reads config.json
 weather_api.py     Open-Meteo weather and air quality, ICS calendars  (/api/frame)
-meals_api.py       TheMealDB, the meal plan, the shopping list        (/api/meals/*)
+meals_api.py       TheMealDB, the meal plan, favorites, shopping list (/api/meals/*)
+paprika_api.py     read-only sync of your Paprika recipes             (/api/meals/paprika)
+settings_api.py    Settings > This house, writes config.json          (/api/settings)
+storms_api.py      hurricane watch from the National Hurricane Center (/api/storms)
+tides_api.py       NOAA tides and water temperature                   (/api/tides)
 hv_api.py          shared timers, remote commands, wallpapers, fonts  (/api/hv/*)
 camera_api.py      RTSP camera relayed as MJPEG through ffmpeg        (/api/camera/*)
 ha_api.py          Home Assistant entities and actions, weather alerts (/api/ha/*)
@@ -431,6 +503,10 @@ frame_api.py       Sonos and the photo folder                         (/api/fram
 spotify_api.py     Spotify Web API                                    (/api/frame/spotify/*)
 frame_img.py       resized photo copies
 frame/hv/          the pages (one folder per screen), hv.css, hv.js, DESIGN.md
+frame/hv/launch/   the Home launcher
+frame/hv/standby/  Standby and its faces; cats/ holds the Kitty faces' pictures
+frame/hv/faces/    Standby faces picker and the schedule (sched.js)
+frame/hv/house/    Settings > This house
 frame/shared/      cond.js: JSON polling with ETags
 scripts/           spotify_auth.py, make_sample_photos.py, make_face_thumbs.py
 samples/           sample photos and a sample calendar
@@ -444,7 +520,7 @@ test_*.py          unittest tests
 .venv/bin/python -m unittest discover -p 'test_*.py'
 ```
 
-The tests do not use the network: Open-Meteo, TheMealDB, Spotify and Sonos are replaced with fakes.
+The tests do not use the network: Open-Meteo, TheMealDB, Paprika, NOAA, NHC, Spotify and Sonos are replaced with fakes.
 
 
 ## License and credits
@@ -453,5 +529,7 @@ MIT. See [LICENSE](LICENSE).
 
 - Recipes, ingredients and recipe photos come from [TheMealDB](https://www.themealdb.com) under its own terms (see Meal planning above). HomeView says "Recipes from TheMealDB" on the Meals and Shopping screens.
 - Weather and air quality come from [Open-Meteo](https://open-meteo.com/), licensed CC BY 4.0. The Weather screen credits Open-Meteo.
+- Tides come from NOAA CO-OPS and storm data from the National Hurricane Center, both US government data.
+- Paprika is a product of Hindsight Labs; HomeView only reads your own recipes from your own account.
 - Sonos control uses [SoCo](https://github.com/SoCo/SoCo). The design follows Apple's HomeView, but Apple's fonts and artwork are not included.
 - The sample photos are drawings made by `scripts/make_sample_photos.py`.
