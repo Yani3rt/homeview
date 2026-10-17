@@ -224,11 +224,15 @@ The launcher (`/frame/hv/`) is the screen the frame comes back to. From top to b
 
 ## Standby schedule
 
+![Settings > Standby faces: the Weekdays Morning block with its faces numbered in order, Kitty today added](docs/images/standby-schedule.jpg)
+
 Settings > Standby faces turns faces on and off and sets the schedule for this frame (it is kept in the frame's browser). The week is split into day groups, Weekdays and Weekend by default, and each group into time blocks; each block lists the faces it rotates through, in order. The default blocks are Morning (5 AM), Day (9 AM), Evening (3 PM) and Night (11 PM). A block with the Night clock is a night block: when idle the frame shows the dim clock instead of Standby. Severe weather and Now Playing are not scheduled; they interrupt when they apply.
 
 Each photo stays up for the Photo interval and each other face for the Face interval (15 seconds to 2 minutes, default 30 seconds). A Photos turn plays three photos in a row. Appearance shades Standby to make it dimmer.
 
 ## Kitty faces and backpack rules
+
+![Kitty today on a Monday morning with library, PE and picture day stickers, and Kitty tomorrow with a blue dress-up cat and snack money](docs/images/kitty-faces.jpg)
 
 Two Standby faces made for a kid who loves cats. Neither is in the schedule by default; add them in Settings > Standby faces, or use the Kids button on the launcher.
 
@@ -238,7 +242,11 @@ Two Standby faces made for a kid who loves cats. Neither is in the schedule by d
 
 **The picture cats.** Each face shows one picture cat chosen for the day: a cat for each backpack item (PE, library, art, music, snack, picture day, field trip), a dress-up cat in the color named in the event title, a raincoat cat for a plain rainy day, the school backpack cat, or the weekend yarn cat. PE, music, art and library give way to any other backpack item. On Kitty today, rain plus another item keeps that item's cat and adds an umbrella and puddle. The original images live in `data/cats/` (not in git); the faces use 640-pixel WebP copies in `frame/hv/standby/cats/`.
 
-**Backpack rules** turn calendar entries into backpack items. Each rule has the words to look for in an event title (any of several, separated by `|`, not case sensitive), the item, a short note, an icon, and whether it means a day off (no backpack that day; only "No school" is one by default). Rules match all-day entries and timed ones such as an 8 AM class; a matched class shows as a sticker instead of a calendar card. Edit them on any frame in Settings > This house > Backpack (up to 30 rules; "Back to the built-in list" restores the 10 built-in ones). In `config.json`:
+**Backpack rules** turn calendar entries into backpack items. Each rule has the words to look for in an event title (any of several, separated by `|`, not case sensitive), the item, a short note, an icon, and whether it means a day off (no backpack that day; only "No school" is one by default). Rules match all-day entries and timed ones such as an 8 AM class; a matched class shows as a sticker instead of a calendar card. Edit them on any frame in Settings > This house > Backpack (up to 30 rules; "Back to the built-in list" restores the 10 built-in ones).
+
+![Settings > This house > Backpack: the built-in rules, with the Gym clothes rule open for editing](docs/images/backpack-rules.jpg)
+
+In `config.json`:
 
 ```json
 "backpack": [
@@ -250,6 +258,8 @@ Two Standby faces made for a kid who loves cats. Neither is in the schedule by d
 Without a `backpack` key the built-in list is used. The rules also feed the Tomorrow face and the backpack icons in the launcher's week strip.
 
 ## Tides and hurricane watch
+
+![The Weather screen with a hurricane tile, a coastal flood alert chip and the Tides tile with the next high tide and a 24-hour curve](docs/images/tides-hurricane.jpg)
 
 Both are free and need no key.
 
@@ -321,6 +331,8 @@ Open it from the launcher tile, Settings > Open a screen, or the remote command 
 
 ## Weather alerts
 
+![A Coastal Flood Advisory chip on the launcher, tapped to show the alert's full text](docs/images/weather-alert.jpg)
+
 With the Home Assistant NWS Alerts integration, set `"alerts_entity": "sensor.nws_alerts_alerts"` under
 `home_assistant`. A chip appears on the launcher's second chip row (and in the top bar of other screens) while an alert is active (orange for Moderate,
 red for Severe and Extreme; tap it for the full text). `"alerts_min_severity"` (default `"Moderate"`) hides
@@ -328,6 +340,8 @@ anything below it. A **Severe weather** Standby face shows only while a Severe o
 a new one jumps the queue, then it comes back every other slide.
 
 ## Shopping list and Apple Reminders
+
+![The Shopping screen: hand-added items with counts, and Buy again cards](docs/images/shopping.jpg)
 
 On a Mac server the Shopping list can stay in sync with an Apple Reminders list (so Siri and your phone see it),
 through [remindctl](https://github.com/openclaw/remindctl) (`brew install steipete/tap/remindctl`):
@@ -390,6 +404,8 @@ New Spotify developer apps start in development mode, which only works for accou
 the app's "User Management" page. Add the account you will sign in with.
 
 ## Meal planning
+
+![Meals showing Usuals, the dinners planned most often, with how many times and when each is planned next](docs/images/meals-usuals.jpg)
 
 ### The recipe source: TheMealDB
 
