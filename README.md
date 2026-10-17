@@ -22,11 +22,21 @@ The screenshots in this README were taken from this repository with its sample d
 
 **Meal planning.** Browse or search recipes from TheMealDB or your own Paprika recipes, heart Favorites, see your Usuals (the dinners you plan most), plan dinners for the next 7 days, cook from a one-step-per-screen view with one-tap kitchen timers, and get a shopping list that merges the ingredients of every planned dinner. You can add your own items (milk, paper towels) to the list. Timers, the plan, favorites and checked-off items are kept on the server, so every frame shows the same thing.
 
+**Shopping list, synced with Apple Reminders.** On a Mac server the Shopping list stays in sync with an Apple Reminders list, so Siri and your phone see it: every unchecked item becomes a reminder, reminders added on a phone show up on the frames, and checking off, counts (`Milk ×2`) and deletions sync both ways. Buy again cards put the things you buy often back on the list with one tap, and hand-added items have − n + counts. See [Shopping list and Apple Reminders](#shopping-list-and-apple-reminders).
+
 **Kitchen timers.** The Timer screen has a column of quick timers (one tap starts one) next to the usual picker. The quick timers are set once for the house in Settings > This house, and also show on the Tonight screen.
 
 ![Meals week, a cook step and the shopping list](docs/images/meals.jpg)
 
 **Music.** Sonos rooms with grouping, volume, queue, favorites, sleep timer and EQ, plus Spotify search, playlists and Spotify Connect. A QR code on the Music screen lets a phone on the same Wi-Fi send a Spotify link to a room. The Music shot above uses the built-in preview data (`?demo=1`, with made-up titles) because the screenshots were taken without Sonos speakers.
+
+**Smart Home and Sleep Mode.** A Smart Home screen shows hand-picked Home Assistant entities as tiles: toggle lights, switches and fans, dim lights, set the thermostat, run scenes and scripts, and read sensors. A launcher tile shows how many are on. In the evening a Sleep Mode button on the launcher turns on a Home Assistant switch that puts the house to sleep (tap twice to confirm). The server talks to Home Assistant; the frames never see its address or token. See [Home Assistant](#home-assistant).
+
+**Weather alerts.** With Home Assistant's NWS Alerts, a chip on the launcher and the other screens shows an active alert (tap for the full text), and a Severe weather Standby face interrupts during a Severe or Extreme one. See [Weather alerts](#weather-alerts).
+
+**Cameras.** A Camera screen shows live RTSP cameras (most IP cameras and NVRs), with a chip to switch cameras. The server converts the stream with ffmpeg into small JPEG frames the frames can show, and only while someone is watching. See [Camera](#camera).
+
+**Remote commands.** A phone shortcut or a home automation system can tell the frames to open a screen (Tonight's dinner, Shopping, Camera, Smart Home and others) or start a kitchen timer. See [Remote commands](#remote-commands).
 
 **Settings, per frame and per house.** Settings sets, for this frame, when to go to Standby (after how many minutes, and whether to switch to Standby or stay on), the look (Light or Glass), the background, Standby's brightness (Appearance), how long each photo and each other face stays up, which Standby faces are on and the Standby schedule. Settings > This house edits what every frame shares: the home name and place, units, quick timers, calendar names and colors, and the backpack rules. A dim Night clock shows during the schedule's Night block (11 PM to 5 AM by default).
 
