@@ -188,3 +188,7 @@ html.look-glass .hv-chip.hv-cool{background:rgba(160,235,215,.4);color:#fff}
 /* Rain always sits in the top row (after Sleep Mode when it shows); alert and Cooler outside stay below */
 .hv-chrome.two .hv-chip.hv-chip.hv-rain{order:0;margin-top:0;height:6.5vh;font-size:2.4vh;padding:0 2.2vh;max-width:30vw}
 .hv-chrome.two .hv-chip.hv-alert,.hv-chrome.two .hv-chip.hv-cool{position:relative;left:-2.9vw}   /* row 2 ends at the cards' right edge (page gutter 4.5vw, chrome sits at 1.6vw) */
+/* Kids button (cat paw): the Timer card's black with its orange icon */
+.hv-chip.hv-paw{background:#000;color:var(--orange)}
+.hv-chip.hv-paw svg{width:3.4vh;height:3.4vh}
+html.look-glass .hv-chip.hv-paw{background:rgba(0,0,0,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
