@@ -99,10 +99,47 @@
     if(document.body)paintWall();else document.addEventListener('DOMContentLoaded',paintWall);
     setInterval(paintWall,300000);
   }
+  /* Backpack rules (Standby's Tomorrow and Kitty faces, the launcher's week strip): a calendar title that says
+     "PE" means gym clothes. config.json "backpack", or the built-in list below. HV.packHit(title) is the rule or null. */
+  HV.PACK_ICONS={
+    coin:'<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.4c-.5-.9-1.4-1.4-2.6-1.4-1.5 0-2.6.8-2.6 2s1.1 1.7 2.6 2 2.6.8 2.6 2-1.1 2-2.6 2c-1.2 0-2.2-.6-2.7-1.6M12 6.4V8M12 16v1.6"/>',
+    book:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
+    shoe:'<path d="M3 16.5h18V19H3zM3 16.5V9l4 1 3 3 6 1.2c2.6.5 5 1.4 5 2.3"/>',
+    music:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+    art:'<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.8 1.5-1.5S13 18 13 17s.8-1.5 1.7-1.5H17a4 4 0 0 0 4-4C21 6.8 17 3 12 3z"/><path d="M7.5 11h.01M10 7h.01M15 7h.01"/>',
+    shirt:'<path d="M8 3L3 6l2 4 3-1v12h8V9l3 1 2-4-5-3a4 4 0 0 1-8 0z"/>',
+    bus:'<rect x="4" y="3" width="16" height="15" rx="3"/><path d="M4 11h16M8 21v-3M16 21v-3M8 14.5h.01M16 14.5h.01"/>',
+    home:'<path d="M4 11l8-6.5 8 6.5M6 9.5V20h12V9.5"/><path d="M10 20v-5h4v5"/>',
+    bag:'<path d="M6 8h12l1 12H5z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+    star:'<path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8 6.6 19.7l1.1-6.1-4.5-4.2 6.1-.8z"/>'};
+  HV.PACK_COLOR={coin:'#ffb340',book:'#64d2ff',shoe:'#30d158',music:'#bf5af2',art:'#ff6482',shirt:'#ff9f0a',bus:'#ffd60a',home:'#8e8e93',bag:'#5ac8fa',star:'#ffd60a'};
+  var PACK_DEFAULT=[   // until Settings > This house saves config.json "backpack" (mirrors settings_api.BACKPACK_DEFAULT)
+    {match:'snack',item:'Snack money',icon:'coin'},
+    {match:'library',item:'Library books',note:'Return or renew',icon:'book'},
+    {match:'physical education|pe|gym',item:'Gym clothes',note:'PE day \u00b7 sneakers',icon:'shoe'},
+    {match:'field trip',item:'Field trip',note:'Lunch and permission slip',icon:'bus'},
+    {match:'picture day|photo day',item:'Picture day',note:'A nice outfit',icon:'star'},
+    {match:'wear|color day|dress up|pajama',item:'Dress-up day',icon:'shirt'},
+    {match:'art',item:'Art class',note:'An old shirt helps',icon:'art'},
+    {match:'music',item:'Music class',icon:'music'},
+    {match:'early release|early dismissal|half day',item:'Early release',icon:'home'},
+    {match:'no school|teacher planning|teacher workday',item:'No school',icon:'home',off:true}];
+  var packRules=null;
+  HV.packRules=function(){
+    if(packRules)return packRules;
+    var src=HV.cfg.backpack||PACK_DEFAULT;
+    packRules=src.map(function(r){
+      var words=String(r.match).split('|').map(function(w){return w.trim().replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}).filter(Boolean);
+      return {re:new RegExp('(^|[^a-z0-9])('+words.join('|')+')(e?s)?([^a-z0-9]|$)','i'),item:r.item,note:r.note||'',icon:HV.PACK_ICONS[r.icon]?r.icon:'star',
+        off:r.off||/^no school$/i.test(r.item)};});
+    return packRules;
+  };
+  HV.packHit=function(title){var rs=HV.packRules();for(var i=0;i<rs.length;i++)if(rs[i].re.test(title||''))return rs[i];return null;};
+  HV.packIcon=function(name,color){return '<svg viewBox="0 0 24 24" fill="none" stroke="'+(color||'currentColor')+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(HV.PACK_ICONS[name]||HV.PACK_ICONS.star)+'</svg>';};
   /* Standby faces this frame shows (localStorage 'hv-faces'); Settings > Standby faces edits it. */
   HV.FACES=[['photos','Photos','Your photos, with the date and time',1],['info','Info','Date, clock, today\'s agenda, weather',1],
     ['today','Today','Big date, weather, next events, dinner',1],['week','This week','Seven days: events, dinner, weather',1],
-    ['weather','Weather','Now, the next 7 days and hours',1],['tomorrow','Tomorrow','Tomorrow: weather, backpack, school week',1],['board','Today board','Clock, rain chart, today, get ready, home',1],['up','Coming up','The next two weeks of calendars',1],
+    ['weather','Weather','Now, the next 7 days and hours',1],['tomorrow','Tomorrow','Tomorrow: weather, backpack, school week',1],['kitty','Kitty tomorrow','Tomorrow for the kids: calendar, backpack and a cat',1],['kittyam','Kitty today','Today for the kids: calendar, backpack, rain heads-up and a cat',1],['board','Today board','Clock, rain chart, today, get ready, home',1],['up','Coming up','The next two weeks of calendars',1],
     ['analog','Analog','Clock with date, weather, next event, dinner',1],['numerals','Numerals','Giant 12 3 6 9, color by day',1],
     ['minimal','Minimal','Soft rose clock',1],['night','Night clock','Dim red clock and what\'s next; shows on its own',1],['month','Month','Calendar grid with the big date',0],
     ['alert','Severe weather','Only while a Severe or Extreme weather alert is active',1]];

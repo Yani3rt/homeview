@@ -5,7 +5,7 @@
    save only replaces that card's values. Secrets never reach here. ES5. */
 (function(){
   var D=null, dirty={}, openRule=-1;
-  /* the backpack icons and colors, as Standby draws them (PACK_ICONS / PACK_COLOR in standby/standby.js) */
+  /* the backpack icons and colors, as Standby draws them (HV.PACK_ICONS / HV.PACK_COLOR in hv.js) */
   var PACK_ICONS={
     coin:'<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.4c-.5-.9-1.4-1.4-2.6-1.4-1.5 0-2.6.8-2.6 2s1.1 1.7 2.6 2 2.6.8 2.6 2-1.1 2-2.6 2c-1.2 0-2.2-.6-2.7-1.6M12 6.4V8M12 16v1.6"/>',
     book:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
