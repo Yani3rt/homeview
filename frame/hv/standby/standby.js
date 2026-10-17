@@ -634,6 +634,8 @@ window.HVStandby={
 
   var BACK=Q.get('back')==='faces'?'/frame/hv/faces/':'/frame/hv/';   // ?back=faces: previews from the schedule page return there
   document.addEventListener('click',function(e){if(e.target.closest('.hv-chrome,.hv-timers,button'))return;location.href=BACK;});
+  // ?return=<seconds>: go back on its own if nobody taps (the launcher's Kids button uses 60)
+  var RET=+Q.get('return');if(RET>0)setTimeout(function(){location.href=BACK;},RET*1000);
   var THUMB=Q.get('thumb')==='1';   // scripts/make_face_thumbs.py renders clean previews for the faces chooser
   if(IDLE.shade&&!THUMB){var dimEl=document.createElement('div');dimEl.className='sb-dim';dimEl.style.opacity=IDLE.shade/100;document.body.appendChild(dimEl);}
   if(!THUMB){
