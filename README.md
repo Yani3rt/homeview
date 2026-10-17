@@ -2,7 +2,7 @@
 
 # HomeView
 
-HomeView is a kitchen-wall home screen in the style of Apple's HomeView, for inexpensive Android photo frames. A small Python server on your home network serves the pages, and each frame shows them full screen in its browser. There are no accounts, no cloud service of its own and no database. Everything specific to your house lives in one file, `config.json`.
+HomeView is a home screen in the style of Apple's HomeView, for inexpensive Android photo frames. A small Python server on your home network serves the pages, and each frame shows them full screen in its browser. There are no accounts, no cloud service of its own and no database. Everything specific to your house lives in one file, `config.json`.
 
 The screenshots were taken from this repository with its sample data (a made-up calendar, drawn sample photos and a few TheMealDB recipes).
 
