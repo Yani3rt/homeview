@@ -18,7 +18,7 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 BASE = (sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8806").rstrip("/")
 OUT = ROOT / "frame" / "hv" / "faces" / "thumbs"
-FACES = {"photos": "photo", "info": "info", "today": "today", "week": "week", "weather": "weather", "tomorrow": "tomorrow", "board": "board", "up": "up",
+FACES = {"photos": "photo", "info": "info", "today": "today", "week": "week", "weather": "weather", "tomorrow": "tomorrow", "kitty": "kitty", "kittyam": "kittyam", "board": "board", "up": "up",
          "analog": "analog", "numerals": "numerals", "minimal": "minimal", "month": "month", "alert": "alert"}
 
 if __name__ == "__main__":

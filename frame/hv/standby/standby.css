@@ -270,6 +270,50 @@ html.look-glass .photo .ctime{font-weight:500}
 .f-tom .te.none u{background:transparent}
 .f-tom .td.long{font-size:11.5vh}
 
+/* kitty (evenings, for the kids): a cat with a speech bubble on the left, tomorrow's calendar and backpack on the right */
+.f-kit{background:linear-gradient(160deg,#2c1f6e 0%,#5a35a8 50%,#c2549a 100%);padding:5vh 4.5vw 5vh 3vw;display:flex;gap:3vw;box-sizing:border-box;color:#fff}
+.f-kit .kst{position:absolute;width:1.2vh;height:1.2vh;border-radius:50%;background:#fff6c2;opacity:.8}
+.f-kit .kst.s{width:.8vh;height:.8vh;opacity:.55}
+.f-kit .kl{flex:0 0 33vw;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0;position:relative}
+.f-kit .kbub{position:relative;background:#fff;color:#2a1a4a;border-radius:4vh;padding:2.6vh 2.2vw;font-size:4vh;font-weight:700;letter-spacing:-.02em;line-height:1.15;
+  text-align:center;margin-bottom:3vh;max-width:30vw;box-sizing:border-box;box-shadow:0 1vh 0 rgba(42,26,74,.35)}
+.f-kit .kbub em{display:block;font-style:normal;font-family:var(--sfr);font-size:2.8vh;color:#ff4f9a;margin-bottom:.6vh}
+.f-kit .kbub:after{content:"";position:absolute;left:50%;bottom:-2.6vh;margin-left:-2vh;border:2vh solid transparent;border-top:3vh solid #fff;border-bottom:0}
+.f-kit .kcat{width:30vw;height:50vh;display:block;animation:kpop .9s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes kpop{0%{transform:translateY(12vh) scale(.85)}100%{transform:translateY(0) scale(1)}}
+.f-kit .kr{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;padding-bottom:2vh}
+.f-kit .ktag{display:inline-block;background:#ffd84d;color:#2a1a4a;font-size:2.6vh;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:.7vh 1.4vw}
+.f-kit .kday{font-family:var(--sfr);font-size:14vh;font-weight:700;letter-spacing:-.03em;line-height:1;white-space:nowrap;margin-top:1vh}
+.f-kit .kday span{text-shadow:0 .7vh 0 rgba(42,26,74,.45)}
+.f-kit .kday.long{font-size:11vh}
+.f-kit .kdate{display:flex;align-items:center;gap:1vw;margin-top:.6vh;font-size:4.2vh;font-weight:700;color:rgba(255,255,255,.85);min-width:0}
+.f-kit .kdate span{white-space:nowrap}
+.f-kit .khol{font-size:2.4vh;color:#2a1a4a;background:#6fe3b4;border-radius:999px;padding:.6vh 1.2vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.f-kit h3{margin:3.4vh 0 1.4vh;font-size:2.4vh;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#ffd84d}
+.f-kit .kev{display:flex;flex-direction:column}
+.f-kit .kc{display:flex;align-items:center;gap:1.4vw;height:8.6vh;border-radius:2.6vh;padding:0 1.2vw;color:#2a1a4a;min-width:0;box-shadow:0 .7vh 0 rgba(42,26,74,.3)}
+.f-kit .kc+.kc{margin-top:1.6vh}
+.f-kit .kc em{flex:none;font-style:normal;font-family:var(--sfr);font-size:2.7vh;font-weight:700;background:#fff;border-radius:999px;padding:.8vh 1.1vw;white-space:nowrap}
+.f-kit .kc b{flex:1;min-width:0;font-size:3.6vh;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-kit .kc.none,.f-kit .ks.none{background:rgba(255,255,255,.12);border:.3vh dashed rgba(255,255,255,.5);color:#fff;box-shadow:none}
+.f-kit .kbp{display:flex;gap:1.4vw}
+.f-kit .ks{flex:1;min-width:0;max-width:14vw;background:#fff;color:#2a1a4a;border-radius:2.8vh;padding:1.8vh .8vw 1.6vh;text-align:center;box-shadow:0 .7vh 0 rgba(42,26,74,.3)}
+.f-kit .ks i{display:flex;align-items:center;justify-content:center;width:8vh;height:8vh;border-radius:50%;margin:0 auto 1vh;color:#fff;border:.4vh solid #2a1a4a}
+.f-kit .ks i svg{width:4.4vh;height:4.4vh}
+.f-kit .ks b{display:block;font-size:2.6vh;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-kit .ks.none{max-width:none;display:flex;align-items:center;height:8.6vh;padding:0 1.6vw;text-align:left}
+.f-kit .ks.none b{font-size:3vh;font-weight:600}
+.f-kit .kcat.pic{position:relative}
+.f-kit .kcat.pic img{position:absolute;top:auto;right:auto;left:0;bottom:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%}
+.f-kit .kcat.pic .kumb{top:-4%;bottom:auto;height:auto;left:0;width:100%}
+.f-kit .kcat.pic .kpud{bottom:-2%;height:auto;left:-2%;width:104%}
+.f-kit .kcat.pic .kpud+img{left:11%;bottom:3%;width:78%;height:78%}
+.f-kit .kbub.long{font-size:3.4vh}
+.f-kit .kbub.rain{background:#e6f4ff}.f-kit .kbub.rain:after{border-top-color:#e6f4ff}.f-kit .kbub.rain em{color:#0a84ff}
+.f-kit.k-am{background:linear-gradient(160deg,#1b4fb8 0%,#3a86e8 50%,#ff9a62 100%)}
+.f-kit .ksun{position:absolute;left:-7vh;top:-7vh;width:20vh;height:20vh;border-radius:50%;background:#ffd84d;opacity:.9;box-shadow:0 0 0 4vh rgba(255,216,77,.25),0 0 0 9vh rgba(255,216,77,.12)}
+.f-kit .kclk{position:absolute;top:2.3vh;right:4.5vw;font-family:var(--sfr);font-size:3vh;font-weight:600;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2)}
+
 /* today board: the Today screen as a Standby face. Dark room, one warm weather card, three dark cards below */
 .f-board{background:radial-gradient(120% 100% at 0% 0%,#1c2030 0%,#12141c 50%,#0b0c11 100%);padding:5.5vh 4.5vw 5vh;display:flex;flex-direction:column;gap:3vh;box-sizing:border-box}
 .f-board .btop{flex:0 0 40vh;display:flex;gap:3vw;min-height:0}

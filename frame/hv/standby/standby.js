@@ -3,7 +3,9 @@
    Faces: photo (full-screen photo, date bottom-left, time bottom-right), analog (with four complications), week (seven days: events, dinner, weather),
    weather (now, 7 days, hours), today (date, weather, next events, dinner), np (Now Playing, only while a
    speaker plays), up (Coming up with today's weather and dinner).
-   tomorrow (evenings: tomorrow's weather, backpack, calendar and the next school days).
+   tomorrow (evenings: tomorrow's weather, backpack, calendar and the next school days), kitty (the same for the
+   kids: tomorrow's calendar and backpack, colorful, with a cat; no weather), kittyam (Kitty today, mornings: the same
+   for today, with the Rain chip's heads-up said by the cat).
    Order: the Standby schedule (Settings > Standby faces, faces/sched.js): the block for this day and home
    time lists the faces, rotated in order, the first one leading when the block begins. A Photos turn plays
    RUN photos in a row. Photos stay up for Settings > Photo interval (hv-idle slide, 15/30/60 s, default 30),
@@ -373,47 +375,17 @@ window.HVStandby={
   }
   /* ---------- tomorrow (evenings): tomorrow's weather, what goes in the backpack, what's on, and the next
      school days. The backpack comes from calendar titles (config.json "backpack", or the list below). ---------- */
-  var PACK_ICONS={
-    coin:'<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.4c-.5-.9-1.4-1.4-2.6-1.4-1.5 0-2.6.8-2.6 2s1.1 1.7 2.6 2 2.6.8 2.6 2-1.1 2-2.6 2c-1.2 0-2.2-.6-2.7-1.6M12 6.4V8M12 16v1.6"/>',
-    book:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
-    shoe:'<path d="M3 16.5h18V19H3zM3 16.5V9l4 1 3 3 6 1.2c2.6.5 5 1.4 5 2.3"/>',
-    music:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
-    art:'<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.8 1.5-1.5S13 18 13 17s.8-1.5 1.7-1.5H17a4 4 0 0 0 4-4C21 6.8 17 3 12 3z"/><path d="M7.5 11h.01M10 7h.01M15 7h.01"/>',
-    shirt:'<path d="M8 3L3 6l2 4 3-1v12h8V9l3 1 2-4-5-3a4 4 0 0 1-8 0z"/>',
-    bus:'<rect x="4" y="3" width="16" height="15" rx="3"/><path d="M4 11h16M8 21v-3M16 21v-3M8 14.5h.01M16 14.5h.01"/>',
-    home:'<path d="M4 11l8-6.5 8 6.5M6 9.5V20h12V9.5"/><path d="M10 20v-5h4v5"/>',
-    bag:'<path d="M6 8h12l1 12H5z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
-    star:'<path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8 6.6 19.7l1.1-6.1-4.5-4.2 6.1-.8z"/>'};
-  var PACK_COLOR={coin:'#ffb340',book:'#64d2ff',shoe:'#30d158',music:'#bf5af2',art:'#ff6482',shirt:'#ff9f0a',bus:'#ffd60a',home:'#8e8e93',bag:'#5ac8fa',star:'#ffd60a'};
-  var PACK_DEFAULT=[
-    {match:'snack',item:'Snack money',icon:'coin'},
-    {match:'library',item:'Library books',note:'Return or renew',icon:'book'},
-    {match:'physical education|pe|gym',item:'Gym clothes',note:'PE day \u00b7 sneakers',icon:'shoe'},
-    {match:'field trip',item:'Field trip',note:'Lunch and permission slip',icon:'bus'},
-    {match:'picture day|photo day',item:'Picture day',note:'A nice outfit',icon:'star'},
-    {match:'wear|color day|dress up|pajama',item:'Dress-up day',icon:'shirt'},
-    {match:'art',item:'Art class',note:'An old shirt helps',icon:'art'},
-    {match:'music',item:'Music class',icon:'music'},
-    {match:'early release|early dismissal|half day',item:'Early release',icon:'home'},
-    {match:'no school|teacher planning|teacher workday',item:'No school',icon:'home',off:true}];
-  var packRules=null;
-  function pack(){
-    if(packRules)return packRules;
-    var src=HV.cfg.backpack||PACK_DEFAULT;
-    packRules=src.map(function(r){
-      var words=String(r.match).split('|').map(function(w){return w.trim().replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}).filter(Boolean);
-      return {re:new RegExp('(^|[^a-z0-9])('+words.join('|')+')(e?s)?([^a-z0-9]|$)','i'),item:r.item,note:r.note||'',icon:PACK_ICONS[r.icon]?r.icon:'star',
-        off:r.off||/^no school$/i.test(r.item)};});
-    return packRules;
-  }
-  /* a day's calendar entries split into backpack items and everything else */
+  var PACK_ICONS=HV.PACK_ICONS,PACK_COLOR=HV.PACK_COLOR;   // the backpack rules live in hv.js (the launcher's week strip uses them too)
+  function pack(){return HV.packRules();}
+  /* a day's calendar entries split into backpack items and everything else (all-day or timed: her class schedule
+     has timed entries like "Physical Education" 8-9 AM) */
   function packFor(key){
     var items=[],other=[],seen={},off=false,hol=[],rs=pack();
     eventsOn(key).forEach(function(e){
       if(HV.isHoliday(e.cal)){hol.push(e);return;}
       var hit=null;for(var i=0;i<rs.length;i++)if(rs[i].re.test(e.title)){hit=rs[i];break;}
       if(hit&&hit.off)off=true;
-      if(hit&&e.all_day){if(!seen[hit.item]){seen[hit.item]=1;items.push({r:hit,e:e});}}
+      if(hit){if(!seen[hit.item]){seen[hit.item]=1;items.push({r:hit,e:e});}}
       else other.push(e);});
     return {items:items,other:other,off:off,hol:hol};
   }
@@ -461,6 +433,101 @@ window.HVStandby={
     strip+='</div></div>';
     var d=el('f-tom',left+right+strip+'<div class="hv-chip tclk tnum">'+HV.hm()+' '+HV.ampm()+'</div>');
     d.tick=function(){var c=d.querySelector('.tclk');if(c)c.textContent=HV.hm()+' '+HV.ampm();};
+    return d;
+  }
+  /* ---------- kitty (evenings, for the kids): tomorrow's calendar and backpack with a cat who says what's up.
+     Same backpack rules as the Tomorrow face, no weather. ---------- */
+  var KIT_CANDY=['#ff8fc0','#ffd84d','#6fe3b4','#7cc8ff','#c3a6ff','#ffb067'];
+
+  /* backpack stickers: up to 3 from the rules, then her cell phone, every school day */
+  function kitPack(items){
+    var h='';items.slice(0,3).forEach(function(x){
+      h+='<div class="ks"><i style="background:'+PACK_COLOR[x.r.icon]+'">'+packIcon(x.r.icon)+'</i><b>'+HV.esc(x.r.item)+'</b></div>';});
+    return h+'<div class="ks"><i style="background:#0a84ff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+
+      '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></i><b>Cell phone</b></div>';
+  }
+  function kittyFace(){
+    var t1=addDays(1),key=dayKeyOf(t1),P=packFor(key),day=HV.DAYS[t1.dow];
+    var school=t1.dow>0&&t1.dow<6&&!P.off, n=P.items.length;
+    /* what the cat says */
+    var say=P.off||!school?'No school tomorrow. Yay!':
+      n===1?'Don\'t forget: '+P.items[0].r.item+'!':n>1?n+' things for your backpack!':'Just a regular school day!';
+    var name='';day.split('').forEach(function(ch,i){name+='<span style="color:'+KIT_CANDY[i%KIT_CANDY.length]+'">'+ch+'</span>';});
+    var tags='';P.hol.forEach(function(e){tags+='<span class="khol">'+HV.esc(e.title)+'</span>';});
+    if(P.off&&P.items[0]&&!tags)tags='<span class="khol">'+HV.esc(P.items[0].e.title)+'</span>';
+    var left='<div class="kl"><div class="kbub"><em>Meow!</em>'+HV.esc(say)+'</div>'+kitPic(P,school,false)+'</div>';
+    var right='<div class="kr"><div class="khd"><span class="ktag">Tomorrow is</span>'+
+      '<div class="kday'+(day.length>8?' long':'')+'">'+name+'</div>'+
+      '<div class="kdate"><span>'+HV.MONTHS[t1.mo-1]+' '+t1.d+'</span>'+tags+'</div></div>';
+    right+='<h3>What\'s happening</h3><div class="kev">';
+    P.other.slice(0,school?3:5).forEach(function(e,i){
+      right+='<div class="kc" style="background:'+KIT_CANDY[i%KIT_CANDY.length]+'"><em>'+whenLabel(e)+'</em><b>'+HV.esc(e.title)+'</b></div>';});
+    if(!P.other.length)right+='<div class="kc none"><b>Nothing on the calendar. Free time!</b></div>';
+    right+='</div>';
+    if(school){right+='<h3>In my backpack</h3><div class="kbp">';
+      right+=kitPack(P.items)+'</div>';}
+    right+='</div>';
+    var stars='<i class="kst" style="top:7vh;left:30vw"></i><i class="kst s" style="top:15vh;left:8vw"></i><i class="kst" style="top:4vh;left:58vw"></i><i class="kst s" style="top:22vh;left:36vw"></i><i class="kst s" style="top:10vh;left:77vw"></i>';
+    var d=el('f-kit',stars+left+right+'<div class="hv-chip kclk tnum">'+HV.hm()+' '+HV.ampm()+'</div>');
+    d.tick=function(){var c=d.querySelector('.kclk');if(c)c.textContent=HV.hm()+' '+HV.ampm();};
+    return d;
+  }
+  /* ---------- kitty today (mornings, for the kids): the Kitty tomorrow face for today, plus the Rain chip's heads-up
+     (the Open-Meteo nowcast) said by the cat. She holds an umbrella when rain is on the way. ---------- */
+  function kitRain(){
+    var wx=data.frame&&data.frame.weather,n=wx&&wx.nowcast,d0=wx&&dayWx(dayKeyOf(HV.local()));
+    function t12(s){var h=+s.slice(11,13),m=+s.slice(14,16);return (h%12||12)+':'+HV.pad(m)+' '+(h<12?'AM':'PM');}
+    if(n&&n.state==='start'&&n.at)return n.mins<=5?'Rain is starting now. Grab an umbrella, no wet whiskers!':
+      'Rain around '+t12(n.at)+', in '+n.mins+' minutes. Keep your paws dry!';
+    if(n&&n.state==='stop'&&n.at)return 'It\'s raining until about '+t12(n.at)+'. Umbrella time!';
+    if(n&&n.state==='rain')return 'It\'s raining! Cats hate getting wet. Umbrella!';
+    /* the ride home from school, 2 to 4 PM: the highest hourly chance in that window */
+    var pm=0;if(d0&&HV.local().h<16)(d0.hours||[]).forEach(function(x){var h=+x.t.slice(11,13);if(h>=14&&h<=16&&x.precip_pct>pm)pm=x.precip_pct;});
+    if(pm>=50)return 'Rain may come at pickup, '+Math.round(pm)+'%. Pack an umbrella!';
+    return null;
+  }
+  /* the picture cat (cats/*.webp, from Yani's images in data/cats, 640 px): one per backpack rule icon, picked from
+     the day's items. The school regulars (PE, music, art, library) give way to anything else on the same day; a
+     dress-up day takes its color from the title ("Wear red"). Rain with something on: that cat with the umbrella and
+     puddle behind her; rain on a plain day: the raincoat cat. Nothing on: the backpack (school) or the yarn (day off). */
+  var CAT_BY_ICON={coin:'snack',book:'library',shoe:'pe',bus:'trip',star:'picture',shirt:'dressup',art:'art',music:'music',home:'home'};
+  var CAT_REGULAR={pe:1,music:1,art:1,library:1};
+  var CAT_COLORS=[['red','red|rojo'],['blue','blue|azul'],['green','green|verde'],['orange','orange|naranja'],['purple','purple|morado|violet'],['yellow','yellow|amarillo']];
+  function kitPic(P,school,rain){
+    var pick=null,reg=null;
+    P.items.forEach(function(x){var v=CAT_BY_ICON[x.r.icon];if(!v)return;
+      if(v==='dressup'){var c='orange';CAT_COLORS.forEach(function(k){if(new RegExp('\\b('+k[1]+')\\b','i').test(x.e.title))c=k[0];});v='dressup_'+c;}
+      if(CAT_REGULAR[v]){if(!reg)reg=v;}else if(!pick)pick=v;});
+    pick=pick||reg;
+    if(!pick&&rain)return '<div class="kcat pic"><img src="/frame/hv/standby/cats/rain.webp" alt=""></div>';
+    pick=pick||(school?'backpack':'weekend');
+    return '<div class="kcat pic">'+(rain?'<img class="kumb" src="/frame/hv/standby/cats/umbrella.webp" alt=""><img class="kpud" src="/frame/hv/standby/cats/puddle.webp" alt="">':'')+
+      '<img src="/frame/hv/standby/cats/'+pick+'.webp" alt=""></div>';
+  }
+  function kittyTodayFace(){
+    var t0=HV.local(),key=dayKeyOf(t0),P=packFor(key),day=HV.DAYS[t0.dow],now=HV.now().getTime();
+    var school=t0.dow>0&&t0.dow<6&&!P.off,n=P.items.length,rain=kitRain();
+    var say=rain||(P.off||!school?'No school today. Yay!':
+      n===1?'Don\'t forget: '+P.items[0].r.item+'!':n>1?n+' things for your backpack!':'Have a great day at school!');
+    var name='';day.split('').forEach(function(ch,i){name+='<span style="color:'+KIT_CANDY[i%KIT_CANDY.length]+'">'+ch+'</span>';});
+    var tags='';P.hol.forEach(function(e){tags+='<span class="khol">'+HV.esc(e.title)+'</span>';});
+    if(P.off&&P.items[0]&&!tags)tags='<span class="khol">'+HV.esc(P.items[0].e.title)+'</span>';
+    var left='<div class="kl"><div class="kbub'+(say.length>40?' long':'')+(rain?' rain':'')+'"><em>'+(t0.h<12?'Good morning!':'Meow!')+'</em>'+HV.esc(say)+'</div>'+kitPic(P,school,!!rain)+'</div>';
+    var right='<div class="kr"><div class="khd"><span class="ktag">Today is</span>'+
+      '<div class="kday'+(day.length>8?' long':'')+'">'+name+'</div>'+
+      '<div class="kdate"><span>'+HV.MONTHS[t0.mo-1]+' '+t0.d+'</span>'+tags+'</div></div>';
+    /* what's still ahead today */
+    var ev=P.other.filter(function(e){return new Date(e.end||e.start).getTime()>now;});
+    right+='<h3>What\'s happening</h3><div class="kev">';
+    ev.slice(0,school?3:5).forEach(function(e,i){
+      right+='<div class="kc" style="background:'+KIT_CANDY[i%KIT_CANDY.length]+'"><em>'+whenLabel(e)+'</em><b>'+HV.esc(e.title)+'</b></div>';});
+    if(!ev.length)right+='<div class="kc none"><b>Nothing else on the calendar. Free time!</b></div>';
+    right+='</div>';
+    if(school){right+='<h3>In my backpack</h3><div class="kbp">';
+      right+=kitPack(P.items)+'</div>';}
+    right+='</div>';
+    var d=el('f-kit k-am',(rain?'':'<i class="ksun"></i>')+left+right+'<div class="hv-chip kclk tnum">'+HV.hm()+' '+HV.ampm()+'</div>');
+    d.tick=function(){var c=d.querySelector('.kclk');if(c)c.textContent=HV.hm()+' '+HV.ampm();};
     return d;
   }
   /* ---------- today board: the Today screen redesigned for Standby. A big clock with the day, the warm Modern
@@ -617,7 +684,7 @@ window.HVStandby={
     }
     return {off:off,why:why,rows:out};
   }
-  var FACES={alert:alertFace,board:boardFace,tomorrow:tomorrowFace,info:infoFace,numerals:numeralsFace,month:monthFace,minimal:minimalFace,photo:photoFace,depth:photoFace,plain:photoFace,analog:analogFace,week:weekFace,cal:weekFace,weather:weatherFace,today:todayFace,date:todayFace,np:npFace,up:upFace};
+  var FACES={alert:alertFace,board:boardFace,tomorrow:tomorrowFace,kitty:kittyFace,kittyam:kittyTodayFace,info:infoFace,numerals:numeralsFace,month:monthFace,minimal:minimalFace,photo:photoFace,depth:photoFace,plain:photoFace,analog:analogFace,week:weekFace,cal:weekFace,weather:weatherFace,today:todayFace,date:todayFace,np:npFace,up:upFace};
 
   /* ---------- loop ---------- */
   function show(){
