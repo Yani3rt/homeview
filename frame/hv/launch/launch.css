@@ -110,6 +110,11 @@ html.look-glass .w.tmr{background:rgba(0,0,0,.22)}
 .wk .dn{font-size:2.3vh;font-weight:700;display:flex;justify-content:space-between;color:var(--ink-2)}
 .wk .d.now .dn{color:var(--orange)}
 .wk .dn b{font-family:var(--sfr);color:var(--ink)}
+.wk .dn{align-items:center;gap:.3vw;min-width:0}
+.wk .dn span{white-space:nowrap}
+.wk .dn .bp{flex:1;display:flex;gap:.25vw;min-width:0;overflow:hidden}
+.wk .dn .bp i{flex:none;width:2.7vh;height:2.7vh;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.wk .dn .bp svg{width:1.7vh;height:1.7vh}
 .wk .d.now .dn b{color:#fff}
 .wk .e{font-size:1.95vh;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:.4vw;min-width:0}
 .wk .e i{width:.7vh;height:2.2vh;border-radius:1vh;flex:0 0 auto}

@@ -130,7 +130,7 @@
     return w(left?'on':'','/frame/hv/shopping/','Shopping','cart',body);
   }
 
-  // This week: tomorrow and the 6 days after, each with up to 2 events and its dinner (or a + Dinner to plan one)
+  // This week: tomorrow and the 6 days after, each with up to 2 events, backpack stickers by the day name, and its dinner
   function weekTile(){
     var P=d.plan,meals=(P&&P.days)||{},evs=(d.frame&&d.frame.calendar_events)||[],now=HV.now().getTime(),h='',j;
     for(j=1;j<=7;j++){
@@ -138,7 +138,10 @@
       var on=evs.filter(function(e){var s=dayKey(e.start);if(!e.all_day)return s===k;
           var en=e.end?dayKey(e.end):s;return s<=k&&(k<en||s===k);})
         .sort(function(a,b){return (b.all_day?1:0)-(a.all_day?1:0)||new Date(a.start)-new Date(b.start);});
-      h+='<div class="d" data-href="/frame/hv/calendar/"><div class="dn">'+dn+'<b>'+(+k.slice(8,10))+'</b></div>';
+      // backpack stickers next to the day name: what the backpack rules find in that day's calendar (up to 3)
+      var bp='',seen={};on.forEach(function(e){if(HV.isHoliday(e.cal))return;var r=HV.packHit(e.title);if(!r||seen[r.item]||bp.split('<i').length>3)return;seen[r.item]=1;
+        bp+='<i style="background:'+(HV.PACK_COLOR[r.icon]||'#8e8e93')+'">'+HV.packIcon(r.icon,'#fff')+'</i>';});
+      h+='<div class="d" data-href="/frame/hv/calendar/"><div class="dn"><span>'+dn+'</span>'+(bp?'<span class="bp">'+bp+'</span>':'')+'<b>'+(+k.slice(8,10))+'</b></div>';
       // room for 2 event lines above a dinner (3 without one); past that, the last line is "+N more"
       var room=meal?2:3,show=on.length>room?room-1:on.length;
       on.slice(0,show).forEach(function(e){h+='<div class="e"><i style="background:'+HV.calColor(e.cal)+'"></i><span>'+HV.esc(e.title)+'</span></div>';});
