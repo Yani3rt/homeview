@@ -12,19 +12,56 @@
 
   "calendars": [
     {"name": "Family", "color": "#ff9f0a", "url": "samples/sample-calendar.ics"},
+    {"name": "School", "color": "#0a84ff", "url": "https://calendar.example.com/YOUR_PRIVATE_CALENDAR.ics"},
     {"name": "Holidays", "color": "#34c759", "holidays": true, "url": "https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics"}
   ],
 
   "sonos": {"enabled": false, "hosts": []},
   "spotify": {"client_id": "", "client_secret": "", "redirect_uri": "http://127.0.0.1:8890/callback"},
 
-  "meals": {"provider": "themealdb", "api_key": "1", "cache_hours": 168},
-  "paprika": {"email": "", "password": "", "sync_hours": 6},
+  "meals": {"provider": "themealdb", "api_key": "1", "cache_hours": 168, "week_starts": "monday"},
+  "paprika": {"email": "you@example.com", "password": "YOUR_PAPRIKA_PASSWORD", "sync_hours": 6},
 
   "timers": [
     {"label": "Pasta", "seconds": 600},
     {"label": "Eggs", "seconds": 420},
     {"label": "Rice", "seconds": 1080},
     {"label": "Tea", "seconds": 240}
+  ],
+
+  "cameras": [
+    {"name": "Front door", "url": "rtsp://192.0.2.50:554/stream2", "username": "YOUR_CAMERA_USER", "password": "YOUR_CAMERA_PASSWORD",
+     "fps": 10, "width": 640, "quality": 7, "default": true},
+    {"name": "Backyard", "url": "rtsp://192.0.2.51:554/stream2", "fps": 10, "width": 640, "quality": 7}
+  ],
+
+  "home_assistant": {
+    "url": "http://homeassistant.example.local:8123",
+    "token": "YOUR_LONG_LIVED_ACCESS_TOKEN",
+    "title": "Devices",
+    "entities": [
+      {"section": "Kitchen"},
+      {"entity": "light.kitchen", "name": "Lights"},
+      {"section": "Living room"},
+      {"entity": "climate.living_room", "name": "AC"},
+      {"entity": "sensor.outside_temperature", "name": "Outside"}
+    ],
+    "alerts_entity": "sensor.weather_alerts",
+    "alerts_min_severity": "Moderate"
+  },
+
+  "reminders": {"list": "Groceries", "days": 7, "interval": 30, "skip": ["water", "salt", "pepper"]},
+
+  "tides": {"station": "YOUR_NOAA_STATION_ID", "king_ft": 2.4},
+  "storms": {"basins": ["AL"], "radius_mi": 1500, "near_mi": 400},
+
+  "backpack": [
+    {"match": "snack", "item": "Snack money", "note": "", "icon": "coin"},
+    {"match": "library", "item": "Library book", "note": "Return it", "icon": "book"},
+    {"match": "gym|pe", "item": "Sneakers", "note": "", "icon": "shoe"},
+    {"match": "music|band", "item": "Instrument", "note": "", "icon": "music"},
+    {"match": "art", "item": "Art smock", "note": "", "icon": "art"},
+    {"match": "field trip", "item": "Permission slip", "note": "Signed", "icon": "bus"},
+    {"match": "no school|holiday", "item": "Day off", "note": "", "icon": "home", "off": true}
   ]
 }
