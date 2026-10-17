@@ -203,8 +203,10 @@ Shopping (`/frame/hv/shopping/`) lists every ingredient of the dinners planned i
 **Apple Reminders sync (Mac server only).** The list can stay in sync with an Apple Reminders list, so Siri and your phone see it, through [remindctl](https://github.com/openclaw/remindctl) (`brew install steipete/tap/remindctl`):
 
 ```json
-"reminders": {"list": "Groceries", "days": 7, "interval": 30, "skip": ["water", "salt", "pepper"]}
+"reminders": {"enabled": true, "list": "Groceries", "days": 7, "interval": 30, "skip": ["water", "salt", "pepper"]}
 ```
+
+Sync is optional: it runs only when `enabled` isn't `false`, a `list` is set and remindctl is installed. Otherwise (a Linux server, a Mac without remindctl, or `"enabled": false`) the Shopping list is a plain local list shared by the frames, with no errors.
 
 Every unchecked item (hand-added ones and the planned dinners' ingredients) becomes a reminder; reminders added on a phone show up on the frames; checking off, counts (`Milk ×2`) and deletions sync both ways. The server needs Reminders access: run it through `install-mac-native.sh` (see [Running on a Mac](#running-on-a-mac)) and allow it when macOS asks. Status: `http://<server>:8806/api/reminders/status`.
 

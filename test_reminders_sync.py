@@ -56,10 +56,30 @@ class SyncTest(unittest.TestCase):
         RS.sync_once(); self.assertEqual(self.frame()['lemon']['qty'], 2)
         RS.sync_once(); self.assertEqual(sorted(self.titles()), sorted(['Chicken', 'Rice', 'Milk ×5', '2 Lemons']))
 
+
+
+class LocalOnlyTest(unittest.TestCase):
+    """No remindctl, or sync turned off: a plain local list, no errors (runs everywhere, no fake needed)."""
+    def setUp(self):
+        self.which = RS.shutil.which; RS.shutil.which = lambda n: None
+        self.isfile = RS.os.path.isfile; RS.os.path.isfile = lambda p: False
+    def tearDown(self):
+        RS.shutil.which = self.which; RS.os.path.isfile = self.isfile
+
     def test_missing_binary(self):
         with temp_config(reminders={'list': 'X', 'remindctl': '/nope'}):
-            RS.shutil.which = lambda n: None
-            RS.sync_once(); self.assertFalse(RS._status['ok']); self.assertIn('not installed', RS._status['error'])
+            meals_api.add_item('Milk')
+            RS.sync_once(); self.assertFalse(RS._status['enabled']); self.assertIsNone(RS._status['error'])
+            self.assertIn('local', RS._status['note']); self.assertIn('milk', {i['key'] for i in meals_api.shopping_doc(7)['items']})
+
+    def test_disabled(self):
+        RS.os.path.isfile = self.isfile
+        with temp_config(reminders={'enabled': False, 'list': 'X', 'remindctl': FAKE or '/bin/sh'}):
+            run, RS.run = RS.run, lambda *a, **k: self.fail('remindctl run while disabled')
+            try:
+                RS.sync_once(); self.assertFalse(RS._status['enabled']); self.assertIsNone(RS._status['error'])
+            finally:
+                RS.run = run
 
 
 if __name__ == '__main__':

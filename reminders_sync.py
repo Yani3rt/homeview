@@ -1,7 +1,10 @@
 """Two-way sync between the Shopping list and an Apple Reminders list, through remindctl (EventKit) on the Mac.
 
-    config.json:  "reminders": {"list": "Groceries", "days": 7, "interval": 30,
+    config.json:  "reminders": {"enabled": true, "list": "Groceries", "days": 7, "interval": 30,
                                 "skip": ["water", "salt", "pepper"], "remindctl": ""}
+
+Sync runs only when "enabled" is not false, a list is set, and remindctl is found; otherwise the Shopping list
+is a plain local list (no errors, so a Linux server or a Mac without remindctl just leaves it out).
 
 What syncs (every `interval` seconds, and a few seconds after any change on a frame):
   * every unchecked Shopping item (hand-added items; planned-dinner ingredients for the next `days` days too
@@ -25,7 +28,7 @@ MAX_CREATE = 60                       # per sync, so a first sync of a big plan 
 
 _lock = threading.Lock()
 _kick = threading.Event()
-_status = {'enabled': False, 'ok': None, 'error': None, 'last': None, 'list': None, 'items': 0}
+_status = {'enabled': False, 'ok': None, 'error': None, 'note': None, 'last': None, 'list': None, 'items': 0}
 
 
 class RemindError(Exception):
@@ -45,7 +48,8 @@ def settings():
         interval = 30
     skip = c.get('skip')
     skip = [str(s) for s in skip] if isinstance(skip, list) else DEFAULT_SKIP
-    return {'list': str(c.get('list') or '').strip(), 'days': days, 'interval': interval,
+    return {'enabled': c.get('enabled', True) is not False,
+            'list': str(c.get('list') or '').strip(), 'days': days, 'interval': interval,
             'skip': {meals_api.ingredient_key(s) for s in skip}, 'bin': str(c.get('remindctl') or '').strip()}
 
 
@@ -114,8 +118,11 @@ def _notes(it):
 # ------------------------------------------------------------------ one sync
 def sync_once():
     conf = settings()
-    if not conf['list']:
-        _status.update(enabled=False, ok=None, error=None); return
+    if not conf['enabled'] or not conf['list']:
+        _status.update(enabled=False, ok=None, error=None, note=None); return
+    if not find_bin(conf):                            # no remindctl here (Linux, or not installed): local list only
+        _status.update(enabled=False, ok=None, error=None, note='remindctl not found: local list only'); return
+    _status['note'] = None
     _status.update(enabled=True, list=conf['list'])
     with _lock:
         try:

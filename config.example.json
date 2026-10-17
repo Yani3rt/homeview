@@ -50,7 +50,7 @@
     "alerts_min_severity": "Moderate"
   },
 
-  "reminders": {"list": "Groceries", "days": 7, "interval": 30, "skip": ["water", "salt", "pepper"]},
+  "reminders": {"enabled": true, "list": "Groceries", "days": 7, "interval": 30, "skip": ["water", "salt", "pepper"]},
 
   "tides": {"station": "YOUR_NOAA_STATION_ID", "king_ft": 2.4},
   "storms": {"basins": ["AL"], "radius_mi": 1500, "near_mi": 400},
