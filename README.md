@@ -13,7 +13,7 @@ The screenshots were taken from this repository with its sample data (a made-up 
 3. [**Kitty faces**](#kitty-faces-and-backpack-rules): a cat-themed day for the kids, with backpack reminders. Cat image changes per your rules.
 4. [**Weather and calendars**](#today-weather-and-calendars): forecast, air quality, ICS calendars, tides, hurricane watch and weather alerts.
 5. [**Meal planning**](#meal-planning): TheMealDB or **Paprika** recipes, a 7-day plan and a step-by-step cook view.
-6. [**Shopping list**](#shopping-list-and-apple-reminders): every planned ingredient merged, **synced** with **Apple Reminders**. (Apple)
+6. [**Shopping list**](#shopping-list-and-apple-reminders): every planned ingredient merged, with optional **Apple Reminders** sync. (Apple)
 7. [**Kitchen timers**](#kitchen-timers): shared timers with one-tap quick timers.
 8. [**Music**](#music-sonos-and-spotify): Sonos rooms and Spotify.
 9. [**Smart Home and Sleep Mode**](#smart-home-and-sleep-mode): **Home Assistant** tiles, entities, automations, scenes.
@@ -200,7 +200,7 @@ Shopping (`/frame/hv/shopping/`) lists every ingredient of the dinners planned i
 - **Clear checked** unchecks the recipe ingredients and drops the hand-added items you checked off, since you bought them.
 - **Buy again** cards hold the things you buy often: tap one to put it on the list (it fades out until it's bought). Edit the cards on the frame (Edit).
 
-**Apple Reminders sync (Mac server only).** The list can stay in sync with an Apple Reminders list, so Siri and your phone see it, through [remindctl](https://github.com/openclaw/remindctl) (`brew install steipete/tap/remindctl`):
+**Apple Reminders sync (optional, Mac server only).** The list can stay in sync with an Apple Reminders list, so Siri and your phone see it, through [remindctl](https://github.com/openclaw/remindctl) (`brew install steipete/tap/remindctl`):
 
 ```json
 "reminders": {"enabled": true, "list": "Groceries", "days": 7, "interval": 30, "skip": ["water", "salt", "pepper"]}
@@ -361,7 +361,7 @@ Copy `config.example.json` to `config.json`. Every key is optional; a missing ke
 | `backpack` | see [Kitty faces](#kitty-faces-and-backpack-rules) | Backpack rules for the Tomorrow and Kitty faces (up to 30) |
 | `cameras` | see [Camera](#camera) | RTSP cameras for the Camera screen (older single `camera` still works) |
 | `home_assistant` | see [Smart Home](#smart-home-and-sleep-mode) | Entities on the Smart Home screen, and [weather alerts](#weather-alerts) |
-| `reminders` | see [Shopping list](#shopping-list-and-apple-reminders) | Two-way sync with an Apple Reminders list (Mac only) |
+| `reminders` | see [Shopping list](#shopping-list-and-apple-reminders) | Optional two-way sync with an Apple Reminders list (Mac with remindctl only); `"enabled": false` turns it off |
 | `tides` | `{"station": "", "king_ft": 2.4}` | NOAA tide station for the Tides tile ([Tides](#tides-and-hurricane-watch)) |
 | `storms` | `{"basins": ["AL"], "radius_mi": 1500, "near_mi": 400}` | [Hurricane watch](#tides-and-hurricane-watch) |
 
@@ -421,7 +421,7 @@ tides_api.py       NOAA tides and water temperature                   (/api/tide
 hv_api.py          shared timers, remote commands, wallpapers, fonts  (/api/hv/*)
 camera_api.py      RTSP camera relayed as MJPEG through ffmpeg        (/api/camera/*)
 ha_api.py          Home Assistant entities and actions, weather alerts (/api/ha/*)
-reminders_sync.py  two-way sync with an Apple Reminders list           (/api/reminders/status)
+reminders_sync.py  optional two-way sync with Apple Reminders  (/api/reminders/status)
 frame_api.py       Sonos and the photo folder                         (/api/frame/music, /api/frame/photos)
 spotify_api.py     Spotify Web API                                    (/api/frame/spotify/*)
 frame_img.py       resized photo copies
