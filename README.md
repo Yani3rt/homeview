@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/images/hero.jpg" alt="HomeView on three photo frames: the Home screen, the Today screen and a Standby clock" width="100%"></p>
+<p align="center"><img src="docs/images/launcher.jpg" alt="The HomeView Home launcher: a greeting and date, tiles for Today, Weather, Smart Home, Tonight, Timer, Shopping and Photos, and a week strip of events and dinners" width="100%"></p>
 
 # HomeView
 
@@ -6,7 +6,7 @@ HomeView is a kitchen-wall home screen in the style of Apple's HomeView, for ine
 
 A small Python server on your home network serves the pages; each frame shows them full screen in its browser. There are no accounts, no cloud service of its own and no database. Everything specific to your house lives in one file, `config.json`.
 
-The screenshots in this README were taken from this repository with its sample data (a made-up calendar, drawn sample photos and a few TheMealDB recipes). They predate the launcher redesign and the Kitty faces, so the Home screen now looks different from the pictures; the text below describes the current version.
+The screenshots in this README were taken from this repository with its sample data (a made-up calendar, drawn sample photos and a few TheMealDB recipes). The top image and the screenshots in each section show the current version; the older overview images further down (the Standby faces animation, the Meals screens and the screen strip) predate the launcher redesign and the Kitty faces, so their Home screen looks different from today's.
 
 ## Features
 
