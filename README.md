@@ -216,6 +216,8 @@ and `sf-rounded.woff2` in `fonts_dir`. Without them, each device uses its own sy
 
 The launcher (`/frame/hv/`) is the screen the frame comes back to. From top to bottom:
 
+![The Home launcher: a Rain chip, the Kids paw and Settings, the Today card with the next event, Weather, Smart Home, Tonight, Timer, Shopping and Photos tiles, and the week strip with backpack icons](docs/images/launcher.jpg)
+
 - **Greeting and date line**, with the live time (there is no separate clock button).
 - **Top buttons:** Camera (when a camera is set up), Sleep Mode (9:30 PM to 3 AM), the Rain chip when rain is coming, the Kids button (a black button with an orange cat paw) and Settings. The Kids button opens Kitty today before 3 PM and Kitty tomorrow from 3 PM; the face goes back Home after a minute untouched, or at a tap.
 - **Second row of chips**, right-aligned under the buttons, only when they apply: a weather alert and Cooler outside.
