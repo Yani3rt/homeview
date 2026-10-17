@@ -176,3 +176,10 @@ html.look-glass .hv-chip.hv-sleep.on{background:rgba(190,185,255,.45);color:#fff
 /* "Cooler outside" chip: a soft mint, the one good-news chip */
 .hv-chip.hv-cool{background:#d6f2ea;color:#1e4a44;text-decoration:none;font-weight:700}
 html.look-glass .hv-chip.hv-cool{background:rgba(160,235,215,.4);color:#fff}
+
+/* top-right chrome in two rows: icon buttons on top, heads-up chips under them (they never reach the greeting) */
+.hv-chrome.two{left:32vw;flex-wrap:wrap;justify-content:flex-end;align-content:flex-start;row-gap:0;pointer-events:none}
+.hv-chrome.two>*{pointer-events:auto}
+.hv-chrome.two .hv-brk{flex:0 0 100%;height:0;order:1}
+.hv-chrome.two .hv-chip.hv-alert,.hv-chrome.two .hv-chip.hv-cool,.hv-chrome.two .hv-chip.hv-rain{order:2;margin-top:1.2vh;height:5.4vh;font-size:2.2vh;padding:0 1.6vh;white-space:nowrap;min-width:0;max-width:21vw}
+.hv-chrome.two .hv-chip.hv-rain{max-width:27vw}
