@@ -312,6 +312,21 @@ curl -X POST http://<server>:8806/api/hv/command \
 
 Screens: `dinner`, `shopping`, `standby`, `today`, `timer`, `meals`, `weather`, `calendar`, `music`, `photos`, `camera`, `ha`. Timers start the same way at `/api/hv/timer` with `{"action": "start", "label": "Pasta", "seconds": 600}`.
 
+### From Home Assistant (configuration.yaml):
+
+```yaml
+rest_command:
+  kitchen_frame_open:
+    url: "http://<server>:8806/api/hv/command"
+    method: POST
+    headers:
+      Origin: "http://<server>:8806"
+    content_type: "application/json"
+    payload: '{"action": "open", "screen": "{{ screen }}"}'
+```
+Then call it in an automation with action: rest_command.kitchen_frame_open and data: {screen: camera}.
+
+
 ## Hardware and why the pages are ES5
 
 - It was built for two frames: a 10-inch at 1280x800 and a 15-inch at 1920x1080. Sizes are in `vh`/`vw`, so one page fits both. Any tablet or browser works too.
