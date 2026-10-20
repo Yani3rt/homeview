@@ -41,7 +41,7 @@
   // Once today is done the card becomes Tomorrow: its weather, sunrise and the first thing on the calendar.
   function todayTile(){
     var tk=key(HV.local()),now=HV.now().getTime(),dim='style="color:rgba(235,235,245,.6)"';
-    if(!(HV.cfg.calendars||[]).length)return w('today s2','/frame/hv/today/','Today','cal','<div class="line" '+dim+'>No calendars yet. Add ICS links in config.json</div>');
+    if(!(HV.cfg.calendars||[]).length)return w('today s2','/frame/hv/calendar/','Today','cal','<div class="line" '+dim+'>No calendars yet. Add ICS links in config.json</div>');
     var up=((d.frame&&d.frame.calendar_events)||[]).filter(function(e){return new Date(e.end||e.start).getTime()>now&&new Date(e.start).getTime()<now+14*864e5;})
       .sort(function(a,b){return new Date(a.start)-new Date(b.start);});
     function today(e){var s=dayKey(e.start);if(!e.all_day)return s===tk;var en=e.end?dayKey(e.end):s;return s<=tk&&(tk<en||s===tk);}
@@ -56,7 +56,7 @@
       rows+='<div class="ev"><i style="background:'+HV.calColor(e.cal)+'"></i><span>'+HV.esc(e.title)+'</span>'+em+'</div>';
     });
     var left=tod.length-3;
-    return w('today s2','/frame/hv/today/','Today'+(left>0?'<span class="more">+'+left+' more</span>':''),'cal','<div class="evs">'+rows+'</div>');
+    return w('today s2','/frame/hv/calendar/','Today'+(left>0?'<span class="more">+'+left+' more</span>':''),'cal','<div class="evs">'+rows+'</div>');
   }
 
   function tomorrowTile(){
@@ -75,7 +75,7 @@
     });
     if(!cal)cal='<div class="none">'+ic('cal')+'<span>Nothing on the calendar</span></div>';
     var left=evs.length-3;
-    return w('tmr s2','/frame/hv/weather/','Tomorrow · '+HV.DAYS[t.dow]+(left>0?'<span class="more">+'+left+' more</span>':''),'sun',
+    return w('tmr s2','/frame/hv/calendar/','Tomorrow · '+HV.DAYS[t.dow]+(left>0?'<span class="more">+'+left+' more</span>':''),'sun',
       '<div class="tcols"><div class="tds">'+wxs+'</div><div class="tcal">'+cal+'</div></div>');   // same dark card as Today
   }
 
