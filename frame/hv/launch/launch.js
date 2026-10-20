@@ -71,7 +71,7 @@
     if(wx&&wx.next_sunrise)wxs+=row('sunrise','Sunrise '+hm24(wx.next_sunrise));
     var cal='';
     evs.slice(0,3).forEach(function(e){
-      cal+='<div class="ev"><i style="background:'+HV.calColor(e.cal)+'"></i><em>'+(e.all_day?'All day':HV.hm(new Date(e.start)))+'</em><span>'+HV.esc(e.title)+'</span></div>';
+      cal+='<div class="ev"><i style="background:'+HV.calColor(e.cal)+'"></i>'+(e.all_day?'':'<em>'+HV.hm(new Date(e.start))+'</em>')+'<span>'+HV.esc(e.title)+'</span></div>';
     });
     if(!cal)cal='<div class="none">'+ic('cal')+'<span>Nothing on the calendar</span></div>';
     var left=evs.length-3;
