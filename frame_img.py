@@ -57,9 +57,38 @@ def resized(src, w, cache_dir=None):
         return src
 
 
-def send(handler, src, w, cache='public, max-age=86400', cache_dir=None):
-    """Send `src` at width `w` as a JPEG. False when the file cannot be read."""
-    path = resized(src, w, cache_dir)
+BLUR_W = 160
+
+
+def blurred(src, cache_dir):
+    """Path of a small, blurred, darkened copy of `src` (long edge BLUR_W): the background a
+    Standby photo sits on when it is shown whole. The frame only scales it up; it never blurs."""
+    src = Path(src)
+    import hashlib
+    out = Path(cache_dir) / 'blur' / (hashlib.sha1(str(src).encode()).hexdigest()[:20] + '.jpg')
+    try:
+        if out.exists() and out.stat().st_mtime >= src.stat().st_mtime:
+            return out
+        from PIL import Image, ImageEnhance, ImageFilter, ImageOps
+        with Image.open(src) as im:
+            im.draft('RGB', (BLUR_W * 2, BLUR_W * 2))
+            im = ImageOps.exif_transpose(im).convert('RGB')
+            im.thumbnail((BLUR_W, BLUR_W), Image.LANCZOS)
+            im = ImageEnhance.Brightness(im.filter(ImageFilter.GaussianBlur(4))).enhance(.6)
+            out.parent.mkdir(parents=True, exist_ok=True)
+            tmp = out.with_suffix('.tmp')
+            im.save(tmp, format='JPEG', quality=80)
+        tmp.replace(out)
+        return out
+    except Exception:
+        return None
+
+
+def send(handler, src, w, cache='public, max-age=86400', cache_dir=None, blur=False):
+    """Send `src` at width `w` (or its blurred background copy) as a JPEG. False when the file cannot be read."""
+    path = blurred(src, cache_dir) if blur and cache_dir else resized(src, w, cache_dir)
+    if path is None:
+        return False
     try:
         data = Path(path).read_bytes()
     except OSError:

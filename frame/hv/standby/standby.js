@@ -9,7 +9,9 @@
    Order: the Standby schedule (Settings > Standby faces, faces/sched.js): the block for this day and home
    time lists the faces, rotated in order, the first one leading when the block begins. A Photos turn plays
    RUN photos in a row. Photos stay up for Settings > Photo interval (hv-idle slide, 15/30/60 s, default 30),
-   other faces for Face interval (hv-idle face, 15/30/60/120 s, default 30). Settings > Appearance (hv-idle shade, 0/30/60) lays that much black over the stage. Severe weather
+   other faces for Face interval (hv-idle face, 15/30/60/120 s, default 30). Tall photos on a wide frame follow
+   Settings > Tall photos (hv-idle tall): 'blur' shows each one whole over a blurred copy (made on the server,
+   ?blur=1), 'pair' shows two side by side, 'both' pairs them and shows a tall photo with no partner left whole. Settings > Appearance (hv-idle shade, 0/30/60) lays that much black over the stage. Severe weather
    (while a Severe/Extreme alert is active) and Now Playing (every other slide while music plays) still
    interrupt whatever is scheduled.
 
@@ -34,9 +36,10 @@ window.HVStandby={
   var NIGHT='/frame/hv/night/'+(Q.get('back')==='faces'?'?back=faces':'');   // the Night clock is its own page
   if(PIN==='night'){location.replace(NIGHT);return;}
   var stage=document.getElementById('stage');
-  var IDLE={slide:30,face:30,shade:0},RUN=3;   // Settings > When untouched (settings/settings.js)
+  var IDLE={slide:30,face:30,shade:0,tall:'both'},RUN=3;   // Settings > When untouched (settings/settings.js)
   try{var iv=JSON.parse(localStorage.getItem('hv-idle')||'null')||{};
-    if([15,30,60].indexOf(+iv.slide)>=0)IDLE.slide=+iv.slide;if([15,30,60,120].indexOf(+iv.face)>=0)IDLE.face=+iv.face;if([0,30,60].indexOf(+iv.shade)>=0)IDLE.shade=+iv.shade;}catch(e){}
+    if([15,30,60].indexOf(+iv.slide)>=0)IDLE.slide=+iv.slide;if([15,30,60,120].indexOf(+iv.face)>=0)IDLE.face=+iv.face;if([0,30,60].indexOf(+iv.shade)>=0)IDLE.shade=+iv.shade;
+    if(['blur','pair','both'].indexOf(iv.tall)>=0)IDLE.tall=iv.tall;}catch(e){}
   var data={frame:null,photos:[],music:null,plan:null,alerts:[]};
   var seenSevere={};   // severe alert ids already shown: a new one jumps the queue once
   var faceIx=0, slideN=0, cur=null, timer=null, order={deck:[],last:null};
@@ -96,6 +99,17 @@ window.HVStandby={
     var byId={};ps.forEach(function(p){byId[p.id]=p;});
     return byId[HVStandby.next(order,ps.map(function(p){return p.id;}),Math.random)];
   }
+  /* a portrait photo on a landscape frame: cover would show only about half of it */
+  function tall(p){return innerWidth>innerHeight&&p.w&&p.h&&p.w/p.h<.95;}
+  /* the next tall photo still in this round's deck, taken out of it; for 'pair', any other tall photo when the deck has none */
+  function partner(p){
+    var byId={};data.photos.forEach(function(x){byId[x.id]=x;});
+    if(PIN_PHOTO&&!order.deck.length)order.deck=HVStandby.shuffle(data.photos.map(function(x){return x.id;}),Math.random);   // ?photo= preview: a partner too
+    for(var i=order.deck.length-1;i>=0;i--){var q=byId[order.deck[i]];if(q&&q.id!==p.id&&tall(q)){order.deck.splice(i,1);return q;}}
+    if(IDLE.tall!=='pair')return null;
+    var t=data.photos.filter(function(x){return x.id!==p.id&&tall(x);});
+    return t.length?t[Math.floor(Math.random()*t.length)]:null;
+  }
 
   /* ---------- faces ---------- */
   function el(cls,html){var d=document.createElement('div');d.className='slide '+cls;if(html)d.innerHTML=html;return d;}
@@ -113,17 +127,23 @@ window.HVStandby={
     if(code>=95)return 'Thunderstorms';return 'Forecast';
   }
   /* object-position that keeps the subject's focus point about 45% down the screen (cover crop) */
-  function position(p,c){
-    var sw=innerWidth,sh=innerHeight,iw=p.w||1600,ih=p.h||1200,s=Math.max(sw/iw,sh/ih);
+  function position(p,c,sw,sh){
+    sw=sw||innerWidth;sh=sh||innerHeight;var iw=p.w||1600,ih=p.h||1200,s=Math.max(sw/iw,sh/ih);
     var rx=sw/(iw*s),ry=sh/(ih*s),fx=c&&c.box?(c.box[0]+c.box[2])/2:.5,fy=c?c.focus_y:.4;
     var px=rx<1?Math.max(0,Math.min(1,(fx-.5*rx)/(1-rx))):.5, py=ry<1?Math.max(0,Math.min(1,(fy-.45*ry)/(1-ry))):.5;
     return Math.round(px*100)+'% '+Math.round(py*100)+'%';
   }
   function photoFace(){
     var p=nextPhoto();if(!p)return analogFace();
-    var pos=position(p,null), src=p.url+(p.url.indexOf('?')<0?'?':'&')+'w='+W;
+    var H=Math.round(innerHeight*(devicePixelRatio||1)),q=tall(p)&&IDLE.tall!=='blur'?partner(p):null,pic;
+    function url(x,w){return x.url+(x.url.indexOf('?')<0?'?':'&')+w;}
+    if(q){var hw=(innerWidth-6)/2;   // two tall photos, each asked at screen height so neither decodes bigger than it draws
+      pic='<img class="pl" alt="" style="object-position:'+position(p,null,hw)+'" src="'+url(p,'w='+H)+'">'+
+        '<img class="pr" alt="" style="object-position:'+position(q,null,hw)+'" src="'+url(q,'w='+H)+'">';}
+    else if(tall(p))pic='<img class="pbg" alt="" src="'+url(p,'w=160&blur=1')+'"><img class="whole" alt="" src="'+url(p,'w='+H)+'">';
+    else pic='<img alt="" style="object-position:'+position(p,null)+'" src="'+url(p,'w='+W)+'">';
     var d=el('photo');
-    d.innerHTML='<img alt="" style="object-position:'+pos+'" src="'+src+'"><div class="shade-b"></div><div class="foot">'+dateLine()+'</div><div class="ctime">'+timeText()+'</div>';
+    d.innerHTML=pic+'<div class="shade-b"></div><div class="foot">'+dateLine()+'</div><div class="ctime">'+timeText()+'</div>';
     d.tick=function(){d.querySelector('.ctime').textContent=timeText();};
     return d;
   }

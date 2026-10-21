@@ -45,6 +45,15 @@ class PhotoTests(unittest.TestCase):
         self.assertFalse(any(p.name.startswith('.w') for p in (self.dir / 'photos').rglob('*')))
         self.assertTrue(any((self.dir / 'data' / 'photo_cache').rglob('*.jpg')))
 
+    def test_blur_sends_a_small_dark_background_copy(self):
+        pid = next(x['id'] for x in F.photos_doc()['photos'] if x['w'] == 600)
+        h = FakeHandler('/api/frame/photo/%s.jpg?w=1280&blur=1' % pid)
+        self.assertTrue(F.dispatch_get(h, '/api/frame/photo/%s.jpg' % pid))
+        self.assertEqual(h.sent, [200])
+        from PIL import Image
+        self.assertEqual(Image.open(io.BytesIO(h.wfile.getvalue())).size, (107, 160))
+        self.assertTrue(any((self.dir / 'data' / 'photo_cache' / 'blur').glob('*.jpg')))
+
     def test_unknown_and_malformed_photo_ids_404(self):
         h = FakeHandler(); F.dispatch_get(h, '/api/frame/photo/' + '0' * 32 + '.jpg'); self.assertEqual(h.err, 404)
         h = FakeHandler(); self.assertFalse(F.dispatch_get(h, '/api/frame/photo/../../config.json'))

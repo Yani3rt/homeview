@@ -525,13 +525,13 @@ def photos_doc():
     return {'ok': True, 'photos': items, 'media': items, 'folder': str(config.get('photos_dir'))}
 
 
-def send_photo(handler, pid, w):
+def send_photo(handler, pid, w, blur=False):
     import frame_img
     p = photo_files().get(pid)
     if not p:
         handler.send_error(404); return
     cache = config.data_dir() / 'photo_cache'
-    if not frame_img.send(handler, p, w or 1600, 'private, max-age=86400', cache_dir=cache):
+    if not frame_img.send(handler, p, w or 1600, 'private, max-age=86400', cache_dir=cache, blur=blur):
         handler.send_error(404)
 
 def send_qr_svg(host, path='/frame/hv/music/send/'):
@@ -553,8 +553,8 @@ def dispatch_get(handler, route):
         handler._json(photos_doc()); return True
     m = re.fullmatch(r'/api/frame/photo/([0-9a-f]{32})\.jpg', route)
     if m:
-        w = (parse_qs(urlparse(handler.path).query).get('w') or [''])[0]
-        send_photo(handler, m.group(1), w); return True
+        q = parse_qs(urlparse(handler.path).query)
+        send_photo(handler, m.group(1), (q.get('w') or [''])[0], (q.get('blur') or [''])[0] == '1'); return True
     if route == '/api/frame/music-qr.svg':
         svg, _ = send_qr_svg(handler.headers.get('Host', ''), '/frame/hv/music/send/')
         body = svg.encode()
