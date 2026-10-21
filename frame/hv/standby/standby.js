@@ -380,14 +380,15 @@ window.HVStandby={
   /* a day's calendar entries split into backpack items and everything else (all-day or timed: her class schedule
      has timed entries like "Physical Education" 8-9 AM) */
   function packFor(key){
-    var items=[],other=[],seen={},off=false,hol=[],rs=pack();
+    var items=[],other=[],all=[],seen={},off=false,hol=[],rs=pack();
     eventsOn(key).forEach(function(e){
       if(HV.isHoliday(e.cal)){hol.push(e);return;}
+      all.push(e);
       var hit=null;for(var i=0;i<rs.length;i++)if(rs[i].re.test(e.title)){hit=rs[i];break;}
       if(hit&&hit.off)off=true;
       if(hit){if(!seen[hit.item]){seen[hit.item]=1;items.push({r:hit,e:e});}}
       else other.push(e);});
-    return {items:items,other:other,off:off,hol:hol};
+    return {items:items,other:other,all:all,off:off,hol:hol};
   }
   function tint(h){var n=parseInt(h.slice(1),16);return 'rgba('+(n>>16)+','+(n>>8&255)+','+(n&255)+',.18)';}
   /* the rule's note, else the calendar title when it says more than the item ("Carrito de Snacks" under Snack money, not "Music" under Music class) */
@@ -419,8 +420,8 @@ window.HVStandby={
       right+='</section>';}
     else if(P.off)right+='<section class="ts off">'+packIcon('home','big')+'<div><b>No school tomorrow</b><span>'+HV.esc((P.items[0]&&P.items[0].e.title)||'')+'</span></div></section>';
     right+='<section class="ts"><h3>On the calendar</h3>';
-    P.other.slice(0,school?3:5).forEach(function(e){right+='<div class="te"><u style="background:'+HV.calColor(e.cal)+'"></u><b>'+HV.esc(e.title)+'</b><em>'+whenLabel(e)+'</em></div>';});
-    if(!P.other.length)right+='<div class="te none"><u></u><b>Nothing scheduled</b></div>';
+    P.all.slice(0,school?3:5).forEach(function(e){right+='<div class="te"><u style="background:'+HV.calColor(e.cal)+'"></u><b>'+HV.esc(e.title)+'</b><em>'+whenLabel(e)+'</em></div>';});
+    if(!P.all.length)right+='<div class="te none"><u></u><b>Nothing scheduled</b></div>';
     right+='<div class="te din">'+icon('fork')+'<b>'+(din?HV.esc(din):'No dinner planned yet')+'</b>'+(din?'<em class="mu">Dinner</em>':'')+'</div></section></div>';
     /* the next five school days after tomorrow */
     var strip='<div class="tw5"><h3>Next school days</h3><div class="tw5r">',n=0,i=2;
@@ -460,9 +461,9 @@ window.HVStandby={
       '<div class="kday'+(day.length>8?' long':'')+'">'+name+'</div>'+
       '<div class="kdate"><span>'+HV.MONTHS[t1.mo-1]+' '+t1.d+'</span>'+tags+'</div></div>';
     right+='<h3>What\'s happening</h3><div class="kev">';
-    P.other.slice(0,school?3:5).forEach(function(e,i){
+    P.all.slice(0,school?3:5).forEach(function(e,i){
       right+='<div class="kc" style="background:'+KIT_CANDY[i%KIT_CANDY.length]+'"><em>'+whenLabel(e)+'</em><b>'+HV.esc(e.title)+'</b></div>';});
-    if(!P.other.length)right+='<div class="kc none"><b>Nothing on the calendar. Free time!</b></div>';
+    if(!P.all.length)right+='<div class="kc none"><b>'+(school?'Just a regular school day':'Nothing on the calendar. Free time!')+'</b></div>';
     right+='</div>';
     if(school){right+='<h3>In my backpack</h3><div class="kbp">';
       right+=kitPack(P.items)+'</div>';}
@@ -517,11 +518,11 @@ window.HVStandby={
       '<div class="kday'+(day.length>8?' long':'')+'">'+name+'</div>'+
       '<div class="kdate"><span>'+HV.MONTHS[t0.mo-1]+' '+t0.d+'</span>'+tags+'</div></div>';
     /* what's still ahead today */
-    var ev=P.other.filter(function(e){return new Date(e.end||e.start).getTime()>now;});
+    var ev=P.all.filter(function(e){return new Date(e.end||e.start).getTime()>now;});
     right+='<h3>What\'s happening</h3><div class="kev">';
     ev.slice(0,school?3:5).forEach(function(e,i){
       right+='<div class="kc" style="background:'+KIT_CANDY[i%KIT_CANDY.length]+'"><em>'+whenLabel(e)+'</em><b>'+HV.esc(e.title)+'</b></div>';});
-    if(!ev.length)right+='<div class="kc none"><b>Nothing else on the calendar. Free time!</b></div>';
+    if(!ev.length)right+='<div class="kc none"><b>'+(school?'Just a regular school day':'Nothing else on the calendar. Free time!')+'</b></div>';
     right+='</div>';
     if(school){right+='<h3>In my backpack</h3><div class="kbp">';
       right+=kitPack(P.items)+'</div>';}
