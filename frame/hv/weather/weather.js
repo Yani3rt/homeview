@@ -178,7 +178,7 @@
     var s=null,i,st=(D.storms&&D.storms.storms)||[];for(i=0;i<st.length;i++)if(st[i].id===sid)s=st[i];if(!s)return;
     if(!coneEl){coneEl=document.createElement('div');coneEl.className='hv-sheet wx-cone';document.body.appendChild(coneEl);
       coneEl.onclick=function(e){if(e.target.closest('.wx-cone-x'))closeCone();};}
-    coneEl.innerHTML='<div class="cn-img"><img src="'+esc(s.cone)+'" alt="Forecast cone for '+esc(s.name)+'"></div>'+
+    coneEl.innerHTML='<div class="cn-img"><img src="'+esc(s.cone)+'" alt="Forecast cone for '+esc(s.name)+'" onerror="this.parentNode.innerHTML=\'<span class=cn-none>The forecast map is not ready yet. Try again in a few minutes.</span>\'"></div>'+
       '<div class="cn-side"><h2>'+esc(stormTitle(s))+'</h2>'+
       '<div class="cn-l">'+s.wind_mph+' mph winds'+(s.pressure?' \u00b7 '+esc(s.pressure)+' mb':'')+'</div>'+
       '<div class="cn-l">'+s.dist_mi+' mi '+s.dir+' of '+esc(HV.cfg.place||'home')+'</div>'+

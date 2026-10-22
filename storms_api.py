@@ -22,7 +22,9 @@ import config
 import weather_api
 
 FEED = 'https://www.nhc.noaa.gov/CurrentStorms.json'
-CONE = 'https://www.nhc.noaa.gov/storm_graphics/{folder}/{ID}_5day_cone.png'
+CONE = 'https://www.nhc.noaa.gov/storm_graphics/{folder}/{ID}_5day_cone_{kind}.png'
+CONE_KINDS = ('with_line_and_wind', 'no_line_and_wind')           # NHC's file names, best first
+CONE_FOLDER = {'AL': 'AT', 'EP': 'EP', 'CP': 'CP'}                # NHC files Atlantic storms (AL) under AT
 ADVISORY_SLOTS = ((5, 10), (11, 10), (17, 10), (23, 10))      # Eastern time: 10 min after the 5/11 AM/PM advisories
 CLASSES = {'HU': 'Hurricane', 'TS': 'Tropical Storm', 'TD': 'Tropical Depression', 'STS': 'Subtropical Storm',
            'SD': 'Subtropical Depression', 'PTC': 'Potential Tropical Cyclone', 'PC': 'Post-Tropical Cyclone',
@@ -178,9 +180,19 @@ def cone_jpeg(sid):
     f = _cone_file(sid, s['adv_num'])
     if f.exists():
         return f.read_bytes()
-    url = CONE.format(folder=sid[:2].upper() + sid[2:4], ID=sid.upper())
-    with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': weather_api.UA}), timeout=30) as r:
-        raw = r.read()
+    basin = sid[:2].upper()
+    raw, err = None, None
+    for kind in CONE_KINDS:
+        url = CONE.format(folder=CONE_FOLDER.get(basin, basin) + sid[2:4], ID=sid.upper(), kind=kind)
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': weather_api.UA}), timeout=30) as r:
+                raw = r.read()
+            break
+        except Exception as e:
+            err = '%s: %s' % (url, e)
+    if not raw:
+        print('storms: no cone for %s (%s)' % (sid, err), flush=True)
+        return None
     try:
         from PIL import Image
         im = Image.open(io.BytesIO(raw)).convert('RGB'); buf = io.BytesIO()

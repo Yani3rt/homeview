@@ -105,6 +105,7 @@ body:has(.hv-tpill) .wx{padding-bottom:11vh}          /* room for running-timer 
 .wx-cone{inset:0;max-height:none;border-radius:0;background:#0b1424;color:#fff;padding:3vh 3vw;display:flex;gap:2.4vw;align-items:center;z-index:60}
 .wx-cone .cn-img{flex:1.6;min-width:0;height:100%;display:flex;align-items:center;justify-content:center}
 .wx-cone .cn-img img{max-width:100%;max-height:100%;border-radius:1.6vh;background:#fff}
+.wx-cone .cn-none{font-size:3vh;font-weight:600;opacity:.7;text-align:center;max-width:70%}
 .wx-cone .cn-side{flex:1;min-width:0;display:flex;flex-direction:column;gap:1.2vh}
 .wx-cone h2{margin:0 0 1vh;font-size:4.6vh;font-weight:700;letter-spacing:-.02em;line-height:1.1}
 .wx-cone .cn-l{font-size:3vh;font-weight:600}
