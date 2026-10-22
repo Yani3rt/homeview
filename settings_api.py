@@ -6,6 +6,7 @@
                          {"section": "calendars", "calendars": [{"name", "color", "holidays"}, ...]}
                          {"section": "backpack", "backpack": [{"match", "item", "note", "icon", "off"}, ...]}
                          {"section": "backpack", "reset": true}   (back to the built-in list)
+                         {"section": "storms", "enabled", "basins": ["AL", "EP", "CP"], "radius_mi", "near_mi"}
 
 Only these values are ever read or written here. Secrets and device addresses (calendar links, cameras,
 Home Assistant, Spotify, Sonos, API keys, server, folders, coordinates) are never sent to a frame and a POST
@@ -25,6 +26,7 @@ COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
 MAX_TIMERS = 4   # Tonight and the Timer screen show the first four
 MAX_BODY = 16384
 MAX_RULES = 30
+BASINS = ("AL", "EP", "CP")   # Atlantic (Gulf and Caribbean too), Eastern Pacific, Central Pacific
 # the Tomorrow face's built-in backpack rules (PACK_DEFAULT in frame/hv/standby/standby.js), used until config.json has "backpack"
 BACKPACK_DEFAULT = [
     {"match": "snack", "item": "Snack money", "note": "", "icon": "coin"},
@@ -66,7 +68,15 @@ def settings_doc():
         "backpack": config.backpack_rules(c.get("backpack")) if isinstance(c.get("backpack"), list) else BACKPACK_DEFAULT,
         "backpack_default": not isinstance(c.get("backpack"), list),
         "backpack_icons": sorted(config.BACKPACK_ICONS),
+        "storms": _storms(c),
     }
+
+
+def _storms(c):
+    import storms_api
+    st = storms_api.settings()
+    return {"enabled": st["enabled"], "basins": [b for b in BASINS if b in st["basins"]],
+            "radius_mi": int(st["radius"]), "near_mi": int(st["near"])}
 
 
 def _apply(raw, payload):
@@ -140,6 +150,28 @@ def _apply(raw, payload):
                 rule["off"] = True
             out.append(rule)
         raw["backpack"] = out
+    elif section == "storms":
+        basins = payload.get("basins")
+        if not isinstance(basins, list) or not all(b in BASINS for b in basins):
+            raise ValueError("Pick the oceans to watch")
+        enabled = payload.get("enabled") is not False
+        if enabled and not basins:
+            raise ValueError("Pick at least one ocean, or turn storms off")
+        try:
+            radius, near = int(payload.get("radius_mi")), int(payload.get("near_mi"))
+        except (TypeError, ValueError):
+            raise ValueError("Bad distance")
+        if not 250 <= radius <= 5000:
+            raise ValueError("Show storms from 250 to 5,000 miles away")
+        if not 50 <= near <= radius:
+            raise ValueError("Near must be from 50 miles up to the show distance")
+        st = raw.get("storms") if isinstance(raw.get("storms"), dict) else {}
+        st.update(basins=[b for b in BASINS if b in basins], radius_mi=radius, near_mi=near)
+        if enabled:
+            st.pop("enabled", None)
+        else:
+            st["enabled"] = False
+        raw["storms"] = st
     else:
         raise ValueError("Unknown settings section")
     return raw

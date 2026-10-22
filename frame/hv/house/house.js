@@ -1,7 +1,7 @@
 /* Household settings (/frame/hv/house/): the part of config.json every frame shares and may edit, through
    GET/POST /api/settings (settings_api.py): home name, place name and units; the quick timer buttons on Tonight and the Timer screen (up to four); each
    calendar's name, color and Holidays switch; the backpack rules for Standby's Tomorrow and Today board faces
-   (config.json "backpack"; the built-in list until the first save). Each card saves on its own Save button, and a
+   (config.json "backpack"; the built-in list until the first save); and the tropical storm watch (config.json "storms"). Each card saves on its own Save button, and a
    save only replaces that card's values. Secrets never reach here. ES5. */
 (function(){
   var D=null, dirty={}, openRule=-1;
@@ -43,7 +43,19 @@
         '<div class="hs-tm"><button data-step="-1" data-ix="'+i+'" aria-label="Shorter">−</button><b class="tnum">'+dur(x.seconds)+'</b><button data-step="1" data-ix="'+i+'" aria-label="Longer">+</button></div>'+
         '<button class="hs-x" data-rm="'+i+'" aria-label="Remove '+esc(x.label)+'">×</button></div>';});
     if(D.timers.length<4)t+='<button class="st-row hs-add" data-addtimer="1">Add a timer</button>';
-    return home+grp('timers','Quick timers \u00b7 Tonight and Timer',t);
+    return home+grp('timers','Quick timers \u00b7 Tonight and Timer',t)+storms();
+  }
+  /* hurricane watch (storms_api.py): which oceans, how far away a storm shows, and how close counts as near */
+  var OCEANS=[['AL','Atlantic','Gulf and Caribbean too'],['EP','Eastern Pacific','Mexico\u2019s Pacific coast'],['CP','Central Pacific','Hawaii']];
+  var MILES=[50,100,150,200,250,300,400,500,600,750,1000,1250,1500,2000,2500,3000,4000,5000];
+  function miles(id,v){return '<div class="hs-tm"><button data-mi="'+id+'" data-d="-1" aria-label="Closer">\u2212</button><b class="tnum">'+String(v).replace(/\B(?=(\d{3})+$)/g,',')+' mi</b><button data-mi="'+id+'" data-d="1" aria-label="Farther">+</button></div>';}
+  function storms(){
+    var s=D.storms,h=row('Storm cards',seg('stormon',[['no','Off'],['yes','On']],s.enabled?'yes':'no'));
+    if(s.enabled){
+      OCEANS.forEach(function(o){h+=row(o[1]+'<small>'+o[2]+'</small>',seg('ocean'+o[0],[['no','No'],['yes','Watch']],s.basins.indexOf(o[0])>=0?'yes':'no'));});
+      h+=row('Show storms within<small>Miles from home</small>',miles('radius_mi',s.radius_mi))+
+        row('Near<small>Checked every hour when this close</small>',miles('near_mi',s.near_mi));}
+    return grp('storms','Tropical storms',h)+'<p class="st-note">Storms from the National Hurricane Center show on Weather, nearest first.</p>';
   }
   function right(){
     var c='';
@@ -95,10 +107,18 @@
     var sg=b.parentNode.getAttribute('data-id');
     if(sg){var v=b.getAttribute('data-v');
       if(sg==='temperature'||sg==='wind'){D.home[sg]=v;mark('home');}
+      else if(sg==='stormon'){D.storms.enabled=v==='yes';mark('storms');}
+      else if(sg.indexOf('ocean')===0){var bs=D.storms.basins,oc=sg.slice(5),oi=bs.indexOf(oc);if(v==='yes'&&oi<0)bs.push(oc);if(v==='no'&&oi>=0)bs.splice(oi,1);mark('storms');}
       else if(sg.indexOf('off')===0){var rr=D.backpack[+sg.slice(3)];if(v==='yes')rr.off=true;else delete rr.off;mark('backpack');}
       else{D.calendars[+sg.slice(3)].holidays=v==='yes';mark('calendars');}
       draw();return;}
     if(b.getAttribute('data-step')){var x=D.timers[+b.getAttribute('data-ix')];x.seconds=step(x.seconds,+b.getAttribute('data-step'));mark('timers');draw();return;}
+    if(b.getAttribute('data-mi')){var mk=b.getAttribute('data-mi'),mv=D.storms[mk],md=+b.getAttribute('data-d'),mj=0;
+      if(md>0){while(mj<MILES.length&&MILES[mj]<=mv)mj++;mv=MILES[Math.min(mj,MILES.length-1)];}
+      else{mj=MILES.length-1;while(mj>=0&&MILES[mj]>=mv)mj--;mv=MILES[Math.max(mj,0)];}
+      D.storms[mk]=Math.max(mk==='radius_mi'?250:50,mv);
+      if(D.storms.near_mi>D.storms.radius_mi)D.storms.near_mi=D.storms.radius_mi;   // near never reaches past the show distance
+      mark('storms');draw();return;}
     if(b.getAttribute('data-rm')){D.timers.splice(+b.getAttribute('data-rm'),1);mark('timers');draw();return;}
     if(b.getAttribute('data-addtimer')){D.timers.push({label:'Timer',seconds:300});mark('timers');draw();
       var ins=document.querySelectorAll('[data-sec="timers"]');if(ins.length){ins[ins.length-1].focus();ins[ins.length-1].select();}return;}
@@ -115,7 +135,7 @@
     if(b.getAttribute('data-color')){D.calendars[+b.getAttribute('data-ix')].color=b.getAttribute('data-color');mark('calendars');draw();return;}
     var sv=b.getAttribute('data-save');
     if(sv){var body={section:sv};
-      if(sv==='home'){for(var k in D.home)body[k]=D.home[k];}else body[sv]=D[sv];
+      if(sv==='home'){for(var k in D.home)body[k]=D.home[k];}else if(sv==='storms'){for(var q in D.storms)body[q]=D.storms[q];}else body[sv]=D[sv];
       b.disabled=true;
       HV.post('/api/settings',body).then(function(d){D[sv]=d[sv];if(sv==='backpack'){D.backpack_default=d.backpack_default;openRule=-1;}
           dirty[sv]=false;draw();HV.toast('Saved for every frame');},
