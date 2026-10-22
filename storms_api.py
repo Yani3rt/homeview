@@ -22,8 +22,8 @@ import config
 import weather_api
 
 FEED = 'https://www.nhc.noaa.gov/CurrentStorms.json'
-CONE = 'https://www.nhc.noaa.gov/storm_graphics/{folder}/{ID}_5day_cone_{kind}.png'
-CONE_KINDS = ('with_line_and_wind', 'no_line_and_wind')           # NHC's file names, best first
+CONE = 'https://www.nhc.noaa.gov/storm_graphics/{folder}/{ID}_5day_cone{kind}.png'
+CONE_KINDS = ('', '_with_line_and_wind', '_sm')                   # NHC's file names, best first (subtropical storms have only the first and last)
 CONE_FOLDER = {'AL': 'AT', 'EP': 'EP', 'CP': 'CP'}                # NHC files Atlantic storms (AL) under AT
 ADVISORY_SLOTS = ((5, 10), (11, 10), (17, 10), (23, 10))      # Eastern time: 10 min after the 5/11 AM/PM advisories
 CLASSES = {'HU': 'Hurricane', 'TS': 'Tropical Storm', 'TD': 'Tropical Depression', 'STS': 'Subtropical Storm',
