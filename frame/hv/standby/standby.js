@@ -17,6 +17,7 @@
 
    ?face=<name> pins one face (preview and tests), ?photo=<id> pins the photo, ?at=sat-17:30 pretends it is
    that day and home time for the schedule (preview and tests). A tap goes to Home (?back=faces: back to the schedule page).
+   A swipe right shows the previous face again (up to HIST-1 back); a swipe never counts as a tap.
    Only two slides exist in the DOM at once (old fades out, new fades in) to keep the 1 GB frame's
    WebView small. */
 window.HVStandby={
@@ -133,16 +134,16 @@ window.HVStandby={
     var px=rx<1?Math.max(0,Math.min(1,(fx-.5*rx)/(1-rx))):.5, py=ry<1?Math.max(0,Math.min(1,(fy-.45*ry)/(1-ry))):.5;
     return Math.round(px*100)+'% '+Math.round(py*100)+'%';
   }
-  function photoFace(){
-    var p=nextPhoto();if(!p)return analogFace();
-    var H=Math.round(innerHeight*(devicePixelRatio||1)),q=tall(p)&&IDLE.tall!=='blur'?partner(p):null,pic;
+  function photoFace(again){   // again = {p,q}: the same photo(s) once more (swipe back)
+    var p=again?again.p:nextPhoto();if(!p)return analogFace();
+    var H=Math.round(innerHeight*(devicePixelRatio||1)),q=again?again.q:tall(p)&&IDLE.tall!=='blur'?partner(p):null,pic;
     function url(x,w){return x.url+(x.url.indexOf('?')<0?'?':'&')+w;}
     if(q){var hw=(innerWidth-6)/2;   // two tall photos, each asked at screen height so neither decodes bigger than it draws
       pic='<img class="pl" alt="" style="object-position:'+position(p,null,hw)+'" src="'+url(p,'w='+H)+'">'+
         '<img class="pr" alt="" style="object-position:'+position(q,null,hw)+'" src="'+url(q,'w='+H)+'">';}
     else if(tall(p))pic='<img class="pbg" alt="" src="'+url(p,'w=160&blur=1')+'"><img class="whole" alt="" src="'+url(p,'w='+H)+'">';
     else pic='<img alt="" style="object-position:'+position(p,null)+'" src="'+url(p,'w='+W)+'">';
-    var d=el('photo');
+    var d=el('photo');d.ph={p:p,q:q};
     d.innerHTML=pic+'<div class="shade-b"></div><div class="foot">'+dateLine()+'</div><div class="ctime">'+timeText()+'</div>';
     d.tick=function(){d.querySelector('.ctime').textContent=timeText();};
     return d;
@@ -708,8 +709,14 @@ window.HVStandby={
   var FACES={alert:alertFace,board:boardFace,tomorrow:tomorrowFace,kitty:kittyFace,kittyam:kittyTodayFace,info:infoFace,numerals:numeralsFace,month:monthFace,minimal:minimalFace,photo:photoFace,depth:photoFace,plain:photoFace,analog:analogFace,week:weekFace,cal:weekFace,weather:weatherFace,today:todayFace,date:todayFace,np:npFace,up:upFace};
 
   /* ---------- loop ---------- */
-  function show(){
-    var name=nextFace(), d=(FACES[name]||photoFace)();
+  var hist=[],HIST=8;   // the last slides shown, so a swipe right can go back: {name, ph, st: the rotation after it}
+  function show(back){
+    var name,d;
+    if(back){if(hist.length<2)return;hist.pop();var h=hist[hist.length-1];
+      blockKey=h.st.b;faceIx=h.st.f;runLeft=h.st.r;slideN=h.st.n;   // the rotation carries on from there
+      name=h.name;d=h.ph?photoFace(h.ph):(FACES[name]||photoFace)();}
+    else{name=nextFace();d=(FACES[name]||photoFace)();
+      if(!PIN){hist.push({name:name,ph:d.ph||null,st:{b:blockKey,f:faceIx,r:runLeft,n:slideN}});if(hist.length>HIST)hist.shift();}}
     stage.appendChild(d);
     var old=cur;cur=d;
     void d.offsetWidth; d.classList.add('on');
@@ -722,6 +729,19 @@ window.HVStandby={
 
   var BACK=Q.get('back')==='faces'?'/frame/hv/faces/':'/frame/hv/';   // ?back=faces: previews from the schedule page return there
   document.addEventListener('click',function(e){if(e.target.closest('.hv-chrome,.hv-timers,button'))return;location.href=BACK;});
+  /* swipe right: the previous face. Any drag is not a tap: the click that may follow it is swallowed before
+     the tap handlers (Home, Now Playing's Music) see it. */
+  var sw=null,swiped=0;
+  document.addEventListener('touchstart',function(e){var t=e.touches[0];sw=e.touches.length===1?{x:t.clientX,y:t.clientY,lx:t.clientX,ly:t.clientY,t:Date.now()}:null;});
+  document.addEventListener('touchmove',function(e){if(!sw)return;var t=e.touches[0];sw.lx=t.clientX;sw.ly=t.clientY;
+    if(Math.abs(sw.lx-sw.x)>10&&Math.abs(sw.lx-sw.x)>Math.abs(sw.ly-sw.y))e.preventDefault();},{passive:false});
+  function swEnd(){if(!sw)return;var dx=sw.lx-sw.x,dy=sw.ly-sw.y,ms=Date.now()-sw.t;sw=null;
+    if(Math.abs(dx)<25&&Math.abs(dy)<25)return;   // a tap
+    swiped=Date.now();
+    if(!PIN&&dx>Math.max(60,innerWidth*.07)&&Math.abs(dx)>Math.abs(dy)*1.5&&ms<1200)show(true);}
+  document.addEventListener('touchend',function(e){if(sw&&e.changedTouches[0]){sw.lx=e.changedTouches[0].clientX;sw.ly=e.changedTouches[0].clientY;}swEnd();});
+  document.addEventListener('touchcancel',swEnd);
+  document.addEventListener('click',function(e){if(Date.now()-swiped<700){e.stopPropagation();e.preventDefault();}},true);
   // ?return=<seconds>: go back on its own if nobody taps (the launcher's Kids button uses 60)
   var RET=+Q.get('return');if(RET>0)setTimeout(function(){location.href=BACK;},RET*1000);
   var THUMB=Q.get('thumb')==='1';   // scripts/make_face_thumbs.py renders clean previews for the faces chooser
