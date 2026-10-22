@@ -712,7 +712,8 @@ window.HVStandby={
   var hist=[],HIST=8;   // the last slides shown, so a swipe right can go back: {name, ph, st: the rotation after it}
   function show(back){
     var name,d;
-    if(back){if(hist.length<2)return;hist.pop();var h=hist[hist.length-1];
+    // show is also a promise and timer callback (it gets their argument): only true means back
+    if(back===true){if(hist.length<2)return;hist.pop();var h=hist[hist.length-1];
       blockKey=h.st.b;faceIx=h.st.f;runLeft=h.st.r;slideN=h.st.n;   // the rotation carries on from there
       name=h.name;d=h.ph?photoFace(h.ph):(FACES[name]||photoFace)();}
     else{name=nextFace();d=(FACES[name]||photoFace)();
