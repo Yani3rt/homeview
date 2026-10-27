@@ -29,6 +29,7 @@
     house:'<path d="M4 11l8-6.5 8 6.5M6 9.5V20h12V9.5"/><path d="M10 20v-5h4v5"/>',
     umb:'<path d="M3 12a9 9 0 0 1 18 0zM12 12v7a2 2 0 0 0 4 0"/>',
     warn:'<path d="M12 3.5L2.5 20h19z"/><path d="M12 10v4.5M12 17.3v.2"/>',
+    hurricane:'<path d="M12 12m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M12 4.5c-4 0-7.5 3-7.5 7.5 0-3 2.5-5 5-5M12 19.5c4 0 7.5-3 7.5-7.5 0 3-2.5 5-5 5"/>',
     cam:'<rect x="2.5" y="6" width="13.5" height="12" rx="3"/><path d="M16 10.5l5-3v9l-5-3z"/>',
     moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
     win:'<rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M12 3v18M4 12h16"/>',
@@ -274,12 +275,13 @@
     clockMode='';tick();drawRail();
   }
 
-  /* ---------- rail: alerts (when Up next is busy), paw (Kitty faces), Timer, Camera, Sleep Mode, Settings ---------- */
+  /* ---------- rail: alerts (when Up next is busy), storms (tap: the nearest one's cone on Weather), paw (Kitty faces), Timer, Camera, Sleep Mode, Settings ---------- */
   var SLEEP='input_boolean.sleepmode',sleepArm=0;
   function sleepItem(){var r=null;((d.ha&&d.ha.items)||[]).forEach(function(x){if(x.id===SLEEP)r=x;});return r;}
   function sleepWindow(){var t=HV.local();return (t.h===21&&t.mi>=30)||t.h>=22||t.h<3;}
   function buildRail(){
     var h='<button class="b alert" data-go="alerts" aria-label="Weather alerts" style="display:none">'+ic('warn',2.2)+'<i></i></button>'+
+      '<button class="b storm" data-go="storm" aria-label="Tropical storms" style="display:none">'+ic('hurricane',2.1)+'<i></i></button>'+
       '<button class="b paw" data-go="kids" aria-label="Kids">'+PAW+'</button>'+
       '<button class="b tm" data-go="timer" aria-label="Timer">'+ic('timer',2)+'</button>'+
       (HV.cfg.camera?'<button class="b" data-go="camera" aria-label="'+HV.esc(HV.cfg.camera_name||'Camera')+'">'+ic('cam',2.1)+'</button>':'')+
@@ -295,6 +297,7 @@
       else if(go==='settings')location.href='/frame/hv/settings/';
       else if(go==='sleep')toggleSleep();
       else if(go==='alerts')openAlerts();
+      else if(go==='storm'){var st=(d.storms&&d.storms.storms)||[];location.href='/frame/hv/weather/?storm='+encodeURIComponent(st.length?st[0].id:'1');}   // nearest storm's cone
     };
   }
   // Sleep Mode (9:30 PM - 3:00 AM): toggles a Home Assistant input_boolean; turning it on asks for a second tap
@@ -311,6 +314,11 @@
     var al=rail.querySelector('.alert'),L=alertList();
     if(al){al.style.display=L.length&&!upShowsAlerts?'':'none';
       if(L.length){al.className='b alert '+L[0].color;al.querySelector('i').textContent=L.length>1?L.length:'';}}
+    // storm button: any tropical system the server tracks (within the Tropical storms distance, not only near home)
+    var sb=rail.querySelector('.storm'),st=(d.storms&&d.storms.storms)||[];
+    if(sb){sb.style.display=st.length?'':'none';
+      if(st.length){var hu=st.some(function(s){return !!s.cat;}),ts=st.some(function(s){return s.cls==='TS';});
+        sb.className='b storm'+(hu?' hu':ts?' ts':'');sb.querySelector('i').textContent=st.length>1?st.length:'';}}
     var tm=rail.querySelector('.tm');if(tm)tm.className='b tm'+(timers().length?' run':'');
     var sl=rail.querySelector('.sleep');if(!sl)return;var it=sleepItem();
     sl.style.display=it&&it.avail!==false&&sleepWindow()?'':'none';

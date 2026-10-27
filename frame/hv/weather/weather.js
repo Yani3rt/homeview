@@ -367,6 +367,10 @@
   function loadF(){HVJson('/api/frame').then(function(d){D.frame=d;draw();},function(){});}
   function loadT(){HVJson('/api/tides').then(function(d){D.tides=d;draw();},function(){});}
   function loadH(){if(HV.cfg.ha)HVJson('/api/ha/state').then(function(d){D.ha=d;draw();},function(){});}
-  function loadS(){HVJson('/api/storms').then(function(d){D.storms=d;draw();},function(){});}   // the server decides when NHC is asked
+  // ?storm=<id> (the launcher's storm button) opens that storm's cone once the list is in; ?storm=1 the nearest
+  var askStorm=(location.search.match(/[?&]storm=([^&]+)/)||[])[1];
+  function loadS(){HVJson('/api/storms').then(function(d){D.storms=d;draw();
+    if(askStorm){var st=(d&&d.storms)||[],id=decodeURIComponent(askStorm),i,hit=null;for(i=0;i<st.length;i++)if(st[i].id===id)hit=st[i].id;
+      if(!hit&&st.length)hit=st[0].id;askStorm=null;if(hit)openCone(hit);}},function(){});}   // the server decides when NHC is asked
   loadF();loadT();loadS();loadH();setInterval(loadH,120000);setInterval(loadF,30000);setInterval(loadT,600000);setInterval(loadS,300000);setInterval(draw,60000);
 })();

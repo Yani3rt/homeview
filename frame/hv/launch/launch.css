@@ -112,5 +112,9 @@
 .h2-rail .b.alert{position:relative;background:var(--red);color:#fff}
 .h2-rail .b.alert.orange{background:var(--orange);color:#1d1309}
 .h2-rail .b.alert i{position:absolute;right:-.4vh;top:-.4vh;min-width:3vh;height:3vh;border-radius:99px;background:#fff;color:#1d1d1f;font-style:normal;font-size:1.9vh;font-weight:700;line-height:3vh;text-align:center;padding:0 .6vh}
-.h2-rail .b.alert i:empty{display:none}
+.h2-rail .b.alert i:empty,.h2-rail .b.storm i:empty{display:none}
+.h2-rail .b.storm{position:relative;background:#3a3a8c;color:#fff}
+.h2-rail .b.storm.ts{background:var(--orange);color:#1d1309}
+.h2-rail .b.storm.hu{background:var(--red);color:#fff}
+.h2-rail .b.storm i{position:absolute;right:-.4vh;top:-.4vh;min-width:3vh;height:3vh;border-radius:99px;background:#fff;color:#1d1d1f;font-style:normal;font-size:1.9vh;font-weight:700;line-height:3vh;text-align:center;padding:0 .6vh}
 .h2-cone{display:block;width:100%;max-width:70vh;margin-top:2vh;border-radius:2vh}
