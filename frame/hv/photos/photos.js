@@ -69,7 +69,7 @@
   document.addEventListener('keydown',function(e){if($('view').hidden)return;
     if(e.key==='Escape')close();if(e.key==='ArrowRight')show(cur+1,1);if(e.key==='ArrowLeft')show(cur-1,-1);});
   $('vstandby').onclick=function(){location.href='/frame/hv/standby/?photo='+shown[cur].id;};
-  HV.chrome({light:true});HV.back('Home');
+  HV.chrome({light:true,camera:false,alerts:false,standby:false});HV.back('Home');
   /* ?open=N opens the viewer on photo N (tests, screenshots) */
   var Q=location.search.match(/open=(\d+)/);
   load().then(function(){if(Q&&shown.length)open(+Q[1]);});setInterval(function(){if($('view').hidden)load();},60000);
