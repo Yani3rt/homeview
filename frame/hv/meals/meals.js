@@ -33,7 +33,7 @@
     '<div class="ml-dt" id="dt"></div><div class="ml-scrim" id="scrim"></div>'+
     '<div class="hv-sheet ml-sheet" id="psheet"><div class="ml-sh"><div style="flex:1;min-width:0"><h2 id="ptitle">Plan dinner</h2><p>Pick a day. A day that already has a dinner gets replaced.</p></div>'+
     '<button class="hv-pill" id="pcancel">Cancel</button></div><div class="ml-pds" id="pds"></div><div class="ml-sf"><span class="h" id="phint"></span><button class="hv-pill primary" id="pgo" style="padding:0 4vw">Plan</button></div></div>';
-  HV.chrome({light:true});HV.back('Home');
+  HV.chrome({light:true,camera:false,alerts:false,standby:false});HV.back('Home');
   $('q').value=S.q;$('qclr').hidden=!S.q;
 
   /* ---------- the plan ---------- */
