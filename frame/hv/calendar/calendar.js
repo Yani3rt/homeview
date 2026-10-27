@@ -133,7 +133,7 @@
     else if(d)openDay(+d);
   };
 
-  HV.chrome({light:true});HV.back('Home');
+  HV.chrome({light:true,camera:false,alerts:false,standby:false});HV.back('Home');
   draw();
   function loadF(){HVJson('/api/frame').then(function(d){D.frame=d;draw();},function(){});}
   function loadK(){HVJson('/api/meals/plan').then(function(d){if(d&&d.ok!==false){D.plan=d;draw();}},function(){});}
