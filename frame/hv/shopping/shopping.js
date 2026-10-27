@@ -118,6 +118,6 @@
     if(e.target.closest('#clra')){if(!busy&&D)clearAll();return;}
     if(e.target.closest('#clr'))HV.post('/api/meals/shopping',{clear_checked:true}).then(load,function(err){HV.toast(err.message);});
   };
-  HV.chrome({light:true});HV.back('Home');
+  HV.chrome({light:true,camera:false,alerts:false,standby:false});HV.back('Home');
   draw();load().then(loadST);setInterval(function(){var a=document.activeElement;if(!busy&&!editST&&!(a&&(a.id==='ai'||a.id==='si')))load();},30000);
 })();
