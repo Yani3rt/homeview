@@ -742,13 +742,17 @@ window.HVStandby={
     if(!PIN&&dx>Math.max(60,innerWidth*.07)&&Math.abs(dx)>Math.abs(dy)*1.5&&ms<1200)show(true);}
   document.addEventListener('touchend',function(e){if(sw&&e.changedTouches[0]){sw.lx=e.changedTouches[0].clientX;sw.ly=e.changedTouches[0].clientY;}swEnd();});
   document.addEventListener('touchcancel',swEnd);
+  /* Remote (Google TV app): → / fast-forward / next track shows the next face, ← / rewind / previous track the previous one */
+  document.addEventListener('keydown',function(e){if(PIN)return;var k=e.key,c=e.keyCode;
+    if(k==='ArrowRight'||k==='MediaFastForward'||k==='MediaTrackNext'||c===39||c===228){e.preventDefault();show();}
+    else if(k==='ArrowLeft'||k==='MediaRewind'||k==='MediaTrackPrevious'||c===37||c===227){e.preventDefault();show(true);}});
   document.addEventListener('click',function(e){if(Date.now()-swiped<700){e.stopPropagation();e.preventDefault();}},true);
   // ?return=<seconds>: go back on its own if nobody taps (the launcher's Kids button uses 60)
   var RET=+Q.get('return');if(RET>0)setTimeout(function(){location.href=BACK;},RET*1000);
   var THUMB=Q.get('thumb')==='1';   // scripts/make_face_thumbs.py renders clean previews for the faces chooser
   if(IDLE.shade&&!THUMB){var dimEl=document.createElement('div');dimEl.className='sb-dim';dimEl.style.opacity=IDLE.shade/100;document.body.appendChild(dimEl);}
   if(!THUMB){
-    var hint=document.createElement('div');hint.className='hint';hint.textContent='Tap anywhere to return';document.body.appendChild(hint);
+    var hint=document.createElement('div');hint.className='hint';hint.textContent=/HomeViewTV/.test(navigator.userAgent)?'Press OK to return':'Tap anywhere to return';document.body.appendChild(hint);
     setTimeout(function(){hint.classList.add('on');},400);setTimeout(function(){hint.classList.remove('on');},8000);
     HV.chrome({clock:false,standby:false});
   }

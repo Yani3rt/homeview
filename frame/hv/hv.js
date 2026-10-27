@@ -309,4 +309,10 @@
     t.onclick=function(){location.href=HV.SCREENS.timer;};
     HV.on(drawTimers);setInterval(drawTimers,1000);
   };
+  /* Google TV app (HomeViewTV in its user agent): remote arrows/OK/Back for these touch screens, see tv/tv.js.
+     ?tv=1 turns the same mode on in any browser (kept in localStorage 'hv-tv', ?tv=0 clears it), to preview at 960x540. */
+  var tvq=(location.search.match(/[?&]tv=([01])/)||[])[1];
+  try{if(tvq==='1')localStorage.setItem('hv-tv','1');else if(tvq==='0')localStorage.removeItem('hv-tv');}catch(e){}
+  var tvOn=false;try{tvOn=localStorage.getItem('hv-tv')==='1';}catch(e){}
+  if(tvOn||/HomeViewTV/.test(navigator.userAgent)){var tvs=document.createElement('script');tvs.src='/frame/hv/tv/tv.js?v=7';(document.head||document.documentElement).appendChild(tvs);}
 })();
