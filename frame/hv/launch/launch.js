@@ -134,19 +134,62 @@
   }
 
   /* ---------- Up next: the one thing that matters most right now ---------- */
+  /* ---------- alerts: weather alerts (Home Assistant, already filtered by alerts_min_severity) and storms near home ---------- */
+  function sevColor(s){return /Extreme|Severe/.test(s)?'red':'orange';}
+  // 'Until 8:00 PM' today, 'Until Wed 8:00 PM' on another day (short enough for the Up next card)
+  function untilDay(x){var t=HV.local(x);return key(t)===key(HV.local())?'':HV.DAYS[t.dow].slice(0,3)+' ';}
+  function alertList(){
+    var out=[];
+    ((d.alerts&&d.alerts.alerts)||[]).forEach(function(a){var until=a.ends||a.expires,ud=until?new Date(until):null;
+      out.push({kind:'alert',a:a,color:sevColor(a.severity),title:a.event,when:ud&&!isNaN(ud)?'Until '+untilDay(ud)+at(ud.getTime()):(a.severity||'Alert'),sub:a.areas||''});});
+    ((d.storms&&d.storms.storms)||[]).forEach(function(s){if(!s.near)return;
+      out.push({kind:'storm',s:s,color:/Hurricane/i.test(s.label)?'red':'orange',title:s.label+' '+s.name,when:(s.cat?s.cat+' \u00b7 ':'')+s.wind_mph+' mph',sub:s.dist_mi+' mi '+(s.dir||'')+' of home'});});
+    // most urgent first: red before orange, alerts before storms (the server sorts alerts by severity already)
+    return out.filter(function(x){return x.color==='red';}).concat(out.filter(function(x){return x.color!=='red';}));
+  }
+  var upShowsAlerts=false;
+  // the list of everything that's active, in a sheet (tap the Up next alert card or the rail's alert button)
+  var sheet=null,shade=null;
+  function para(t){   /* NWS text: "* WHAT...Minor flooding." blocks; single newlines are line wraps */
+    return HV.esc(t).split(/\n\s*\n/).map(function(p){
+      p=p.replace(/\n/g,' ').replace(/^\* ?([A-Z][A-Z ]+)\.\.\./,function(m,k){return '<b>'+k.charAt(0)+k.slice(1).toLowerCase()+':</b> ';});
+      return '<p>'+p+'</p>';}).join('');
+  }
+  function closeAlerts(){if(sheet){sheet.classList.remove('on');shade.classList.remove('on');}}
+  function openAlerts(){
+    var L=alertList();if(!L.length)return;
+    if(!sheet){shade=document.createElement('div');shade.className='hv-alert-shade';shade.onclick=closeAlerts;document.body.appendChild(shade);
+      sheet=document.createElement('div');sheet.className='hv-sheet hv-alert-sheet';document.body.appendChild(sheet);
+      sheet.onclick=function(e){if(e.target.closest('.hv-alert-close'))closeAlerts();};}
+    var h='';
+    L.forEach(function(x){
+      if(x.kind==='alert'){var a=x.a;
+        h+='<section><div class="hv-alert-tag '+x.color+'">'+HV.esc(a.severity||'Alert')+'</div><h2>'+HV.esc(a.event)+'</h2>'+
+          '<div class="hv-alert-meta">'+HV.esc(x.when)+(a.areas?' \u00b7 '+HV.esc(a.areas):'')+'</div>'+
+          (a.headline?'<p class="hv-alert-head">'+HV.esc(a.headline.charAt(0)+a.headline.slice(1).toLowerCase())+'</p>':'')+
+          para(a.description||'')+(a.instruction?'<p class="hv-alert-do">'+HV.esc(a.instruction)+'</p>':'')+'</section>';
+      }else{var s=x.s;
+        h+='<section><div class="hv-alert-tag '+x.color+'">Near home</div><h2>'+HV.esc(x.title)+'</h2>'+
+          '<div class="hv-alert-meta">'+HV.esc(x.when)+' \u00b7 '+HV.esc(x.sub)+'</div>'+
+          '<img class="h2-cone" src="/api/storms/cone/'+encodeURIComponent(s.id)+'.jpg" alt="Forecast cone"></section>';
+      }
+    });
+    sheet.innerHTML=h+'<button class="hv-alert-close">Close</button>';sheet.scrollTop=0;
+    sheet.classList.add('on');shade.classList.add('on');
+  }
+
   function upNext(){
-    var now=HV.now().getTime(),t=HV.local(),ts=timers(),i;
+    var now=HV.now().getTime(),t=HV.local(),ts=timers(),i;upShowsAlerts=false;
     function up(cls,href,icon,label,big,what,why,small){
       return card('h2-up '+cls,href,lb(icon,label)+'<div class="big'+(small?' sm':'')+'">'+big+'</div><div class="what">'+what+'</div>'+(why?'<div class="why">'+why+'</div>':''));}
     // 1. a timer that is done
     for(i=0;i<ts.length;i++)if(ts[i].ends*1000<=now)
       return up('green','/frame/hv/timer/','timer','Timer','Done',HV.esc(ts[i].label)+' is ready','Tap to stop');
-    // 2. a Severe or Extreme weather alert, then a storm near home
-    var al=((d.alerts&&d.alerts.alerts)||[]).filter(function(a){return /Extreme|Severe/.test(a.severity);})[0];
-    if(al){var until=al.ends||al.expires,ud=until?new Date(until):null;
-      return up('red','/frame/hv/weather/','warn','Alert',HV.esc(al.event),ud&&!isNaN(ud)?'Until '+HV.dayWord(ud,true)+' '+at(ud.getTime()):HV.esc(al.severity),HV.esc(al.areas||''),true);}
-    var st=((d.storms&&d.storms.storms)||[]).filter(function(s){return s.near;})[0];
-    if(st)return up('red','/frame/hv/weather/','warn','Storm',HV.esc(st.label+' '+st.name),(st.cat?HV.esc(st.cat)+' · ':'')+st.wind_mph+' mph',st.dist_mi+' mi '+HV.esc(st.dir||'')+' of home',true);
+    // 2. weather alerts and storms near home: the most urgent one, "+N more"; tap opens the list with the details
+    var L=alertList();
+    if(L.length){var x=L[0];upShowsAlerts=true;
+      return card('h2-up '+x.color,'/frame/hv/weather/',lb('warn',x.kind==='storm'?'Storm':'Alert')+'<div class="big sm">'+HV.esc(x.title)+'</div>'+
+        '<div class="what">'+HV.esc(x.when)+'</div><div class="why">'+(L.length>1?'+'+(L.length-1)+' more \u00b7 tap for details':HV.esc(x.sub||'Tap for details'))+'</div>').replace('<a class=','<a data-alerts="1" class=');}
     // 3. what's next today: within 3 hours a countdown, later the time
     var tk=key(t),evs=((d.frame&&d.frame.calendar_events)||[]).filter(function(e){return !e.all_day&&!HV.isHoliday(e.cal)&&new Date(e.start).getTime()>now;})
       .sort(function(a,b){return new Date(a.start)-new Date(b.start);});
@@ -224,17 +267,20 @@
     return card('h2-tmr','/frame/hv/calendar/',lb('cal','Tomorrow · '+HV.DAYS[t.dow].slice(0,3))+(bp?'<div class="bp">'+bp+'</div>':'')+'<div class="e">'+rows+'</div>');
   }
 
+  grid.onclick=function(e){var a=e.target.closest&&e.target.closest('[data-alerts]');if(a){e.preventDefault();openAlerts();}};
   function render(){
+    if(sheet&&sheet.classList.contains('on')&&!alertList().length)closeAlerts();
     grid.innerHTML='<div class="h2-hero">'+heroLeft()+heroRight()+'</div>'+upNext()+homeCard()+tonightCard()+shopCard()+mediaCard()+tomorrowCard();
     clockMode='';tick();drawRail();
   }
 
-  /* ---------- rail: paw (Kitty faces), Timer, Camera, Sleep Mode, Settings ---------- */
+  /* ---------- rail: alerts (when Up next is busy), paw (Kitty faces), Timer, Camera, Sleep Mode, Settings ---------- */
   var SLEEP='input_boolean.sleepmode',sleepArm=0;
   function sleepItem(){var r=null;((d.ha&&d.ha.items)||[]).forEach(function(x){if(x.id===SLEEP)r=x;});return r;}
   function sleepWindow(){var t=HV.local();return (t.h===21&&t.mi>=30)||t.h>=22||t.h<3;}
   function buildRail(){
-    var h='<button class="b paw" data-go="kids" aria-label="Kids">'+PAW+'</button>'+
+    var h='<button class="b alert" data-go="alerts" aria-label="Weather alerts" style="display:none">'+ic('warn',2.2)+'<i></i></button>'+
+      '<button class="b paw" data-go="kids" aria-label="Kids">'+PAW+'</button>'+
       '<button class="b tm" data-go="timer" aria-label="Timer">'+ic('timer',2)+'</button>'+
       (HV.cfg.camera?'<button class="b" data-go="camera" aria-label="'+HV.esc(HV.cfg.camera_name||'Camera')+'">'+ic('cam',2.1)+'</button>':'')+
       (HV.cfg.ha?'<button class="b sleep" data-go="sleep" aria-label="Sleep mode" style="display:none">'+ic('moon',2.1)+'</button>':'')+
@@ -248,6 +294,7 @@
       else if(go==='camera')location.href=HV.SCREENS.camera;
       else if(go==='settings')location.href='/frame/hv/settings/';
       else if(go==='sleep')toggleSleep();
+      else if(go==='alerts')openAlerts();
     };
   }
   // Sleep Mode (9:30 PM - 3:00 AM): toggles a Home Assistant input_boolean; turning it on asks for a second tap
@@ -260,6 +307,10 @@
       function(e){it.on=!want;drawRail();HV.toast(e.message);});
   }
   function drawRail(){
+    // alert button: only while alerts are active and the Up next card isn't already showing them (a finished timer won)
+    var al=rail.querySelector('.alert'),L=alertList();
+    if(al){al.style.display=L.length&&!upShowsAlerts?'':'none';
+      if(L.length){al.className='b alert '+L[0].color;al.querySelector('i').textContent=L.length>1?L.length:'';}}
     var tm=rail.querySelector('.tm');if(tm)tm.className='b tm'+(timers().length?' run':'');
     var sl=rail.querySelector('.sleep');if(!sl)return;var it=sleepItem();
     sl.style.display=it&&it.avail!==false&&sleepWindow()?'':'none';

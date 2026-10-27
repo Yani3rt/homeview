@@ -49,10 +49,11 @@
 .h2-up .h2-lb{color:var(--orange)}
 .h2-up .big{margin-top:auto;font-family:var(--sfr);font-weight:600;font-size:8.6vh;letter-spacing:-.04em;line-height:.95;color:var(--orange);white-space:nowrap}
 .h2-up .big small{font-size:3.4vh;letter-spacing:0;margin-left:.6vh}
-.h2-up .big.sm{font-size:4.6vh;white-space:normal;line-height:1.05;letter-spacing:-.02em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.h2-up .big.sm{font-size:4.3vh;white-space:normal;line-height:1.05;letter-spacing:-.02em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .h2-up .what{font-size:2.6vh;font-weight:700;margin-top:.5vh;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .h2-up .why{font-size:2vh;font-weight:600;color:rgba(235,235,245,.62);margin-top:.3vh;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.h2-up.green{background:#3f9a5c}.h2-up.red{background:#b3261e}.h2-up.grey{background:#1c1c1e}
+.h2-up.green{background:#3f9a5c}.h2-up.red{background:#b3261e}.h2-up.orange{background:#ff9f0a;color:#1d1309}.h2-up.grey{background:#1c1c1e}
+.h2-up.orange .h2-lb,.h2-up.orange .big{color:#1d1309}.h2-up.orange .why{color:rgba(29,19,9,.7)}
 .h2-up.green .h2-lb,.h2-up.red .h2-lb,.h2-up.green .big,.h2-up.red .big,.h2-up.grey .big{color:#fff}
 .h2-up.grey .h2-lb{color:rgba(235,235,245,.7)}
 .h2-up.green .why,.h2-up.red .why{color:rgba(255,255,255,.78)}
@@ -108,3 +109,8 @@
 .h2-rail .b.run{background:var(--orange);color:#1c1c1e}
 .h2-rail .b.sleep.on{background:#d9d6f5;color:#3d3480}
 .h2-rail .sp{flex:1}
+.h2-rail .b.alert{position:relative;background:var(--red);color:#fff}
+.h2-rail .b.alert.orange{background:var(--orange);color:#1d1309}
+.h2-rail .b.alert i{position:absolute;right:-.4vh;top:-.4vh;min-width:3vh;height:3vh;border-radius:99px;background:#fff;color:#1d1d1f;font-style:normal;font-size:1.9vh;font-weight:700;line-height:3vh;text-align:center;padding:0 .6vh}
+.h2-rail .b.alert i:empty{display:none}
+.h2-cone{display:block;width:100%;max-width:70vh;margin-top:2vh;border-radius:2vh}
