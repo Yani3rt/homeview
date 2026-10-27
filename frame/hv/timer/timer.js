@@ -89,7 +89,7 @@
     else if(b.getAttribute('data-id')){sel=b.getAttribute('data-id');builtFor=null;render();}
     else if(b.getAttribute('data-dismiss')||b.getAttribute('data-cancel')){if(main)cancel(main.id);}
   };
-  HV.chrome({timers:false});HV.back('Home');
+  HV.chrome({timers:false,camera:false,alerts:false,standby:false});HV.back('Home');
   HV.on(render);
   setInterval(render,1000);
 })();
